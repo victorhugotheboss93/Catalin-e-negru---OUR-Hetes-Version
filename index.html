@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="_ob0-oeemaraqDbeUweh1NQw1XIawSZ0dS44O__onn4" />
     <meta name="description" content="Catalin e negru - OUR HETES Version este un joc inceput din gluma unui coleg de clasa, avand mai multe moduri de joc, cum ar fi cu colectare aura, shooter Stalingrad sau multiplayer si cu geometry dash, si salvand progresul cu conturi. Te poti juca ca Hetes , marele nostru Ghidus, in mai multe moduri. Ataca fascistii, distruge capitalismul si instaureaza comunismul.  Acest joc nu promoveaza ideologii extremiste si dictatoriale! Joaca-te acum jocul nostru indie gratis Catalin e negru - OUR HETES Version THE GAME!" />
     <meta name="robots" content="index, follow" />
-    <title>Catalin e negru - OUR HETES V2.5</title>
+    <title>Catalin e negru - OUR HETES V2.6</title>
     <style>
         * {
             box-sizing: border-box;
@@ -41,7 +41,6 @@
             max-height: 100%;
         }
 
-        /* UI Overlays */
         .screen {
             position: absolute;
             top: 0;
@@ -59,7 +58,6 @@
             display: none !important;
         }
 
-        /* Dev Team - Colt Dreapta Sus */
         .dev-team {
             position: absolute;
             top: 20px;
@@ -74,7 +72,6 @@
             border-radius: 5px;
         }
 
-        /* Song Credit */
         .song-credit {
             position: absolute;
             bottom: 240px;
@@ -90,7 +87,6 @@
             z-index: 11;
         }
 
-        /* PANOU LOGARE FIREBASE (Colt Stanga Jos) */
         .auth-container {
             position: absolute;
             bottom: 20px;
@@ -171,7 +167,6 @@
             border-radius: 4px;
         }
 
-        /* Meniu Principal Layout Centrat */
         .menu-header-container {
             display: flex;
             align-items: center;
@@ -201,7 +196,6 @@
             text-shadow: 2px 2px 0px #000;
         }
 
-        /* Panou Leaderboard (Stânga) */
         .leaderboard-panel {
             width: 400px;
             height: 260px;
@@ -261,7 +255,6 @@
             padding-right: 5px;
         }
 
-        /* Update Log (Dreapta) */
         .update-log {
             width: 340px;
             height: 260px;
@@ -286,7 +279,6 @@
             letter-spacing: 1px;
         }
 
-        /* Lista Mondială */
         .global-item {
             display: flex;
             justify-content: space-between;
@@ -301,7 +293,6 @@
         .global-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.2); }
         .global-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.2); }
 
-        /* Butoane moduri */
         .modes-list {
             display: flex;
             flex-direction: column;
@@ -331,7 +322,6 @@
 
         .btn-classic { border-left: 8px solid #00bcff; }
         .btn-aura { border-left: 8px solid #ffcc00; }
-        
         .btn-easy { border-left: 8px solid #2ecc71; }
         .btn-medium { border-left: 8px solid #f1c40f; }
         .btn-hard { border-left: 8px solid #e74c3c; }
@@ -354,7 +344,6 @@
         .lose-screen .end-title { color: #ff3333; }
         .win-screen .end-title { color: #33ff33; }
 
-        /* Buton si Modal Credite */
         .btn-credits {
             position: absolute;
             bottom: 20px;
@@ -433,7 +422,6 @@
             font-size: 13px;
         }
 
-        /* STILURI MOBILE CONTROALE TACTILE */
         #mobile-controls {
             position: absolute;
             top: 0;
@@ -457,7 +445,7 @@
             pointer-events: auto;
             user-select: none;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            font-size: 18px;
+            font-size: 22px;
         }
         .mob-btn:active, .mob-btn.pressed {
             background: rgba(255, 204, 0, 0.6);
@@ -481,41 +469,36 @@
 <div id="game-container">
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
 
-    <!-- CONTROALE TACTILE MOBILE -->
     <div id="mobile-controls">
         <button id="mob-back-menu" class="mob-btn" onclick="backToMain()">Meniu</button>
         
-        <!-- Controale Mod Clasic -->
         <div id="mob-classic-controls" class="hidden">
             <button id="mob-classic-jump" class="mob-btn" style="bottom: 30px; right: 30px; width: 110px; height: 110px; border-radius: 50%; font-size: 20px; background: rgba(0,188,212,0.4);">SARI</button>
         </div>
 
-        <!-- Controale Mod Aura Hetes -->
         <div id="mob-aura-controls" class="hidden">
-            <div style="position: absolute; bottom: 20px; left: 20px; width: 160px; height: 160px;">
-                <button id="mob-aura-up" class="mob-btn" style="top: 0; left: 55px; width: 50px; height: 50px;">▲</button>
-                <button id="mob-aura-down" class="mob-btn" style="bottom: 0; left: 55px; width: 50px; height: 50px;">▼</button>
-                <button id="mob-aura-left" class="mob-btn" style="top: 55px; left: 0; width: 50px; height: 50px;">◄</button>
-                <button id="mob-aura-right" class="mob-btn" style="top: 55px; right: 0; width: 50px; height: 50px;">►</button>
+            <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
+                <button id="mob-aura-up" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
+                <button id="mob-aura-down" class="mob-btn" style="bottom: 0; left: 60px; width: 55px; height: 55px;">▼</button>
+                <button id="mob-aura-left" class="mob-btn" style="top: 60px; left: 0; width: 55px; height: 55px;">◄</button>
+                <button id="mob-aura-right" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
         </div>
 
-        <!-- Controale Mod Shooter (Stânga: Minecraft D-Pad / Dreapta: Trage & Abilități) -->
         <div id="mob-shooter-controls" class="hidden">
-            <div style="position: absolute; bottom: 25px; left: 25px; width: 160px; height: 160px;">
-                <button id="mob-sh-w" class="mob-btn" style="top: 0; left: 55px; width: 50px; height: 50px;">W</button>
-                <button id="mob-sh-s" class="mob-btn" style="bottom: 0; left: 55px; width: 50px; height: 50px;">S</button>
-                <button id="mob-sh-a" class="mob-btn" style="top: 55px; left: 0; width: 50px; height: 50px;">A</button>
-                <button id="mob-sh-d" class="mob-btn" style="top: 55px; right: 0; width: 50px; height: 50px;">D</button>
+            <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
+                <button id="mob-sh-w" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
+                <button id="mob-sh-s" class="mob-btn" style="bottom: 0; left: 60px; width: 55px; height: 55px;">▼</button>
+                <button id="mob-sh-a" class="mob-btn" style="top: 60px; left: 0; width: 55px; height: 55px;">◄</button>
+                <button id="mob-sh-d" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
             
-            <button id="mob-sh-fire" class="mob-btn" style="bottom: 30px; right: 30px; width: 95px; height: 95px; border-radius: 50%; background: rgba(200,0,0,0.5); border-color:#ff3333; font-size:15px;">TRAGE</button>
-            <button id="mob-sh-ability" class="mob-btn" style="bottom: 140px; right: 30px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,204,0,0.4); border-color:#ffcc00; font-size:13px;">ABIL</button>
-            <button id="mob-sh-katyusha" class="mob-btn" style="bottom: 140px; right: 115px; width: 75px; height: 75px; border-radius: 50%; background: rgba(0,255,204,0.4); border-color:#00ffcc; font-size:11px; display:none;">KATY</button>
+            <button id="mob-sh-fire" class="mob-btn" style="bottom: 30px; right: 30px; width: 100px; height: 100px; border-radius: 50%; background: rgba(200,0,0,0.5); border-color:#ff3333; font-size:16px;">TRAGE</button>
+            <button id="mob-sh-ability" class="mob-btn" style="bottom: 145px; right: 30px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,204,0,0.4); border-color:#ffcc00; font-size:13px;">ABIL</button>
+            <button id="mob-sh-katyusha" class="mob-btn" style="bottom: 145px; right: 115px; width: 75px; height: 75px; border-radius: 50%; background: rgba(0,255,204,0.4); border-color:#00ffcc; font-size:11px; display:none;">KATY</button>
         </div>
     </div>
 
-    <!-- MENIU PRINCIPAL -->
     <div id="main-menu" class="screen">
         <div class="dev-team">
             Developing team:<br>
@@ -528,7 +511,6 @@
             День Победы - Ayden George remix
         </div>
 
-        <!-- SECTIUNE LOGARE FIREBASE -->
         <div class="auth-container" id="auth-panel">
             <div id="auth-logged-out">
                 <input type="email" id="auth-email" placeholder="Email...">
@@ -553,7 +535,6 @@
         </div>
         
         <div class="menu-header-container">
-            <!-- LEADERBOARD (STÂNGA) -->
             <div class="leaderboard-panel">
                 <h3>Leaderboard</h3>
                 <div class="leaderboard-tabs">
@@ -563,23 +544,23 @@
                     <button id="tab-aura" class="tab-btn" onclick="window.switchLeaderboardTab('aura')">Aura</button>
                     <button id="tab-shooter" class="tab-btn" onclick="window.switchLeaderboardTab('shooter')">Shooter</button>
                 </div>
-                <div id="leaderboard-content" class="tab-content">
-                    <!-- Generat din JavaScript -->
-                </div>
+                <div id="leaderboard-content" class="tab-content"></div>
             </div>
 
-            <!-- TITLU (MIJLOC) -->
             <div class="title-area">
                 <h1 class="main-title">Catalin e negru</h1>
-                <h2 class="subtitle">OUR HETES VERSION 2.5</h2>
+                <h2 class="subtitle">OUR HETES VERSION 2.6</h2>
             </div>
             
-            <!-- UPDATE LOG (DREAPTA) -->
             <div class="update-log">
                 <h3>Update Log</h3>
+                <strong>V2.6: Update la skinuri shooter</strong><br>
+                • skinurile au abilitati diversificate<br>
+                • Gopnik are music player<br>
+                • repararea problemelor la skinuri<br><br>
                 <strong>V2.5: Modul Shooter Multiplayer</strong><br>
-                • control mobile pentru modul clasic<br>
-                • acum sunt 2 moduri shooter: Stalingrad si Multiplayer Free For All<br>
+                • acum sunt 2 moduri shooter: Stalingrad si Multiplayer<br>
+                • Free For All sau team<br>
                 • skinuri cu abilitati<br>
                 • arme noi<br><br>
                 <strong>V2: Modul Shooter</strong><br>
@@ -603,7 +584,6 @@
             <button class="btn btn-aura" onclick="startAuraMode()">Modul Aura Hetes</button>
         </div>
 
-        <!-- BUTON SI MODAL CREDITE -->
         <button class="btn-credits" onclick="toggleCredits()">Credite</button>
         <div id="credits-modal" class="credits-modal hidden">
             <div class="credits-header">
@@ -621,15 +601,18 @@
                 <div><strong>Catalin</strong> - numele este al lui si va aparea in curand el in joc</div>
             </div>
             <div class="credits-section" style="margin-top: 15px;">
-                <div class="credits-section-title">Muzica:</div>
+                <div class="credits-section-title">Music player Gopnik Hardbass</div>
                 <div>День Победы - Ayden George - remix (Meniu)</div>
                 <div>Священная война - Sp00n .exe - 8 bit remix (Modul Stalingrad)</div>
                 <div>Тёмная ночь - The Sour Kraut - instrumental pian (Modul Stalingrad pierdut..)</div>
+                <div>Наш гимн - Hard Bass School</div>
+                <div>Триполоски - Davay</div>
+                <div>Cheeki Breeki Hardbass Anthem - apartje</div>
+                <div>Kalinka Hardbass Remix - DJ Bonebreaker</div>
             </div>
         </div>
     </div>
 
-    <!-- MENIU MOD CLASIC -->
     <div id="classic-menu" class="screen hidden">
         <div class="song-credit" style="bottom: 20px;">
             День Победы - Ayden George remix
@@ -649,22 +632,18 @@
         </div>
     </div>
 
-    <!-- ECRAN GAME OVER -->
     <div id="lose-screen" class="screen hidden lose-screen">
         <div id="lose-message" class="end-title">Rușine rasistule</div>
         <button class="btn btn-back" onclick="backToMain()">Inapoi la meniu</button>
     </div>
 
-    <!-- ECRAN VICTORIE -->
     <div id="win-screen" class="screen hidden win-screen">
         <div id="win-message" class="end-title">Absolute cinema</div>
         <button class="btn btn-back" onclick="backToMain()">Inapoi la meniu</button>
     </div>
 </div>
 
-<!-- MODULE INTEGRATE FIREBASE -->
 <script type="module">
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, limit, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -772,16 +751,13 @@
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 if(data.displayName && data.displayName !== "Anonim") {
-                    
                     let eW = data.stats?.classicCompletions?.easy || 0;
                     let mW = data.stats?.classicCompletions?.medium || 0;
                     let hW = data.stats?.classicCompletions?.hard || 0;
                     let sW = data.stats?.classicCompletions?.soviet || 0;
                     let totalClassicWins = eW + mW + hW + sW;
-                    
                     let aRec = data.stats?.auraRecord || 0;
                     let aComp = data.stats?.auraCompletions || 0;
-                    
                     let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (data.stats?.shooter?.score || 0);
 
                     window.globalUsersList.push({
@@ -813,7 +789,6 @@
         try {
             const q = query(collection(db, "users"), where("displayName", "==", newName));
             const snap = await getDocs(q);
-            
             let isTaken = false;
             snap.forEach(d => { if(d.id !== auth.currentUser.uid) isTaken = true; });
 
@@ -870,17 +845,12 @@
     });
     window.fetchGlobalLeaderboard();
 
-    window.db = db;
-    window.auth = auth;
-    window.fsDoc = doc;
-    window.fsSetDoc = setDoc;
-    window.fsCollection = collection;
-    window.fsOnSnapshot = onSnapshot;
-    window.fsDeleteDoc = deleteDoc;
+    window.db = db; window.auth = auth;
+    window.fsDoc = doc; window.fsSetDoc = setDoc;
+    window.fsCollection = collection; window.fsOnSnapshot = onSnapshot; window.fsDeleteDoc = deleteDoc;
 </script>
 
 <script>
-    // LOGICA JOCULUI PRINCIPAL
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -895,7 +865,6 @@
     const sndExplosionRocket = new Audio('st explosion sound6.mp3');
     const sndDeath = new Audio('st explosion sound2.mp3');
 
-    // Sunet fundal Modul Stalingrad (svoina.mp3)
     window.sndStalingradBgm = new Audio('svoina.mp3');
     window.sndStalingradBgm.loop = true;
     window.sndStalingradBgm.volume = 0.8;
@@ -933,7 +902,6 @@
 
     window.updateLeaderboardUI = function() {
         const content = document.getElementById('leaderboard-content');
-        
         if (currentLeaderboardTab === 'personal') {
             content.innerHTML = `
                 <strong style="color:#00ffcc">Numele tău: ${window.currentUserDisplayName || "Neresetat"}</strong><hr style="border:0; border-top:1px solid #444; margin:5px 0;">
@@ -956,63 +924,43 @@
         }
 
         if (!window.globalUsersList || window.globalUsersList.length === 0) {
-            content.innerHTML = `<div style="text-align:center; margin-top:20px; color:#aaa;">Se încarcă Top...<br>(sau nu există jucători cu nume salvat)</div>`;
+            content.innerHTML = `<div style="text-align:center; margin-top:20px; color:#aaa;">Se încarcă Top...</div>`;
             return;
         }
 
         let sortedList = [...window.globalUsersList];
         let htmlStr = ``;
-
         if (currentLeaderboardTab === 'general') {
             sortedList.sort((a, b) => b.totalScore - a.totalScore);
             sortedList.forEach((player, index) => {
-                htmlStr += `
-                    <div class="global-item">
-                        <span style="min-width: 120px;">#${index + 1} <strong>${player.name}</strong></span>
-                        <span>Scor Total: <strong style="color:#00ffcc">${player.totalScore}</strong></span>
-                    </div>
-                `;
+                htmlStr += `<div class="global-item"><span style="min-width: 120px;">#${index + 1} <strong>${player.name}</strong></span><span>Scor Total: <strong style="color:#00ffcc">${player.totalScore}</strong></span></div>`;
             });
         } else if (currentLeaderboardTab === 'clasic') {
             sortedList.sort((a, b) => b.classicWins - a.classicWins);
             sortedList.forEach((player, index) => {
-                htmlStr += `
-                    <div class="global-item" style="align-items: center;">
-                        <span>#${index + 1} <strong>${player.name}</strong></span>
-                        <span style="text-align: right; line-height: 1.2;">
-                            Total: <strong style="color:#00bcff">${player.classicWins}</strong><br>
-                            <span style="font-size:9px; color:#aaa;">U:${player.easyWins} | M:${player.mediumWins} | G:${player.hardWins} | S:${player.sovietWins}</span>
-                        </span>
-                    </div>
-                `;
+                htmlStr += `<div class="global-item" style="align-items: center;"><span>#${index + 1} <strong>${player.name}</strong></span><span style="text-align: right; line-height: 1.2;">Total: <strong style="color:#00bcff">${player.classicWins}</strong></span></div>`;
             });
         } else if (currentLeaderboardTab === 'aura') {
             sortedList.sort((a, b) => b.auraRec - a.auraRec);
             sortedList.forEach((player, index) => {
-                htmlStr += `
-                    <div class="global-item">
-                        <span style="min-width: 120px;">#${index + 1} <strong>${player.name}</strong></span>
-                        <span>Record Aură: <strong style="color:#ffcc00">${player.auraRec}</strong> orbs</span>
-                    </div>
-                `;
+                htmlStr += `<div class="global-item"><span style="min-width: 120px;">#${index + 1} <strong>${player.name}</strong></span><span>Record Aură: <strong style="color:#ffcc00">${player.auraRec}</strong> orbs</span></div>`;
             });
         }
-
-        content.innerHTML = htmlStr || `<div style="text-align:center; margin-top:20px; color:#aaa;">Fără scoruri în această categorie.</div>`;
+        content.innerHTML = htmlStr || `<div style="text-align:center; margin-top:20px; color:#aaa;">Fără scoruri.</div>`;
     }
 
     window.updateLeaderboardUI();
 
     window.addEventListener('click', () => {
         if (currentMode === 'NONE' && sndMenu.paused && sndUssrWin.paused) {
-            sndMenu.play().catch(e => console.log("Audio interact"));
+            sndMenu.play().catch(e => {});
         }
     }, { once: false });
 
     function playMenuMusic() {
         sndUssrWin.pause(); sndUssrWin.currentTime = 0;
         if(window.sndStalingradBgm) { window.sndStalingradBgm.pause(); window.sndStalingradBgm.currentTime = 0; }
-        sndMenu.play().catch(e => console.log(e));
+        sndMenu.play().catch(e => {});
     }
     function stopMenuMusic() { 
         sndMenu.pause(); sndMenu.currentTime = 0; 
@@ -1062,11 +1010,6 @@
     canvas.addEventListener('mousedown', () => {
         if (currentMode === 'CLASSIC' && gameActive) triggerClassicJump();
     });
-    canvas.addEventListener('touchstart', (e) => {
-        if (currentMode === 'CLASSIC' && gameActive) {
-            triggerClassicJump();
-        }
-    }, {passive: true});
 
     function openClassicMenu() {
         document.getElementById('main-menu').classList.add('hidden');
@@ -1083,7 +1026,6 @@
         document.getElementById('main-menu').classList.remove('hidden');
         document.getElementById('auth-panel').classList.remove('hidden'); 
         
-        // Ascunde controalele mobile la întoarcerea în meniu
         document.getElementById('mobile-controls').style.display = 'none';
         document.getElementById('mob-classic-controls').classList.add('hidden');
         document.getElementById('mob-aura-controls').classList.add('hidden');
@@ -1131,18 +1073,13 @@
         document.getElementById('win-screen').classList.remove('hidden');
     }
 
-    // ================== LOGICA MOD CLASIC ==================
     function startClassicMode(difficulty) {
         hideAllMenus(); stopMenuMusic();
         currentMode = 'CLASSIC'; currentDifficulty = difficulty;
         gameActive = true; classicFinished = false; obstaclesPassed = 0; obstacles = [];
-
-        // Activează UI mobil dacă este pe dispozitiv tactiv
         setupMobileUI('classic');
 
-        classicSpeed = 10; 
-        let minGap = 0;
-
+        classicSpeed = 10; let minGap = 0;
         if (difficulty === 'easy') { totalObstaclesNeeded = 20; minGap = 500; }
         else if (difficulty === 'medium') { totalObstaclesNeeded = 35; minGap = 350; }
         else if (difficulty === 'hard') { totalObstaclesNeeded = 50; minGap = 250; }
@@ -1239,7 +1176,7 @@
         ctx.fillText(`Obstacole: ${Math.min(obstaclesPassed, totalObstaclesNeeded)} / ${totalObstaclesNeeded}`, 40, 46);
     }
 
-    // ================== LOGICA MOD AURA ==================
+    // ================== LOGICA CORECTATĂ MOD AURA HETES (DIN OLD) ==================
     function startAuraMode() {
         hideAllMenus(); stopMenuMusic();
         currentMode = 'AURA'; gameActive = true;
@@ -1487,10 +1424,8 @@
         lastTime = timestamp;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         if (currentMode === 'CLASSIC') { updateClassic(dt); drawClassic(); } 
         else if (currentMode === 'AURA') { updateAura(dt); drawAura(); }
-
         requestAnimationFrame(gameLoop);
     }
 
@@ -1498,7 +1433,6 @@
         return r1.x < r2.x + r2.width && r1.x + r1.width > r2.x && r1.y < r2.y + r2.height && r1.y + r1.height > r2.y;
     }
 
-    // Gestionare interfață mobilă & evenimente touch
     function isMobileDevice() {
         return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     }
@@ -1528,16 +1462,13 @@
             bindTouchBtn('mob-sh-a', 'a');
             bindTouchBtn('mob-sh-d', 'd');
             
-            // Buton tragere
             const fireBtn = document.getElementById('mob-sh-fire');
             fireBtn.ontouchstart = (e) => { e.preventDefault(); window.mobileShooterFire = true; };
             fireBtn.ontouchend = (e) => { e.preventDefault(); window.mobileShooterFire = false; };
 
-            // Buton abilitate G
             const abBtn = document.getElementById('mob-sh-ability');
             abBtn.onclick = () => { if(window.triggerMobileAbility) window.triggerMobileAbility(); };
 
-            // Buton Katyusha F (dacă e stalingrad)
             const katBtn = document.getElementById('mob-sh-katyusha');
             if (shooterGameType === 'stalingrad') {
                 katBtn.style.display = 'flex';
@@ -1555,28 +1486,6 @@
         el.ontouchend = (e) => { e.preventDefault(); keys[keyName] = false; el.classList.remove('pressed'); };
     }
 
-    // Suport swipe (glisare) pe ecran pentru rotirea camerei în shooter pe mobile
-    let touchStartX = 0;
-    canvas.addEventListener('touchstart', (e) => {
-        if (currentMode === 'SHOOTER' && isMobileDevice()) {
-            if (e.touches.length > 0) {
-                touchStartX = e.touches[0].clientX;
-            }
-        }
-    }, {passive: true});
-
-    canvas.addEventListener('touchmove', (e) => {
-        if (currentMode === 'SHOOTER' && isMobileDevice()) {
-            if (e.touches.length > 0 && window.updateMobileLookAngle) {
-                let currentX = e.touches[0].clientX;
-                let diffX = currentX - touchStartX;
-                touchStartX = currentX;
-                window.updateMobileLookAngle(diffX * 0.005);
-            }
-        }
-    }, {passive: true});
-
-    // Expunem funcțiile pentru a fi accesate din shooter.js
     window.setupMobileShooterUI = () => setupMobileUI('shooter');
 </script>
 

@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4.2) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.2) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -9,15 +9,21 @@ const IMG={};
 const myUniqueId = 'p_' + Math.random().toString(36).substring(2, 9);
 let unsubscribeMp = null;
 let lastSyncTime = 0;
+let killFeedMessages = []; 
+
+function addKillFeed(text) {
+ killFeedMessages.push({ text: text, time: performance.now() + 4000 });
+ if (killFeedMessages.length > 5) killFeedMessages.shift();
+}
 
 const SKINS={
  hetes:{name:'Hetes', front:'hetes-front.png', back:'hetes-back.png', cond:'I-l ai de la inceput', unlock:()=>true, ab:'Lasere din ochi rosii (max 10m pe AI)', multiWeapon:false},
- catalin:{name:'Catalin', front:'catalin-front.png', back:'catalin-back.png', cond:'Dupa ce castigi modul aura hetes', unlock:()=>window.gameStats.auraCompletions>=1, ab:'Aura rezistenta si o viata in plus', multiWeapon:false},
- proletar:{name:'Proletar', front:'proletar-front.png', back:'proletar-back.png', cond:'Castigi modul sovietic de la modul clasic', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1, ab:'Selectează 3 arme (lucrează pentru încă 2 prin 0/6)', multiWeapon:false, maxWeapons:3},
- gopnik:{name:'Gopnik', front:'gopnik-front.png', back:'gopnik-back.png', cond:'Castigi modul sovietic si modul stalingrad', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=1, ab:'Vodka pentru health si viteza mare', multiWeapon:false},
- nazbol:{name:'Nazbol', front:'nazbol-front.png', back:'nazbol-back.png', cond:'Castigi modul sovietic, stalingrad de 2 ori + 100 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=2 && (window.gameStats.shooter?.kills||0)>=100, ab:'Fum rosu pentru a pacali inamicii', multiWeapon:false},
- 'soldat-sovietic':{name:'Soldat Sovietic', front:'soldat-sovietic-front.png', back:'soldat-sovietic-back.png', cond:'Castigi modul sovietic, stalingrad de 5 ori + 300 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=5 && (window.gameStats.shooter?.kills||0)>=300, ab:'Până la 5 arme & lansator', multiWeapon:true},
- 'cernobil-stalker':{name:'Cernobîl Stalker', front:'cernobil-stalker-front.png', back:'cernobil-stalker-back.png', cond:'Castigi modul sovietic, stalingrad de 10 ori + 500 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=10 && (window.gameStats.shooter?.kills||0)>=500, ab:'Pasiv: gloanțe cu efect toxic (damage în timp) & 5 arme', multiWeapon:true},
+ catalin:{name:'Catalin', front:'catalin-front.png', back:'catalin-back.png', cond:'Dupa ce castigi modul aura hetes', unlock:()=>window.gameStats.auraCompletions>=1, ab:'Aura luminoasă & rezistență la gloanțe & o viață în plus', multiWeapon:false},
+ proletar:{name:'Proletar', front:'proletar-front.png', back:'proletar-back.png', cond:'Castigi modul sovietic de la modul clasic', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1, ab:'Echipează 3 arme & armă nouă la fiecare 6 utilizări de abilitate & regenerare 5 HP între pauze', multiWeapon:false, maxWeapons:5},
+ gopnik:{name:'Gopnik', front:'gopnik-front.png', back:'gopnik-back.png', cond:'Castigi modul sovietic si modul stalingrad', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=1, ab:'Player muzical Hardbass (Taste M, K, L) & Vodka (+50 HP)', multiWeapon:false},
+ nazbol:{name:'Nazbol', front:'nazbol-front.png', back:'nazbol-back.png', cond:'Castigi modul sovietic, stalingrad de 2 ori + 100 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=2 && (window.gameStats.shooter?.kills||0)>=100, ab:'Fum roșu (invulnerabilitate 5s, cooldown 20s, viteză mare)', multiWeapon:false},
+ 'soldat-sovietic':{name:'Soldat Sovietic', front:'soldat-sovietic-front.png', back:'soldat-sovietic-back.png', cond:'Castigi modul sovietic, stalingrad de 5 ori + 300 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=5 && (window.gameStats.shooter?.kills||0)>=300, ab:'Până la 5 arme & Grenade devastation (kill instant)', multiWeapon:true},
+ 'cernobil-stalker':{name:'Cernobîl Stalker', front:'cernobil-stalker-front.png', back:'cernobil-stalker-back.png', cond:'Castigi modul sovietic, stalingrad de 10 ori + 500 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=10 && (window.gameStats.shooter?.kills||0)>=500, ab:'Gloanțe toxice & Daune toxice pe rază 15m & Grenade toxice (kill instant + efect)', multiWeapon:true},
 'soldat-rus-modern': {
    name: 'Soldat Rus Modern', 
    front: 'soldat-rus-modern-front.png', 
@@ -27,31 +33,23 @@ const SKINS={
      const g = window.gameStats || {};
      const s = g.shooter || {};
      const c = g.classicCompletions || {};
-     const soviet = c.soviet ?? 0;
-     const kills = s.kills ?? 0;
-     const wins = s.wins ?? 0;
-     const mpWins = s.mpWins ?? 0;
-     return Number(soviet) >= 3 && Number(wins) >= 10 && Number(kills) >= 1000 && Number(mpWins) >= 1;
+     return Number(c.soviet ?? 0) >= 3 && Number(s.wins ?? 0) >= 10 && Number(s.kills ?? 0) >= 1000 && Number(s.mpWins ?? 0) >= 1;
    }, 
-   ab: 'Rezistenta la gloante & 5 arme', 
+   ab: 'Rezistență sporită la gloanțe & 125 HP & 5 arme & Grenade', 
    multiWeapon: true
  },
 'anti-furry-hetes': {
    name: 'Anti-Furry Hetes', 
    front: 'anti-furry-hetes-front.png', 
    back: 'anti-furry-hetes-back.png', 
-   cond: 'Castigi sovietic de 5 ori, stalingrad de 15 ori, 1500 victime + mp de 3 ori', 
+   cond: 'Castigi sovietic de 7 ori, stalingrad de 20 de ori, 2500 victime + mp de 3 ori', 
    unlock: () => {
      const g = window.gameStats || {};
      const s = g.shooter || {};
      const c = g.classicCompletions || {};
-     const soviet = c.soviet ?? 0;
-     const kills = s.kills ?? 0;
-     const wins = s.wins ?? 0;
-     const mpWins = s.mpWins ?? 0;
-     return Number(soviet) >= 5 && Number(wins) >= 15 && Number(kills) >= 1500 && Number(mpWins) >= 3;
+     return Number(c.soviet ?? 0) >= 7 && Number(s.wins ?? 0) >= 20 && Number(s.kills ?? 0) >= 2500 && Number(s.mpWins ?? 0) >= 3;
    }, 
-   ab: 'Rage mode & Lasere (max 10m pe AI) & 5 arme', 
+   ab: 'Rage Mode (200 HP, viteză mare, lasere la 3s) & Grenade & Lasere & 5 arme', 
    multiWeapon: true
  }
 };
@@ -73,6 +71,16 @@ const WP={
  ak12:{n:'AK-12',img:'ak12',dmg:34,rate:.08,ammo:180,give:15,need:500}
 };
 
+const GRS_PLAYLIST = [
+ { name: "Священная война - Sp00n .exe - 8 bit remix", src: "svoina.mp3" },
+ { name: "Наш гимн - Hard Bass School", src: "nashgimn.mp3" },
+ { name: "Триполоски - Davay", src: "tripoloski.mp3" },
+ { name: "Cheeki Breeki Hardbass Anthem - apartje", src: "cheekibreeki.mp3" },
+ { name: "Kalinka Hardbass Remix - DJ Bonebreaker", src: "kalinkahardbass.mp3" }
+];
+let currentGopnikTrackIdx = 0;
+let gopnikAudio = null;
+
 const gs=()=>{const g=window.gameStats;return g.shooter||(g.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes',mpWins:0})};
 window.mergeShooterStats=s=>{const m=gs();['kills','wins','score','mpWins'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
 const pl=(a,v=.5)=>{try{const c=a.cloneNode();c.volume=v;c.play().catch(()=>{})}catch(e){}};
@@ -92,7 +100,7 @@ for(let k=0;k<45;k++){const x=1+rnd()*30|0,y=1+rnd()*30|0;if(!M[y*N+x])M[y*N+x]=
 for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)M[(10+j)*N+10+i]=0;
 
 const COL=[0,[170,80,55],[125,125,130],[80,68,60]],Z=new Float32Array(C);
-const solid=(x,y,r=.2)=>M[((y-r)|0)*N+((x-r)|0)]||M[((y-r)|0)*N+((x+r)|0)]||M[((y+r)|0)*N+((x-r)|0)]||M[((y+r)|0)*N+((x+r)|0)];
+const solid=(x,y,r=.2)=>M[((y-r)|0)*N+((x-r)|0)]||M[((y-r)|0)*N+((x+r)|0)]||M[((y+r)|0)*N+((x+r)|0)]||M[((y+r)|0)*N+((x+r)|0)];
 const cast=(px,py,a)=>{let dx=Math.cos(a)||1e-9,dy=Math.sin(a)||1e-9,mx=px|0,my=py|0,ax=Math.abs(1/dx),ay=Math.abs(1/dy),sx=dx<0?-1:1,sy=dy<0?-1:1,
  tx=(dx<0?px-mx:mx+1-px)*ax,ty=(dy<0?py-my:my+1-py)*ay,s=0,t=0;
  for(let i=0;i<70;i++){if(tx<ty){tx+=ax;mx+=sx;s=0}else{ty+=ay;my+=sy;s=1}t=M[my*N+mx];if(t)break}
@@ -164,7 +172,10 @@ document.querySelector('#main-menu .modes-list').insertAdjacentHTML('beforeend',
 const show=(id,v)=>$(id).classList.toggle('hidden',!v);
 let shooterGameType='stalingrad';
 
-window.shMenu=()=>{show('main-menu',0);show('auth-panel',0);show('sh-arsenal',0);show('sh-menu',1);$('mp-back-btn').classList.add('hidden')};
+window.shMenu=()=>{
+ show('main-menu',0);show('auth-panel',0);show('sh-arsenal',0);show('sh-menu',1);$('mp-back-btn').classList.add('hidden');
+ if(window.hideMobileControls) window.hideMobileControls();
+};
 window.shArsenal=(type)=>{
  shooterGameType=type;
  show('sh-menu',0);show('sh-arsenal',1);
@@ -275,6 +286,7 @@ window.backToMain=()=>{
   window.fsDeleteDoc(window.fsDoc(window.db, "mp_sessions", myUniqueId)).catch(()=>{});
  }
  if(unsubscribeMp){ unsubscribeMp(); unsubscribeMp = null; }
+ if(gopnikAudio){ gopnikAudio.pause(); gopnikAudio=null; }
  if(S.music)S.music.pause();
  if(window.sndStalingradBgm){window.sndStalingradBgm.pause();window.sndStalingradBgm.currentTime=0;}
  document.exitPointerLock&&document.exitPointerLock();bm()
@@ -286,6 +298,8 @@ function startShooterSession(mode){
  $('sh-lose-btn').classList.remove('show-btn');
  ['sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));$('sh-lose').classList.remove('dark');
  stopMenuMusic();sndUssrWin.pause();currentMode='SHOOTER';gameActive=false;
+
+ if(window.setupMobileShooterUI) window.setupMobileShooterUI();
 
  if(window.sndStalingradBgm){
   window.sndStalingradBgm.volume=0.8;
@@ -315,14 +329,20 @@ function startShooterSession(mode){
   }
  }
 
+ let baseHp = 100;
+ if(g.skin==='soldat-rus-modern') baseHp = 125;
+ if(g.skin==='anti-furry-hetes') baseHp = 200;
+
  S={
-  on:true, mode:mode, x:spawnX, y:spawnY, a:0, hp:100, maxHp:100,
+  on:true, mode:mode, x:spawnX, y:spawnY, a:0, hp:baseHp, maxHp:baseHp,
   w:g.loadout.slice(), cur:0, ammo:{}, cd:0, en:[], mpPlayers:[],
   wave:0, left:0, nw:1, sp:0, kills:0, katcd:0, flash:0, kick:0, hm:0,
   bob:0, ban:0, bt:'', t:performance.now(), fire:0,
-  skin:g.skin, abilityCd:0, rage:false, extraLife:(g.skin==='catalin'?1:0),
-  proletarCount:0, toxicTarget:null, toxicTimer:0,
-  mpTimeLeft: 300
+  skin:g.skin, abilityCd:0, rage:false, rageTimer:0, extraLife:(g.skin==='catalin'?1:0),
+  proletarCount:0, proletarRegenTimer:0, proletarWeaponProgress:0, toxicTarget:null, toxicTimer:0,
+  nazbolSmokeTimer:0, nazbolInvincible:false,
+  mpTimeLeft: 300,
+  gopnikTrack: 0
  };
  S.w.forEach(i=>S.ammo[i]=WP[i].ammo);
 
@@ -339,12 +359,35 @@ function startShooterSession(mode){
 cv.addEventListener('mousedown',()=>{if(!S.on)return;S.fire=1;if(document.pointerLockElement!==cv)cv.requestPointerLock()});
 addEventListener('mouseup',()=>S.fire=0);
 addEventListener('mousemove',e=>{if(S.on&&document.pointerLockElement===cv)S.a+=e.movementX*.0028});
+
+window.updateMobileLookAngle = (delta) => { if(S.on) S.a += delta; };
+window.triggerMobileAbility = () => { if(S.on) triggerSkinAbility(); };
+window.triggerMobileKatyusha = () => { if(S.on && S.mode==='stalingrad') triggerKatyusha(); };
+
 addEventListener('keydown',e=>{
  if(!S.on)return;
  if(e.key===' '||e.key.startsWith('Arrow'))e.preventDefault();
  if(e.key.toLowerCase()==='g'){ triggerSkinAbility(); }
  if(e.key.toLowerCase()==='f' && S.mode==='stalingrad'){ triggerKatyusha(); }
+
+ if(S.skin==='gopnik'){
+  let key = e.key.toLowerCase();
+  if(key==='m'){ S.gopnikTrack=0; playGopnikMusic(); }
+  else if(key==='k'){ S.gopnikTrack = (S.gopnikTrack - 1 + GRS_PLAYLIST.length) % GRS_PLAYLIST.length; playGopnikMusic(); }
+  else if(key==='l'){ S.gopnikTrack = (S.gopnikTrack + 1) % GRS_PLAYLIST.length; playGopnikMusic(); }
+ }
 });
+
+function playGopnikMusic(){
+ if(window.sndStalingradBgm){ window.sndStalingradBgm.pause(); }
+ if(gopnikAudio){ gopnikAudio.pause(); }
+ let track = GRS_PLAYLIST[S.gopnikTrack];
+ gopnikAudio = new Audio(track.src);
+ gopnikAudio.loop = true;
+ gopnikAudio.volume = 0.8;
+ gopnikAudio.play().catch(()=>{});
+ addKillFeed(`Gopnik a pus melodia: ${track.name}`);
+}
 
 function triggerKatyusha(){
  if(S.katcd>0)return;
@@ -362,33 +405,76 @@ function triggerKatyusha(){
    killed++; 
   }
  });
+ addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit Katyusha!`);
  saveStats();
 }
 
 function triggerSkinAbility(){
- if(S.skin==='cernobil-stalker') return;
  if(S.abilityCd>0)return;
- S.abilityCd=10;
 
- if(S.skin==='hetes'||S.skin==='anti-furry-hetes'){
+ if(S.skin==='nazbol'){
+  S.abilityCd = 20;
+  S.nazbolSmokeTimer = 5;
+  S.nazbolInvincible = true;
+  S.flash = 0.5;
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a activat fumul roșu Nazbol (Invulnerabil 5s)!`);
+  return;
+ }
+
+ if(S.skin==='soldat-sovietic' || S.skin==='soldat-rus-modern' || S.skin==='cernobil-stalker' || S.skin==='anti-furry-hetes'){
+  S.abilityCd = S.skin==='anti-furry-hetes' ? 75 : 15;
+  if(S.skin==='anti-furry-hetes'){
+   S.rage = true;
+   S.rageTimer = 15;
+   S.hp = 200; S.maxHp = 200;
+  }
   S.flash=0.4;
-  if(S.skin==='anti-furry-hetes') S.rage=true;
+  let targets = [];
+  S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ targets.push(e); } });
+  
+  if(targets.length > 0){
+   let primary = targets[0];
+   dmg(primary, 99999);
+   if(S.skin==='cernobil-stalker'){ S.toxicTarget=primary; S.toxicTimer=3; }
+   
+   S.en.forEach(e=>{
+    if(!e.dead && e !== primary && Math.hypot(e.x-primary.x, e.y-primary.y)<=2){
+     dmg(e, 99999);
+     if(S.skin==='cernobil-stalker'){ S.toxicTarget=e; S.toxicTimer=3; }
+    }
+   });
+  }
+  pl(sndExplosionRocket);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a aruncat o grenadă devastatoare (Kill Instant)!`);
+  return;
+ }
+
+ S.abilityCd=10;
+ if(S.skin==='hetes'){
+  S.flash=0.4;
   S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ dmg(e, 100); } });
   pl(sndExplosionRocket);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit laserele din ochi!`);
  } else if(S.skin==='gopnik'){
   S.hp=Math.min(S.maxHp, S.hp+50);
   pl(sndGun);
- } else if(S.skin==='nazbol'){
-  S.flash=0.3;
-  S.en.forEach(e=>e.wander=5);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a băut Vodka (+50 HP)!`);
  } else if(S.skin==='proletar'){
   S.proletarCount++;
-  if(S.proletarCount>=6){
-   S.proletarCount=0;
+  S.proletarWeaponProgress++;
+  if(S.proletarWeaponProgress >= 6){
+   S.proletarWeaponProgress = 0;
    const allWKeys=Object.keys(WP);
    const newW = allWKeys.find(w=>!S.w.includes(w));
-   if(newW && S.w.length < 5){ S.w.push(newW); S.ammo[newW]=WP[newW].ammo; }
+   if(newW && S.w.length < 5){ 
+    S.w.push(newW); 
+    S.ammo[newW]=WP[newW].ammo; 
+    addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a primit o armă nouă după 6 utilizări: ${WP[newW].n}!`);
+   }
+  } else {
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit abilitatea Proletar (${S.proletarWeaponProgress}/6 până la armă nouă)!`);
   }
+  cards();
  }
 }
 
@@ -402,20 +488,33 @@ function dmg(e,n){
   const g = gs();
   g.kills = (g.kills || 0) + 1;
   g.score = (g.score || 0) + 50;
-  saveStats(); // Salvează în timp real în Firebase și LocalStorage[cite: 7]
+  if(S.skin==='anti-furry-hetes' && S.rage){
+   S.hp = Math.min(200, S.hp + 25);
+  }
+  saveStats(); 
   S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
  }
 }
 
 function hurt(n){
- let resist = (S.skin==='soldat-rus-modern'||S.skin==='cernobil-stalker') ? 0.7 : 1;
+ if(S.nazbolInvincible) return;
+ 
+ let resist = 1;
+ if(S.skin==='soldat-rus-modern'||S.skin==='cernobil-stalker'||S.skin==='catalin') resist = 0.7;
+ 
  S.hp-=n*resist; S.flash=.3;
+ 
+ if(S.skin==='anti-furry-hetes' && S.hp < 40 && S.abilityCd > 5){
+  S.abilityCd -= 3;
+ }
+
  if(S.hp<=0){
-  if(S.extraLife>0){S.extraLife=0;S.hp=100;return;}
+  if(S.extraLife>0){S.extraLife=0;S.hp=(S.skin==='anti-furry-hetes'?200:100);addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit viața suplimentară!`);return;}
   if(S.mode==='stalingrad'){
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a fost trimis în GULAG!`);
    end(0);
   } else {
-   S.hp=100;
+   S.hp=(S.skin==='anti-furry-hetes'?200:100);
    const hash = [...myUniqueId].reduce((acc, char) => acc + char.charCodeAt(0), 0);
    const spawns = [[5.5, 5.5], [26.5, 5.5], [5.5, 26.5], [26.5, 26.5], [16.5, 16.5]];
    let chosen = spawns[hash % spawns.length];
@@ -431,6 +530,7 @@ function end(w){
   window.fsDeleteDoc(window.fsDoc(window.db, "mp_sessions", myUniqueId)).catch(()=>{});
  }
  if(unsubscribeMp){ unsubscribeMp(); unsubscribeMp = null; }
+ if(gopnikAudio){ gopnikAudio.pause(); gopnikAudio=null; }
  const g=gs();
  if(w) g.wins = (g.wins || 0) + 1;
  if(S.mode==='multiplayer') g.mpWins = (g.mpWins || 0) + 1;
@@ -448,7 +548,13 @@ function end(w){
 
 function shoot(){
  const id=S.w[S.cur],w=WP[id];if(S.ammo[id]<=0){S.cd=.3;return}
- S.cd=w.rate*(S.rage?0.6:1);S.ammo[id]--;S.kick=1;pl(w.sp?sndExplosionRocket:sndGun);
+ let rateMultiplier = 1;
+ if(S.rage) rateMultiplier = 0.6;
+ if(S.skin==='anti-furry-hetes' && S.abilityCd <= 0 && Math.random() < 0.35){
+  S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10) dmg(e, 50); });
+ }
+
+ S.cd=w.rate*rateMultiplier;S.ammo[id]--;S.kick=1;pl(w.sp?sndExplosionRocket:sndGun);
  const wd=cast(S.x,S.y,S.a)[0];let best=null,bd=1e9;
  
  S.en.forEach(e=>{const dx=e.x-S.x,dy=e.y-S.y,d=Math.hypot(dx,dy);let df=Math.atan2(dy,dx)-S.a;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)*d<.38&&d<bd&&d<wd+.3){best=e;bd=d}});
@@ -463,7 +569,8 @@ function shoot(){
    const g = gs();
    g.kills = (g.kills || 0) + 1;
    g.score = (g.score || 0) + 50;
-   saveStats(); // Salvează imediat și în multiplayer la fiecare kill[cite: 7]
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} l-a eliminat pe ${best.name || 'Inamic'}!`);
+   saveStats(); 
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
      hp: Math.max(0, (best.hp || 100) - w.dmg)
@@ -481,13 +588,40 @@ function spawn(){for(let i=0;i<60;i++){const x=1+Math.random()*30,y=1+Math.rando
 
 function update(dt){
  let mx=0,my=0,c=Math.cos(S.a),s=Math.sin(S.a);
- let spd = S.skin==='gopnik'||S.skin==='anti-furry-hetes'?4.2:3.2;
- if(k('w')||k('arrowup')){mx+=c;my+=s}if(k('s')||k('arrowdown')){mx-=c;my-=s}if(k('a')){mx+=s;my-=c}if(k('d')){mx-=s;my+=c}
+ 
+ let spd = 3.2;
+ if(S.skin==='gopnik'||S.skin==='hetes') spd = 4.2;
+ if(S.skin==='nazbol' && S.nazbolInvincible) spd = 5.5;
+ if(S.rage) spd = 5.8;
+
+ if(k('w')||k('arrowup')){mx+=c;my+=s}if(k('s')||k('arrowdown')){mx-=c;my-=s}if(k('a')){mx+=s;my-=c}if(k('d')){mx+=s;my+=c}
  S.a+=((k('arrowright')?1:0)-(k('arrowleft')?1:0))*2.2*dt;
  const l=Math.hypot(mx,my);if(l){mx*=spd*dt/l;my*=spd*dt/l;S.bob+=dt*9;if(!solid(S.x+mx,S.y))S.x+=mx;if(!solid(S.x,S.y+my))S.y+=my}
+ 
  for(let i=0;i<5;i++)if(k(''+(i+1))&&S.w[i])S.cur=i;
  S.cd-=dt;S.kick=Math.max(0,S.kick-dt*6);S.flash-=dt;S.hm-=dt;S.ban-=dt;S.katcd-=dt;S.abilityCd-=dt;
- if((S.fire||k(' '))&&S.cd<=0)shoot();
+
+ if(S.skin==='proletar'){
+  S.proletarRegenTimer += dt;
+  if(S.proletarRegenTimer >= 5){
+   S.proletarRegenTimer = 0;
+   S.hp = Math.min(S.maxHp, S.hp + 5);
+  }
+ }
+
+ if(S.nazbolSmokeTimer > 0){
+  S.nazbolSmokeTimer -= dt;
+  if(S.nazbolSmokeTimer <= 0){
+   S.nazbolInvincible = false;
+  }
+ }
+
+ S.rageTimer -= dt;
+ if(S.rageTimer <= 0){
+  S.rage = false;
+ }
+
+ if((S.fire||window.mobileShooterFire||k(' '))&&S.cd<=0)shoot();
 
  if(S.mode==='multiplayer'){
   S.mpTimeLeft -= dt;
@@ -509,6 +643,7 @@ function update(dt){
     skin: S.skin,
     weapon: S.w[S.cur],
     kills: S.kills,
+    gopnikTrack: S.gopnikTrack,
     updatedAt: Date.now()
    }, { merge: true }).catch(()=>{});
   }
@@ -524,7 +659,7 @@ function update(dt){
   if(!S.left&&!S.en.length){
    if(S.wave==4){end(1);return}
    if((S.nw-=dt)<=0){
-    S.wave++; S.left=5+4*S.wave; S.hp=Math.min(100,S.hp+30);
+    S.wave++; S.left=5+4*S.wave; S.hp=Math.min(S.maxHp,S.hp+30);
     S.ban=2.5; S.bt='Valul '+S.wave+' / 4'; S.nw=3;
    }
   }
@@ -555,6 +690,11 @@ function render(){
   const h=H/p,y0=(H-h)/2,sh=Math.max(.1,1-p/15)*(s?.7:1),c=COL[t];
   for(let r=0;r<8;r++){const u=wx*4+(r&1)*.5,f=u-Math.floor(u),v=(.7+.3*Math.abs(Math.sin(Math.floor(u)*91.7+r*13.3+t)))*(f<.06?.55:1)*sh;
    cx.fillStyle=`rgb(${c[0]*v|0},${c[1]*v|0},${c[2]*v|0})`;cx.fillRect(i*2,y0+h*r/8,2,h/8+1)}}
+
+ if(S.nazbolSmokeTimer > 0){
+  cx.fillStyle = 'rgba(200, 0, 0, 0.45)';
+  cx.fillRect(0, 0, W, H);
+ }
 
  S.en.map(e=>(e.d=Math.hypot(e.x-S.x,e.y-S.y),e)).sort((a,b)=>b.d-a.d).forEach(e=>{
   let df=Math.atan2(e.y-S.y,e.x-S.x)-S.a;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)>FOV/2+.4)return;
@@ -615,9 +755,22 @@ function render(){
  if(S.flash>0){cx.fillStyle=`rgba(200,0,0,${S.flash})`;cx.fillRect(0,0,W,H)}
  cx.restore();
 
+ if(S.skin==='catalin'){
+  ctx.strokeStyle = '#00ffff';
+  ctx.lineWidth = 4;
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = '#00ffff';
+  ctx.strokeRect(2, 2, W-4, H-4);
+  ctx.shadowBlur = 0;
+ }
+
  cx.strokeStyle=S.hm>0?'#f33':'#fff';cx.lineWidth=2;cx.beginPath();cx.moveTo(W/2-10,H/2);cx.lineTo(W/2+10,H/2);cx.moveTo(W/2,H/2-10);cx.lineTo(W/2,H/2+10);cx.stroke();
- cx.fillStyle='rgba(0,0,0,.6)';cx.fillRect(20,20,260,26);cx.fillStyle='#d22';cx.fillRect(20,20,Math.max(0,S.hp)*2.6,26);cx.strokeStyle='#fff';cx.strokeRect(20,20,260,26);
- cx.fillStyle='#fff';cx.font='bold 16px sans-serif';cx.fillText('HP '+Math.ceil(Math.max(0,S.hp)),28,39);
+ 
+ let hpBarWidth = Math.min(260, (S.maxHp / 100) * 260);
+ cx.fillStyle='rgba(0,0,0,.6)';cx.fillRect(20,20,hpBarWidth,26);
+ cx.fillStyle='#d22';cx.fillRect(20,20,Math.max(0,S.hp)*(hpBarWidth/S.maxHp),26);
+ cx.strokeStyle='#fff';cx.strokeRect(20,20,hpBarWidth,26);
+ cx.fillStyle='#fff';cx.font='bold 16px sans-serif';cx.fillText('HP '+Math.ceil(Math.max(0,S.hp))+'/'+S.maxHp,28,39);
  
  cx.fillStyle='rgba(0,0,0,0.7)';cx.fillRect(W-70,20,50,50);
  cx.strokeStyle='#ffcc00';cx.lineWidth=2;cx.strokeRect(W-70,20,50,50);
@@ -634,24 +787,55 @@ function render(){
   cx.fillText(`Multiplayer FFA · Victime: ${S.kills} · Timp: ${timeStr}`,20,70);
  }
 
- if(S.skin==='proletar'){
-  cx.fillStyle='#00ffcc';
-  cx.fillText(`Proletar 0/6: ${S.proletarCount}/6`,20,95);
- }
+ let currentTextY = 95;
 
  if(S.mode==='stalingrad'){
   cx.fillStyle=S.katcd<=0?'#00ffcc':'#888';
-  cx.fillText('F - Katyusha: '+(S.katcd<=0?'[GATA]':Math.ceil(S.katcd)+'s'),20,118);
+  cx.fillText('F - Katyusha: '+(S.katcd<=0?'[GATA]':Math.ceil(S.katcd)+'s'),20,currentTextY);
+  currentTextY += 22;
  }
 
  cx.fillStyle=S.abilityCd<=0?'#00ffcc':'#888';
- cx.fillText('G - Abilitate: '+(S.abilityCd<=0?'[GATA]':Math.ceil(S.abilityCd)+'s'),20,S.skin==='proletar'?140:118);
+ cx.fillText('G - Abilitate: '+(S.abilityCd<=0?'[GATA]':Math.ceil(S.abilityCd)+'s'),20,currentTextY);
+ currentTextY += 22;
+
+ if(S.skin==='proletar'){
+  cx.fillStyle='#ffcc00';
+  cx.fillText(`Proletar Armă: ${S.proletarWeaponProgress}/6`, 20, currentTextY);
+  currentTextY += 22;
+ }
+
+ if(S.skin==='gopnik'){
+  let gopX = W - 320, gopY = 20, gopW = 240, gopH = 50;
+  cx.fillStyle='rgba(0,0,0,0.8)'; cx.fillRect(gopX, gopY, gopW, gopH);
+  cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(gopX, gopY, gopW, gopH);
+  cx.fillStyle='#ffcc00'; cx.font='bold 11px sans-serif';
+  cx.fillText('🎵 Gopnik Hardbass (M, K, L)', gopX + 8, gopY + 16);
+  cx.fillStyle='#fff'; cx.font='10px sans-serif';
+  let curTrackName = GRS_PLAYLIST[S.gopnikTrack].name;
+  if(curTrackName.length > 32) curTrackName = curTrackName.substring(0, 30) + '...';
+  cx.fillText(curTrackName, gopX + 8, gopY + 36);
+ }
 
  S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i].n}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i])}`,20,H-100+n*20)});
  if(S.ban>0){cx.fillStyle='#ff3333';cx.font='bold 48px sans-serif';cx.textAlign='center';cx.fillText(S.bt,W/2,200);cx.textAlign='left'}
 
+ let nowTime = performance.now();
+ killFeedMessages = killFeedMessages.filter(kf => kf.time > nowTime);
+ if(killFeedMessages.length > 0){
+  let kfX = W - 320, kfY = 140;
+  cx.fillStyle = 'rgba(0,0,0,0.6)';
+  cx.fillRect(kfX - 10, kfY - 5, 310, killFeedMessages.length * 22 + 10);
+  cx.font = 'bold 12px sans-serif';
+  killFeedMessages.forEach((kf, idx) => {
+   let alpha = Math.min(1, (kf.time - nowTime) / 1000);
+   cx.fillStyle = `rgba(255, 204, 0, ${alpha})`;
+   cx.fillText(kf.text, kfX, kfY + 14 + idx * 22);
+  });
+ }
+
  if(S.mode==='multiplayer'){
-  let lbX = W - 380, lbY = 80, lbW = 190, lbH = 150;
+  let lbX = W - 380, lbY = 250, lbW = 190, lbH = 150;
   cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(lbX, lbY, lbW, lbH);
   cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(lbX, lbY, lbW, lbH);
   
@@ -659,7 +843,7 @@ function render(){
   cx.fillText('Leaderboard Rundă (FFA)', lbX + 10, lbY + 20);
   
   let allP = [{ name: window.currentUserDisplayName || 'Anonim', kills: S.kills }];
-  S.mpPlayers.forEach(p => allP.push({ name: p.name || 'Anonim', kills: p.kills || 0 }));
+  S.mpPlayers.forEach(p => allP.push({ name: p.name || 'Anonim', kills: p.kills || 0, gopnikTrack: p.gopnikTrack || 0 }));
   allP.sort((a,b) => b.kills - a.kills);
   
   cx.font = '11px sans-serif';
@@ -671,7 +855,7 @@ function render(){
   });
  }
 
- const mmX=W-170, mmY=80, mmSz=140;
+ const mmX=W-170, mmY=410, mmSz=140;
  cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(mmX, mmY, mmSz, mmSz);
  cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(mmX, mmY, mmSz, mmSz);
  
