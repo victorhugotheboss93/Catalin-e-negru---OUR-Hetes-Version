@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.2) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.4) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -583,20 +583,41 @@ function shoot(){
  }
 }
 
-function spawn(){for(let i=0;i<60;i++){const x=1+Math.random()*30,y=1+Math.random()*30;
- if(!M[(y|0)*N+(x|0)]&&Math.hypot(x-S.x,y-S.y)>9){S.en.push({x,y,hp:60,cd:1.5,sp:1+S.wave*.12,hurt:0,wander:0,off:0});S.left--;return}}}
+function spawn(){
+ for(let i=0;i<60;i++){
+  const x = 1.5 + Math.random() * (N - 3);
+  const y = 1.5 + Math.random() * (N - 3);
+  const mapIndex = (y | 0) * N + (x | 0);
+  if(!M[mapIndex] && Math.hypot(x - S.x, y - S.y) > 7){
+   S.en.push({x, y, hp:60, cd:1.5, sp:1 + S.wave * .12, hurt:0, wander:0, off:0});
+   S.left--;
+   return;
+  }
+ }
+}
 
 function update(dt){
- let mx=0,my=0,c=Math.cos(S.a),s=Math.sin(S.a);
+ let forward = (k('w') || k('arrowup') ? 1 : 0) - (k('s') || k('arrowdown') ? 1 : 0);
+ let strafe = (k('d') ? 1 : 0) - (k('a') ? 1 : 0);
+
+ let c = Math.cos(S.a), s = Math.sin(S.a);
+ let mx = forward * c - strafe * s;
+ let my = forward * s + strafe * c;
  
  let spd = 3.2;
  if(S.skin==='gopnik'||S.skin==='hetes') spd = 4.2;
  if(S.skin==='nazbol' && S.nazbolInvincible) spd = 5.5;
  if(S.rage) spd = 5.8;
 
- if(k('w')||k('arrowup')){mx+=c;my+=s}if(k('s')||k('arrowdown')){mx-=c;my-=s}if(k('a')){mx+=s;my-=c}if(k('d')){mx+=s;my+=c}
- S.a+=((k('arrowright')?1:0)-(k('arrowleft')?1:0))*2.2*dt;
- const l=Math.hypot(mx,my);if(l){mx*=spd*dt/l;my*=spd*dt/l;S.bob+=dt*9;if(!solid(S.x+mx,S.y))S.x+=mx;if(!solid(S.x,S.y+my))S.y+=my}
+ S.a += ((k('arrowright')?1:0)-(k('arrowleft')?1:0))*2.2*dt;
+ const l = Math.hypot(mx, my);
+ if(l){
+  mx = (mx / l) * spd * dt;
+  my = (my / l) * spd * dt;
+  S.bob += dt * 9;
+  if(!solid(S.x + mx, S.y)) S.x += mx;
+  if(!solid(S.x, S.y + my)) S.y += my;
+ }
  
  for(let i=0;i<5;i++)if(k(''+(i+1))&&S.w[i])S.cur=i;
  S.cd-=dt;S.kick=Math.max(0,S.kick-dt*6);S.flash-=dt;S.hm-=dt;S.ban-=dt;S.katcd-=dt;S.abilityCd-=dt;
