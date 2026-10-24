@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4.2) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.5.0) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -9,6 +9,12 @@ const IMG={};
 const myUniqueId = 'p_' + Math.random().toString(36).substring(2, 9);
 let unsubscribeMp = null;
 let lastSyncTime = 0;
+let killFeedMessages = []; // Jurnal de kill-uri în timp real
+
+function addKillFeed(text) {
+ killFeedMessages.push({ text: text, time: performance.now() + 4000 }); // Vizibil 4 secunde
+ if (killFeedMessages.length > 5) killFeedMessages.shift();
+}
 
 const SKINS={
  hetes:{name:'Hetes', front:'hetes-front.png', back:'hetes-back.png', cond:'I-l ai de la inceput', unlock:()=>true, ab:'Lasere din ochi rosii (max 10m pe AI)', multiWeapon:false},
@@ -164,7 +170,11 @@ document.querySelector('#main-menu .modes-list').insertAdjacentHTML('beforeend',
 const show=(id,v)=>$(id).classList.toggle('hidden',!v);
 let shooterGameType='stalingrad';
 
-window.shMenu=()=>{show('main-menu',0);show('auth-panel',0);show('sh-arsenal',0);show('sh-menu',1);$('mp-back-btn').classList.add('hidden')};
+window.shMenu=()=>{
+ show('main-menu',0);show('auth-panel',0);show('sh-arsenal',0);show('sh-menu',1);$('mp-back-btn').classList.add('hidden');
+ // Ascunde controalele mobile în meniu shooter
+ if(window.hideMobileControls) window.hideMobileControls();
+};
 window.shArsenal=(type)=>{
  shooterGameType=type;
  show('sh-menu',0);show('sh-arsenal',1);
@@ -287,6 +297,9 @@ function startShooterSession(mode){
  ['sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));$('sh-lose').classList.remove('dark');
  stopMenuMusic();sndUssrWin.pause();currentMode='SHOOTER';gameActive=false;
 
+ // Activează controalele tactile pentru mobile în mod shooter
+ if(window.setupMobileShooterUI) window.setupMobileShooterUI();
+
  if(window.sndStalingradBgm){
   window.sndStalingradBgm.volume=0.8;
   window.sndStalingradBgm.currentTime=0;
@@ -339,6 +352,20 @@ function startShooterSession(mode){
 cv.addEventListener('mousedown',()=>{if(!S.on)return;S.fire=1;if(document.pointerLockElement!==cv)cv.requestPointerLock()});
 addEventListener('mouseup',()=>S.fire=0);
 addEventListener('mousemove',e=>{if(S.on&&document.pointerLockElement===cv)S.a+=e.movementX*.0028});
+
+// Funcție ajutătoare pentru rotirea camerei de pe mobil prin touch/swipe
+window.updateMobileLookAngle = (delta) => {
+ if(S.on) S.a += delta;
+};
+
+window.triggerMobileAbility = () => {
+ if(S.on) triggerSkinAbility();
+};
+
+window.triggerMobileKatyusha = () => {
+ if(S.on && S.mode==='stalingrad') triggerKatyusha();
+};
+
 addEventListener('keydown',e=>{
  if(!S.on)return;
  if(e.key===' '||e.key.startsWith('Arrow'))e.preventDefault();
@@ -362,6 +389,7 @@ function triggerKatyusha(){
    killed++; 
   }
  });
+ addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit Katyusha (4 inamici eliminați)!`);
  saveStats();
 }
 
@@ -375,12 +403,15 @@ function triggerSkinAbility(){
   if(S.skin==='anti-furry-hetes') S.rage=true;
   S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ dmg(e, 100); } });
   pl(sndExplosionRocket);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a activat laserele din ochi!`);
  } else if(S.skin==='gopnik'){
   S.hp=Math.min(S.maxHp, S.hp+50);
   pl(sndGun);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a băut Vodka (+50 HP)!`);
  } else if(S.skin==='nazbol'){
   S.flash=0.3;
   S.en.forEach(e=>e.wander=5);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit fumul roșu!`);
  } else if(S.skin==='proletar'){
   S.proletarCount++;
   if(S.proletarCount>=6){
@@ -402,7 +433,8 @@ function dmg(e,n){
   const g = gs();
   g.kills = (g.kills || 0) + 1;
   g.score = (g.score || 0) + 50;
-  saveStats(); // Salvează în timp real în Firebase și LocalStorage[cite: 7]
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a eliminat un fascist!`);
+  saveStats(); 
   S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
  }
 }
@@ -411,8 +443,9 @@ function hurt(n){
  let resist = (S.skin==='soldat-rus-modern'||S.skin==='cernobil-stalker') ? 0.7 : 1;
  S.hp-=n*resist; S.flash=.3;
  if(S.hp<=0){
-  if(S.extraLife>0){S.extraLife=0;S.hp=100;return;}
+  if(S.extraLife>0){S.extraLife=0;S.hp=100;addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit viața suplimentară de la Aura Hetes!`);return;}
   if(S.mode==='stalingrad'){
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a fost trimis în GULAG!`);
    end(0);
   } else {
    S.hp=100;
@@ -463,7 +496,8 @@ function shoot(){
    const g = gs();
    g.kills = (g.kills || 0) + 1;
    g.score = (g.score || 0) + 50;
-   saveStats(); // Salvează imediat și în multiplayer la fiecare kill[cite: 7]
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} l-a spulberat pe ${best.name || 'Inamic'}!`);
+   saveStats(); 
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
      hp: Math.max(0, (best.hp || 100) - w.dmg)
@@ -487,7 +521,7 @@ function update(dt){
  const l=Math.hypot(mx,my);if(l){mx*=spd*dt/l;my*=spd*dt/l;S.bob+=dt*9;if(!solid(S.x+mx,S.y))S.x+=mx;if(!solid(S.x,S.y+my))S.y+=my}
  for(let i=0;i<5;i++)if(k(''+(i+1))&&S.w[i])S.cur=i;
  S.cd-=dt;S.kick=Math.max(0,S.kick-dt*6);S.flash-=dt;S.hm-=dt;S.ban-=dt;S.katcd-=dt;S.abilityCd-=dt;
- if((S.fire||k(' '))&&S.cd<=0)shoot();
+ if((S.fire||window.mobileShooterFire||k(' '))&&S.cd<=0)shoot();
 
  if(S.mode==='multiplayer'){
   S.mpTimeLeft -= dt;
@@ -650,8 +684,23 @@ function render(){
  S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i].n}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i])}`,20,H-100+n*20)});
  if(S.ban>0){cx.fillStyle='#ff3333';cx.font='bold 48px sans-serif';cx.textAlign='center';cx.fillText(S.bt,W/2,200);cx.textAlign='left'}
 
+ // Render Killfeed în colțul din dreapta sus
+ let nowTime = performance.now();
+ killFeedMessages = killFeedMessages.filter(kf => kf.time > nowTime);
+ if(killFeedMessages.length > 0){
+  let kfX = W - 320, kfY = 140;
+  cx.fillStyle = 'rgba(0,0,0,0.6)';
+  cx.fillRect(kfX - 10, kfY - 5, 310, killFeedMessages.length * 22 + 10);
+  cx.font = 'bold 12px sans-serif';
+  killFeedMessages.forEach((kf, idx) => {
+   let alpha = Math.min(1, (kf.time - nowTime) / 1000);
+   cx.fillStyle = `rgba(255, 204, 0, ${alpha})`;
+   cx.fillText(kf.text, kfX, kfY + 14 + idx * 22);
+  });
+ }
+
  if(S.mode==='multiplayer'){
-  let lbX = W - 380, lbY = 80, lbW = 190, lbH = 150;
+  let lbX = W - 380, lbY = 250, lbW = 190, lbH = 150;
   cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(lbX, lbY, lbW, lbH);
   cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(lbX, lbY, lbW, lbH);
   
@@ -671,7 +720,7 @@ function render(){
   });
  }
 
- const mmX=W-170, mmY=80, mmSz=140;
+ const mmX=W-170, mmY=410, mmSz=140;
  cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(mmX, mmY, mmSz, mmSz);
  cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(mmX, mmY, mmSz, mmSz);
  

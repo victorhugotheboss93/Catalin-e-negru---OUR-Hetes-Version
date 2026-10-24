@@ -457,7 +457,7 @@
             pointer-events: auto;
             user-select: none;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            font-size: 18px;
+            font-size: 22px;
         }
         .mob-btn:active, .mob-btn.pressed {
             background: rgba(255, 204, 0, 0.6);
@@ -490,28 +490,28 @@
             <button id="mob-classic-jump" class="mob-btn" style="bottom: 30px; right: 30px; width: 110px; height: 110px; border-radius: 50%; font-size: 20px; background: rgba(0,188,212,0.4);">SARI</button>
         </div>
 
-        <!-- Controale Mod Aura Hetes -->
+        <!-- Controale Mod Aura Hetes (Pad de Săgeți în Stânga Jos) -->
         <div id="mob-aura-controls" class="hidden">
-            <div style="position: absolute; bottom: 20px; left: 20px; width: 160px; height: 160px;">
-                <button id="mob-aura-up" class="mob-btn" style="top: 0; left: 55px; width: 50px; height: 50px;">▲</button>
-                <button id="mob-aura-down" class="mob-btn" style="bottom: 0; left: 55px; width: 50px; height: 50px;">▼</button>
-                <button id="mob-aura-left" class="mob-btn" style="top: 55px; left: 0; width: 50px; height: 50px;">◄</button>
-                <button id="mob-aura-right" class="mob-btn" style="top: 55px; right: 0; width: 50px; height: 50px;">►</button>
+            <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
+                <button id="mob-aura-up" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
+                <button id="mob-aura-down" class="mob-btn" style="bottom: 0; left: 60px; width: 55px; height: 55px;">▼</button>
+                <button id="mob-aura-left" class="mob-btn" style="top: 60px; left: 0; width: 55px; height: 55px;">◄</button>
+                <button id="mob-aura-right" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
         </div>
 
-        <!-- Controale Mod Shooter (Stânga: Minecraft D-Pad / Dreapta: Trage & Abilități) -->
+        <!-- Controale Mod Shooter / Stalingrad (Stânga: Săgeți Direcționale / Dreapta: Tragere & Abilități) -->
         <div id="mob-shooter-controls" class="hidden">
-            <div style="position: absolute; bottom: 25px; left: 25px; width: 160px; height: 160px;">
-                <button id="mob-sh-w" class="mob-btn" style="top: 0; left: 55px; width: 50px; height: 50px;">W</button>
-                <button id="mob-sh-s" class="mob-btn" style="bottom: 0; left: 55px; width: 50px; height: 50px;">S</button>
-                <button id="mob-sh-a" class="mob-btn" style="top: 55px; left: 0; width: 50px; height: 50px;">A</button>
-                <button id="mob-sh-d" class="mob-btn" style="top: 55px; right: 0; width: 50px; height: 50px;">D</button>
+            <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
+                <button id="mob-sh-w" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
+                <button id="mob-sh-s" class="mob-btn" style="bottom: 0; left: 60px; width: 55px; height: 55px;">▼</button>
+                <button id="mob-sh-a" class="mob-btn" style="top: 60px; left: 0; width: 55px; height: 55px;">◄</button>
+                <button id="mob-sh-d" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
             
-            <button id="mob-sh-fire" class="mob-btn" style="bottom: 30px; right: 30px; width: 95px; height: 95px; border-radius: 50%; background: rgba(200,0,0,0.5); border-color:#ff3333; font-size:15px;">TRAGE</button>
-            <button id="mob-sh-ability" class="mob-btn" style="bottom: 140px; right: 30px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,204,0,0.4); border-color:#ffcc00; font-size:13px;">ABIL</button>
-            <button id="mob-sh-katyusha" class="mob-btn" style="bottom: 140px; right: 115px; width: 75px; height: 75px; border-radius: 50%; background: rgba(0,255,204,0.4); border-color:#00ffcc; font-size:11px; display:none;">KATY</button>
+            <button id="mob-sh-fire" class="mob-btn" style="bottom: 30px; right: 30px; width: 100px; height: 100px; border-radius: 50%; background: rgba(200,0,0,0.5); border-color:#ff3333; font-size:16px;">TRAGE</button>
+            <button id="mob-sh-ability" class="mob-btn" style="bottom: 145px; right: 30px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,204,0,0.4); border-color:#ffcc00; font-size:13px;">ABIL</button>
+            <button id="mob-sh-katyusha" class="mob-btn" style="bottom: 145px; right: 115px; width: 75px; height: 75px; border-radius: 50%; background: rgba(0,255,204,0.4); border-color:#00ffcc; font-size:11px; display:none;">KATY</button>
         </div>
     </div>
 
@@ -1137,7 +1137,6 @@
         currentMode = 'CLASSIC'; currentDifficulty = difficulty;
         gameActive = true; classicFinished = false; obstaclesPassed = 0; obstacles = [];
 
-        // Activează UI mobil dacă este pe dispozitiv tactiv
         setupMobileUI('classic');
 
         classicSpeed = 10; 
@@ -1503,6 +1502,11 @@
         return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     }
 
+    window.hideMobileControls = () => {
+        const container = document.getElementById('mobile-controls');
+        if(container) container.style.display = 'none';
+    };
+
     function setupMobileUI(mode) {
         if (!isMobileDevice()) return;
         const container = document.getElementById('mobile-controls');
@@ -1517,10 +1521,11 @@
             bindTouchBtn('mob-classic-jump', 'w');
         } else if (mode === 'aura') {
             document.getElementById('mob-aura-controls').classList.remove('hidden');
-            bindTouchBtn('mob-aura-up', 'arrowup');
-            bindTouchBtn('mob-aura-down', 'arrowdown');
-            bindTouchBtn('mob-aura-left', 'arrowleft');
-            bindTouchBtn('mob-aura-right', 'arrowright');
+            // Mapare butoane săgeți pentru Modul Aura Hetes (W, S, A, D)
+            bindTouchBtn('mob-aura-up', 'w');
+            bindTouchBtn('mob-aura-down', 's');
+            bindTouchBtn('mob-aura-left', 'a');
+            bindTouchBtn('mob-aura-right', 'd');
         } else if (mode === 'shooter') {
             document.getElementById('mob-shooter-controls').classList.remove('hidden');
             bindTouchBtn('mob-sh-w', 'w');
@@ -1554,27 +1559,6 @@
         el.ontouchstart = (e) => { e.preventDefault(); keys[keyName] = true; el.classList.add('pressed'); };
         el.ontouchend = (e) => { e.preventDefault(); keys[keyName] = false; el.classList.remove('pressed'); };
     }
-
-    // Suport swipe (glisare) pe ecran pentru rotirea camerei în shooter pe mobile
-    let touchStartX = 0;
-    canvas.addEventListener('touchstart', (e) => {
-        if (currentMode === 'SHOOTER' && isMobileDevice()) {
-            if (e.touches.length > 0) {
-                touchStartX = e.touches[0].clientX;
-            }
-        }
-    }, {passive: true});
-
-    canvas.addEventListener('touchmove', (e) => {
-        if (currentMode === 'SHOOTER' && isMobileDevice()) {
-            if (e.touches.length > 0 && window.updateMobileLookAngle) {
-                let currentX = e.touches[0].clientX;
-                let diffX = currentX - touchStartX;
-                touchStartX = currentX;
-                window.updateMobileLookAngle(diffX * 0.005);
-            }
-        }
-    }, {passive: true});
 
     // Expunem funcțiile pentru a fi accesate din shooter.js
     window.setupMobileShooterUI = () => setupMobileUI('shooter');
