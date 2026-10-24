@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4.1) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -27,12 +27,10 @@ const SKINS={
      const g = window.gameStats || {};
      const s = g.shooter || {};
      const c = g.classicCompletions || {};
-     
      const soviet = c.soviet ?? 0;
-     const kills = s.kills ?? g.shooterKills ?? g.kills ?? 0;
-     const wins = s.wins ?? g.shooterWins ?? g.wins ?? 0;
-     const mpWins = s.mpWins ?? g.mpWins ?? 0;
-
+     const kills = s.kills ?? 0;
+     const wins = s.wins ?? 0;
+     const mpWins = s.mpWins ?? 0;
      return Number(soviet) >= 3 && Number(wins) >= 10 && Number(kills) >= 1000 && Number(mpWins) >= 1;
    }, 
    ab: 'Rezistenta la gloante & 5 arme', 
@@ -47,12 +45,10 @@ const SKINS={
      const g = window.gameStats || {};
      const s = g.shooter || {};
      const c = g.classicCompletions || {};
-     
      const soviet = c.soviet ?? 0;
-     const kills = s.kills ?? g.shooterKills ?? g.kills ?? 0;
-     const wins = s.wins ?? g.shooterWins ?? g.wins ?? 0;
-     const mpWins = s.mpWins ?? g.mpWins ?? 0;
-
+     const kills = s.kills ?? 0;
+     const wins = s.wins ?? 0;
+     const mpWins = s.mpWins ?? 0;
      return Number(soviet) >= 5 && Number(wins) >= 15 && Number(kills) >= 1500 && Number(mpWins) >= 3;
    }, 
    ab: 'Rage mode & Lasere (max 10m pe AI) & 5 arme', 
@@ -356,9 +352,17 @@ function triggerKatyusha(){
  pl(sndExplosionRocket);
  S.flash=0.2;
  let killed=0;
+ const g = gs();
  S.en.forEach(e=>{
-  if(killed<4 && !e.dead){ e.dead=1; S.kills++; killed++; }
+  if(killed<4 && !e.dead){ 
+   e.dead=1; 
+   S.kills++; 
+   g.kills = (g.kills || 0) + 1;
+   g.score = (g.score || 0) + 50;
+   killed++; 
+  }
  });
+ saveStats();
 }
 
 function triggerSkinAbility(){
@@ -388,7 +392,20 @@ function triggerSkinAbility(){
  }
 }
 
-function dmg(e,n){if(e.dead)return;e.hp-=n;S.hm=.12;if(e.hp<=0){e.dead=1;S.kills++;S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)})}}
+function dmg(e,n){
+ if(e.dead)return;
+ e.hp-=n;
+ S.hm=.12;
+ if(e.hp<=0){
+  e.dead=1;
+  S.kills++;
+  const g = gs();
+  g.kills = (g.kills || 0) + 1;
+  g.score = (g.score || 0) + 50;
+  saveStats(); // Salvează în timp real în Firebase și LocalStorage
+  S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
+ }
+}
 
 function hurt(n){
  let resist = (S.skin==='soldat-rus-modern'||S.skin==='cernobil-stalker') ? 0.7 : 1;
@@ -415,8 +432,9 @@ function end(w){
  }
  if(unsubscribeMp){ unsubscribeMp(); unsubscribeMp = null; }
  const g=gs();
- g.kills+=S.kills; if(w)g.wins++; if(S.mode==='multiplayer')g.mpWins=(g.mpWins||0)+1;
- g.score+=S.kills*50+(w?2000:500);
+ if(w) g.wins = (g.wins || 0) + 1;
+ if(S.mode==='multiplayer') g.mpWins = (g.mpWins || 0) + 1;
+ g.score = (g.score || 0) + (w ? 2000 : 500);
  saveStats();
  stopMenuMusic();
  if(window.sndStalingradBgm){window.sndStalingradBgm.pause();window.sndStalingradBgm.currentTime=0;}
@@ -442,6 +460,10 @@ function shoot(){
  } else if(best){
   if(best.id){
    S.kills++;
+   const g = gs();
+   g.kills = (g.kills || 0) + 1;
+   g.score = (g.score || 0) + 50;
+   saveStats(); // Salvează imediat și în multiplayer la fiecare kill
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
      hp: Math.max(0, (best.hp || 100) - w.dmg)
@@ -567,14 +589,12 @@ function render(){
     }
    }
 
-   // Afișare nume deasupra jucătorului
    cx.fillStyle = '#ffff00';
    cx.font = 'bold 13px sans-serif';
    cx.textAlign = 'center';
    cx.fillText(p.name || 'Anonim', l + w/2, y - 8);
    cx.textAlign = 'left';
 
-   // Randare armă echipată la mâna dreaptă
    if(p.weapon && WP[p.weapon]){
     let wpObj = WP[p.weapon];
     let wImg = IMG[wpObj.img];
@@ -630,7 +650,6 @@ function render(){
  S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i].n}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i])}`,20,H-100+n*20)});
  if(S.ban>0){cx.fillStyle='#ff3333';cx.font='bold 48px sans-serif';cx.textAlign='center';cx.fillText(S.bt,W/2,200);cx.textAlign='left'}
 
- // LEADERBOARD RUNDĂ (MULTIPLAYER FFA) - Dreapta (în stânga minihărții)
  if(S.mode==='multiplayer'){
   let lbX = W - 380, lbY = 80, lbW = 190, lbH = 150;
   cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(lbX, lbY, lbW, lbH);
@@ -652,7 +671,6 @@ function render(){
   });
  }
 
- // MINIMAP
  const mmX=W-170, mmY=80, mmSz=140;
  cx.fillStyle='rgba(0,0,0,0.7)'; cx.fillRect(mmX, mmY, mmSz, mmSz);
  cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(mmX, mmY, mmSz, mmSz);
