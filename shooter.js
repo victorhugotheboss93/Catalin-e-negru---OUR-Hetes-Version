@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4.1) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.4.2) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -402,7 +402,7 @@ function dmg(e,n){
   const g = gs();
   g.kills = (g.kills || 0) + 1;
   g.score = (g.score || 0) + 50;
-  saveStats(); // Salvează în timp real în Firebase și LocalStorage
+  saveStats(); // Salvează în timp real în Firebase și LocalStorage[cite: 7]
   S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
  }
 }
@@ -463,7 +463,7 @@ function shoot(){
    const g = gs();
    g.kills = (g.kills || 0) + 1;
    g.score = (g.score || 0) + 50;
-   saveStats(); // Salvează imediat și în multiplayer la fiecare kill
+   saveStats(); // Salvează imediat și în multiplayer la fiecare kill[cite: 7]
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
      hp: Math.max(0, (best.hp || 100) - w.dmg)
