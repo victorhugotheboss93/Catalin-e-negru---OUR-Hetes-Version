@@ -614,9 +614,9 @@
                 <div>- jocul este de fapt mai mult bazat pe el;</div>
                 <div>Cătălin - numele este al lui</div>
             </div>
-                <div class="credits-section" style="margin-top: 15px;">
+            <div class="credits-section" style="margin-top: 15px;">
                 <div class="credits-section-title">Tetris - Alexey Pajitnov</div>
-</div>
+            </div>
             <div class="credits-section" style="margin-top: 15px;">
                 <div class="credits-section-title">Muzica:</div>
                 <div>День Победы Ayden George - remix (Meniu)</div>
@@ -651,6 +651,7 @@
             <button class="btn btn-tetris" onclick="startTetrisModeGame('original')">Tetris Original</button>
             <button class="btn btn-tetris" style="border-left-color: #e74c3c;" onclick="startTetrisModeGame('berlin')">Tetris Zidul Berlinului</button>
             <button class="btn btn-back" style="margin-top: 100px;" onclick="backToMain()">Înapoi la meniu</button>
+        </div>
     </div>
 
     <div id="classic-menu" class="screen hidden">
@@ -1143,6 +1144,13 @@
     canvas.addEventListener('mousedown', () => {
         if (currentMode === 'CLASSIC' && gameActive) triggerClassicJump();
     });
+    
+    // Suport touch preluat din old.html pentru salt direct pe canvas în mod clasic
+    canvas.addEventListener('touchstart', (e) => {
+        if (currentMode === 'CLASSIC' && gameActive) {
+            triggerClassicJump();
+        }
+    }, {passive: true});
 
     function openClassicMenu() {
         document.getElementById('main-menu').classList.add('hidden');
@@ -1214,6 +1222,7 @@
     }
     window.showWinScreen = showWinScreen;
 
+    // ================== LOGICA MOD CLASIC (PRELUATĂ DIN OLD) ==================
     function startClassicMode(difficulty) {
         hideAllMenus(); stopMenuMusic();
         currentMode = 'CLASSIC'; currentDifficulty = difficulty;
