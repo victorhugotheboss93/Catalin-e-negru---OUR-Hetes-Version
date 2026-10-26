@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="_ob0-oeemaraqDbeUweh1NQw1XIawSZ0dS44O__onn4" />
     <meta name="description" content="Catalin e negru - OUR HETES Version este un joc inceput din gluma unui coleg de clasa, avand mai multe moduri de joc, cum ar fi cu colectare aura, shooter Stalingrad sau multiplayer si cu geometry dash, si salvand progresul cu conturi. Te poti juca caHetess , marele nostru Ghidus, in mai multe moduri. Ataca fascistii, distruge capitalismul si instaureaza comunismul. Acest joc nu promoveaza ideologii extremiste si dictatoriale! Joaca-te acum jocul nostru indie gratis Catalin e negru - OUR HETES Version THE GAME!"/>
     <meta name="robots" content="index, follow"/>
-    <title>Catalin e negru - OUR HETES V3</title>
+    <title>Catalin e negru - OUR HETES V4</title>
     <style>
         * {
             box-sizing: border-box;
@@ -225,12 +225,14 @@
             display: flex;
             gap: 2px;
             margin-bottom: 6px;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             flex: 1;
+            min-width: 50px;
             padding: 4px 1px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             background: #333;
             color: #ccc;
@@ -322,6 +324,7 @@
 
         .btn-classic { border-left: 8px solid #00bcff; }
         .btn-aura { border-left: 8px solid #ffcc00; }
+        .btn-tetris { border-left: 8px solid #9b59b6; }
         .btn-shooter { border-left: 8px solid #e67e22; }
         .btn-soviet { 
             background: #cc0000 !important; 
@@ -541,6 +544,7 @@
                     <button id="tab-general" class="tab-btn" onclick="window.switchLeaderboardTab('general')">General</button>
                     <button id="tab-clasic" class="tab-btn" onclick="window.switchLeaderboardTab('clasic')">Clasic</button>
                     <button id="tab-aura" class="tab-btn" onclick="window.switchLeaderboardTab('aura')">Aura</button>
+                    <button id="tab-tetris" class="tab-btn" onclick="window.switchLeaderboardTab('tetris')">Tetris</button>
                     <button id="tab-shooter" class="tab-btn" onclick="window.switchLeaderboardTab('shooter')">Shooter</button>
                     <button id="tab-gulag" class="tab-btn" onclick="window.switchLeaderboardTab('gulag')">Gulag</button>
                 </div>
@@ -549,43 +553,47 @@
 
             <div class="title-area">
                 <h1 class="main-title">Catalin e negru</h1>
-                <h2 class="subtitle">OUR HETES VERSION V3</h2>
+                <h2 class="subtitle">OUR HETES VERSION V4</h2>
             </div>
             
             <div class="update-log">
                 <h3>Update Log</h3>
+                <strong>V4: Modul Tetris</strong><br>
+                modul original Tetris<br>
+                noul mod Tetris Zidul Berlinului<br><br>
                 <strong>V3: Modul Gulag Escape</strong><br>
-                • hartă 3D cu tuneluri<br>
-                • trupe NKVD care te caută<br>
-                • sistem de interacționare cu obiectele<br><br>
+                harta 3D cu tuneluri<br>
+                trupe NKVD care te cauta<br>
+                system de interactionare cu obiectele<br><br>
                 <strong>V2.6: Update la skinuri shooter</strong><br>
-                • skinurile au abilități diversificate<br>
-                • Gopnik are music player<br>
-                • repararea problemelor la skinuri<br><br>
+                skinurile au abilitati diversificate<br>
+                Gopnik are music player<br>
+                repararea problemelor la skinuri<br><br>
                 <strong>V2.5: Modul Shooter Multiplayer</strong><br>
-                • acum sunt 2 moduri shooter: Stalingrad și Multiplayer<br>
-                • Free For All sau team<br>
-                • skinuri cu abilități<br>
-                • arme noi<br><br>
+                acum sunt 2 moduri shooter: Stalingrad si Multiplayer<br>
+                Free For All sau team<br>
+                skinuri cu abilitati<br>
+                arme noi<br><br>
                 <strong>V2: Modul Shooter</strong><br>
-                • harta Stalingrad 3D<br>
-                • inamici fasciști<br><br>
+                harta Stalingrad 3d<br>
+                inamici fascisti<br><br>
                 <strong>V1.1: Sistem Cloud</strong><br>
-                • Sincronizare cont cu progres<br>
-                • Leaderboard TOP 100 live<br><br>
+                Sincornizare cont cu progress<br>
+                Leaderboard TOP 100 live<br><br>
                 <strong>V1: Lansare</strong><br>
-                • Modul clasic<br>
-                &nbsp;&nbsp;4 moduri de dificultate<br>
-                &nbsp;&nbsp;epic joe metri desh<br>
-                • Modul Aura Hetes<br>
-                &nbsp;&nbsp;colectare aură<br>
-                &nbsp;&nbsp;inamici fasciști și boss
+                -Modul clasic<br>
+                4 moduri de dificultate<br>
+                epic joe metri desh<br>
+                -Modul Aura Hetes<br>
+                colectare aura<br>
+                inamici fascisti si boss
             </div>
         </div>
 
         <div class="modes-list">
             <button class="btn btn-classic" onclick="openClassicMenu()">Modul Clasic</button>
             <button class="btn btn-aura" onclick="startAuraMode()">Modul Aura Hetes</button>
+            <button class="btn btn-tetris" onclick="if(window.openTetrisMenu) window.openTetrisMenu(); else if(window.tetrisMenu) window.tetrisMenu();">Modul Tetris</button>
             <button class="btn btn-shooter" onclick="if(window.openShooterMenu) window.openShooterMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
             <button id="btn-gulag-escape" class="btn btn-soviet" onclick="window.startGulagSession()">Modul Gulag Escape</button>
         </div>
@@ -598,20 +606,26 @@
             </div>
             <div class="credits-section">
                 <div class="credits-section-title">Contribuitori și echipa:</div>
-                <div><strong>Tovarisch Gabi</strong> - editează, face update, adaugă funcții noi importante;</div>
-                <div>- a avut ideea de a face și el un joc, fiind inspirat de jocul lui B. Rareș;</div>
-                <div><strong>Robert</strong> - idei peak;</div>
-                <div><strong>B. Rareș</strong> - a făcut jocul original și a avut ideea acestui joc numit "Catalin e negru";</div>
-                <div><strong>Hetes Gydus</strong> - a avut ideea de a reface jocul (și a cerut update);</div>
+                <div>Tovarisch Gabi - editează, face update, adaugă funcţii noi importante;</div>
+                <div>- a avut ideea de a face și el un joc, fiind inspirat de jocul lui B. skinuri shoote Rares;</div>
+                <div>Robert - idei peak;</div>
+                <div>B. Rareş - a făcut jocul original și a avut ideea acestui joc numit "Catalin e negru";</div>
+                <div>Hetes Gydus - a avut ideea de a reface jocul (și a cerut update);</div>
                 <div>- jocul este de fapt mai mult bazat pe el;</div>
-                <div><strong>Cătălin</strong> - numele este al lui și va apărea în curând el în joc</div>
+                <div>Cătălin - numele este al lui</div>
             </div>
+                <div class="credits-section" style="margin-top: 15px;">
+                <div class="credits-section-title">Tetris - Alexey Pajitnov</div>
+</div>
             <div class="credits-section" style="margin-top: 15px;">
+                <div class="credits-section-title">Muzica:</div>
                 <div>День Победы Ayden George - remix (Meniu)</div>
                 <div>Священная война Sp00n.exe - 8 bit remix (Modul Stalingrad)</div>
                 <div>Тёмная ночь - The Sour Kraut - instrumental pian (Modul Stalingrad pierdut..)</div>
                 <div>Тёмная ночь - Ayden George - remix + reverb by Tovarisch Gabi (Modul Gulag)</div>
                 <div>Патриотическая песня - Forte Republic - Sovietwave Remix (Modul Gulag)</div>
+                <div>Game Boy Tetris Music A - 071047 (Modul Tetris Original)</div>
+                <div>Tetris Theme - Arsenhoz - Orchestral cover (Modul Tetris Zidul Berlinului)</div>
                 <br>
                 <div class="credits-section-title">Music player Gopnik Hardbass</div>
                 <div>Наш гимн - Hard Bass School</div>
@@ -620,6 +634,23 @@
                 <div>Kalinka Hardbass Remix - DJ Bonebreaker</div>
             </div>
         </div>
+    </div>
+
+    <div id="tetris-menu" class="screen hidden">
+        <div class="song-credit" style="bottom: 20px;">
+            День Победы - Ayden George remix
+        </div>
+
+        <div class="menu-header-container">
+            <div class="title-area">
+                <h1 class="main-title" style="font-size: 50px; color: #9b59b6;">Modul Tetris</h1>
+                <h2 class="subtitle">Alege Modul de Joc</h2>
+            </div>
+        </div>
+        <div class="modes-list">
+            <button class="btn btn-tetris" onclick="startTetrisModeGame('original')">Tetris Original</button>
+            <button class="btn btn-tetris" style="border-left-color: #e74c3c;" onclick="startTetrisModeGame('berlin')">Tetris Zidul Berlinului</button>
+            <button class="btn btn-back" style="margin-top: 100px;" onclick="backToMain()">Înapoi la meniu</button>
     </div>
 
     <div id="classic-menu" class="screen hidden">
@@ -719,7 +750,12 @@
                         }
                     });
                     if(data.stats.gulagEscapes && window.gameStats.gulagEscapes) window.gameStats.gulagEscapes = data.stats.gulagEscapes;
+                    if(data.stats.tetrisScore && data.stats.tetrisScore > window.gameStats.tetrisScore) window.gameStats.tetrisScore = data.stats.tetrisScore;
+                    if(data.stats.tetrisOriginalScore && data.stats.tetrisOriginalScore > window.gameStats.tetrisOriginalScore) window.gameStats.tetrisOriginalScore = data.stats.tetrisOriginalScore;
+                    if(data.stats.tetrisBerlinScore && data.stats.tetrisBerlinScore > window.gameStats.tetrisBerlinScore) window.gameStats.tetrisBerlinScore = data.stats.tetrisBerlinScore;
+                    
                     if (data.stats.shooter && window.mergeShooterStats) window.mergeShooterStats(data.stats.shooter);
+                    if (data.stats.tetris && window.mergeTetrisStats) window.mergeTetrisStats(data.stats.tetris);
                     localStorage.setItem('catalin_game_stats', JSON.stringify(window.gameStats));
                 }
             } else {
@@ -741,6 +777,7 @@
                                        (stats.classicCompletions.soviet || 0) * 1000 +
                                        (stats.auraCompletions || 0) * 500 + 
                                        (stats.gulagEscapes || 0) * 2000 +
+                                       (stats.tetrisScore || 0) +
                                        ((stats.shooter && stats.shooter.score) || 0);
 
             await setDoc(doc(db, "users", auth.currentUser.uid), {
@@ -771,7 +808,12 @@
                     let aRec = data.stats?.auraRecord || 0;
                     let aComp = data.stats?.auraCompletions || 0;
                     let gEsc = data.stats?.gulagEscapes || 0;
-                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + (data.stats?.shooter?.score || 0);
+                    
+                    let tOrig = data.stats?.tetrisOriginalScore || data.stats?.tetris?.originalScore || 0;
+                    let tBerl = data.stats?.tetrisBerlinScore || data.stats?.tetris?.berlinScore || 0;
+                    let tScore = Math.max(tOrig, tBerl, data.stats?.tetrisScore || 0);
+
+                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + tScore + (data.stats?.shooter?.score || 0);
 
                     window.globalUsersList.push({
                         name: data.displayName,
@@ -783,6 +825,9 @@
                         hardWins: hW,
                         sovietWins: sW,
                         gulagEscapes: gEsc,
+                        tetrisScore: tScore,
+                        tetrisOriginalScore: tOrig,
+                        tetrisBerlinScore: tBerl,
                         shooterScore: data.stats?.shooter?.score || 0,
                         shooterKills: data.stats?.shooter?.kills || 0,
                         stalingradVictims: data.stats?.shooter?.kills || 0
@@ -935,7 +980,10 @@
         classicCompletions: { easy: 0, medium: 0, hard: 0, soviet: 0 },
         auraCompletions: 0,
         auraRecord: 0,
-        gulagEscapes: 0
+        gulagEscapes: 0,
+        tetrisScore: 0,
+        tetrisOriginalScore: 0,
+        tetrisBerlinScore: 0
     };
 
     if (localStorage.getItem('catalin_game_stats')) {
@@ -959,6 +1007,7 @@
         document.getElementById('tab-general').classList.toggle('active', tab === 'general');
         document.getElementById('tab-clasic').classList.toggle('active', tab === 'clasic');
         document.getElementById('tab-aura').classList.toggle('active', tab === 'aura');
+        document.getElementById('tab-tetris').classList.toggle('active', tab === 'tetris');
         document.getElementById('tab-shooter').classList.toggle('active', tab === 'shooter');
         document.getElementById('tab-gulag').classList.toggle('active', tab === 'gulag');
         document.getElementById('tab-personal').classList.toggle('active', tab === 'personal');
@@ -972,11 +1021,13 @@
                 <strong style="color:#00ffcc">Numele tău: ${window.currentUserDisplayName || "Neresetat"}</strong><hr style="border:0; border-top:1px solid #444; margin:5px 0;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;">
                     <div>
-                        <strong>Clasic:</strong><br>
+                        <strong>Clasic & Tetris:</strong><br>
                         • Ușor: ${window.gameStats.classicCompletions.easy || 0}<br>
                         • Mediu: ${window.gameStats.classicCompletions.medium || 0}<br>
                         • Greu: ${window.gameStats.classicCompletions.hard || 0}<br>
-                        • <span style="color:#ff3333">Sovietic: ${window.gameStats.classicCompletions.soviet || 0}</span>
+                        • <span style="color:#ff3333">Sovietic: ${window.gameStats.classicCompletions.soviet || 0}</span><br>
+                        • <span style="color:#9b59b6">Tetris Original: ${window.gameStats.tetrisOriginalScore || 0}</span><br>
+                        • <span style="color:#e74c3c">Tetris Berlin: ${window.gameStats.tetrisBerlinScore || 0}</span>
                     </div>
                     <div>
                         <strong>Aura & Gulag:</strong><br>
@@ -1010,6 +1061,11 @@
             sortedList.sort((a, b) => b.auraRec - a.auraRec);
             sortedList.forEach((player, index) => {
                 htmlStr += `<div class="global-item"><span>#${index + 1} <strong>${player.name}</strong></span><span>Record Aură: <strong style="color:#ffcc00">${player.auraRec}</strong></span></div>`;
+            });
+        } else if (currentLeaderboardTab === 'tetris') {
+            sortedList.sort((a, b) => (b.tetrisOriginalScore + b.tetrisBerlinScore) - (a.tetrisOriginalScore + a.tetrisBerlinScore));
+            sortedList.forEach((player, index) => {
+                htmlStr += `<div class="global-item" style="font-size:10px;"><span>#${index + 1} <strong>${player.name}</strong></span><span>Original: <strong style="color:#9b59b6">${player.tetrisOriginalScore || 0}</strong> | Berlin: <strong style="color:#e74c3c">${player.tetrisBerlinScore || 0}</strong></span></div>`;
             });
         } else if (currentLeaderboardTab === 'shooter') {
             // Notă: Randarea efectivă a tab-ului de shooter este suprescrisă și gestionată din shooter.js folosind shooterScore și shooterKills
@@ -1098,6 +1154,7 @@
     function backToMain() {
         currentMode = 'NONE'; gameActive = false;
         document.getElementById('classic-menu').classList.add('hidden');
+        document.getElementById('tetris-menu').classList.add('hidden');
         document.getElementById('lose-screen').classList.add('hidden');
         document.getElementById('win-screen').classList.add('hidden');
         document.getElementById('main-menu').classList.remove('hidden');
@@ -1118,6 +1175,7 @@
     function hideAllMenus() {
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('classic-menu').classList.add('hidden');
+        document.getElementById('tetris-menu').classList.add('hidden');
         document.getElementById('lose-screen').classList.add('hidden');
         document.getElementById('win-screen').classList.add('hidden');
         document.getElementById('auth-panel').classList.add('hidden');
@@ -1574,5 +1632,6 @@
 
 <script src="shooter.js"></script>
 <script src="gulag.js"></script>
+<script src="tetris.js"></script>
 </body>
 </html>
