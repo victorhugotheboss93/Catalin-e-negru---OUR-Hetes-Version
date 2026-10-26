@@ -1,10 +1,14 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.5 - FIXED MOBILE) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.7 - MOBILE & LEADERBOARD FIXED) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
 ['enemy','makarov','ppsh','mosin','svt40','rpg7','ak47','rpk16','pkm','ak12'].forEach(n=>{
  IMG[n]=new Image(); IMG[n].src=n+'.png';
 });
+
+// Inițializare controale mobile globale
+window.mobileKeys = window.mobileKeys || { w: 0, s: 0, a: 0, d: 0 };
+window.mobileShooterFire = 0;
 
 const myUniqueId = 'p_' + Math.random().toString(36).substring(2, 9);
 let unsubscribeMp = null;
@@ -18,12 +22,12 @@ function addKillFeed(text) {
 
 const SKINS={
  hetes:{name:'Hetes', front:'hetes-front.png', back:'hetes-back.png', cond:'I-l ai de la inceput', unlock:()=>true, ab:'Lasere din ochi rosii (max 10m pe AI)', multiWeapon:false},
- catalin:{name:'Catalin', front:'catalin-front.png', back:'catalin-back.png', cond:'Dupa ce castigi modul aura hetes', unlock:()=>window.gameStats.auraCompletions>=1, ab:'Aura luminoasă & rezistență la gloanțe & o viață în plus', multiWeapon:false},
- proletar:{name:'Proletar', front:'proletar-front.png', back:'proletar-back.png', cond:'Castigi modul sovietic de la modul clasic', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1, ab:'Echipează 3 arme & armă nouă la fiecare 6 utilizări de abilitate & regenerare 5 HP între pauze', multiWeapon:false, maxWeapons:5},
- gopnik:{name:'Gopnik', front:'gopnik-front.png', back:'gopnik-back.png', cond:'Castigi modul sovietic si modul stalingrad', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=1, ab:'Player muzical Hardbass (Taste M, K, L) & Vodka (+50 HP)', multiWeapon:false},
- nazbol:{name:'Nazbol', front:'nazbol-front.png', back:'nazbol-back.png', cond:'Castigi modul sovietic, stalingrad de 2 ori + 100 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=2 && (window.gameStats.shooter?.kills||0)>=100, ab:'Fum roșu (invulnerabilitate 5s, cooldown 20s, viteză mare)', multiWeapon:false},
- 'soldat-sovietic':{name:'Soldat Sovietic', front:'soldat-sovietic-front.png', back:'soldat-sovietic-back.png', cond:'Castigi modul sovietic, stalingrad de 5 ori + 300 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=5 && (window.gameStats.shooter?.kills||0)>=300, ab:'Până la 5 arme & Grenade devastation (kill instant)', multiWeapon:true},
- 'cernobil-stalker':{name:'Cernobîl Stalker', front:'cernobil-stalker-front.png', back:'cernobil-stalker-back.png', cond:'Castigi modul sovietic, stalingrad de 10 ori + 500 victime', unlock:()=>(window.gameStats.classicCompletions?.soviet||0)>=1 && (window.gameStats.shooter?.wins||0)>=10 && (window.gameStats.shooter?.kills||0)>=500, ab:'Gloanțe toxice & Daune toxice pe rază 15m & Grenade toxice (kill instant + efect)', multiWeapon:true},
+ catalin:{name:'Catalin', front:'catalin-front.png', back:'catalin-back.png', cond:'Dupa ce castigi modul aura hetes', unlock:()=>(window.gameStats&&window.gameStats.auraCompletions>=1), ab:'Aura luminoasă & rezistență la gloanțe & o viață în plus', multiWeapon:false},
+ proletar:{name:'Proletar', front:'proletar-front.png', back:'proletar-back.png', cond:'Castigi modul sovietic de la modul clasic', unlock:()=>((window.gameStats?.classicCompletions?.soviet||0)>=1), ab:'Echipează 3 arme & armă nouă la fiecare 6 utilizări de abilitate & regenerare 5 HP între pauze', multiWeapon:false, maxWeapons:5},
+ gopnik:{name:'Gopnik', front:'gopnik-front.png', back:'gopnik-back.png', cond:'Castigi modul sovietic si modul stalingrad', unlock:()=>((window.gameStats?.classicCompletions?.soviet||0)>=1 && (window.gameStats?.shooter?.wins||0)>=1), ab:'Player muzical Hardbass (Taste M, K, L) & Vodka (+50 HP)', multiWeapon:false},
+ nazbol:{name:'Nazbol', front:'nazbol-front.png', back:'nazbol-back.png', cond:'Castigi modul sovietic, stalingrad de 2 ori + 100 victime', unlock:()=>((window.gameStats?.classicCompletions?.soviet||0)>=1 && (window.gameStats?.shooter?.wins||0)>=2 && (window.gameStats?.shooter?.kills||0)>=100), ab:'Fum roșu (invulnerabilitate 5s, cooldown 20s, viteză mare)', multiWeapon:false},
+ 'soldat-sovietic':{name:'Soldat Sovietic', front:'soldat-sovietic-front.png', back:'soldat-sovietic-back.png', cond:'Castigi modul sovietic, stalingrad de 5 ori + 300 victime', unlock:()=>((window.gameStats?.classicCompletions?.soviet||0)>=1 && (window.gameStats?.shooter?.wins||0)>=5 && (window.gameStats?.shooter?.kills||0)>=300), ab:'Până la 5 arme & Grenade devastation (kill instant)', multiWeapon:true},
+ 'cernobil-stalker':{name:'Cernobîl Stalker', front:'cernobil-stalker-front.png', back:'cernobil-stalker-back.png', cond:'Castigi modul sovietic, stalingrad de 10 ori + 500 victime', unlock:()=>((window.gameStats?.classicCompletions?.soviet||0)>=1 && (window.gameStats?.shooter?.wins||0)>=10 && (window.gameStats?.shooter?.kills||0)>=500), ab:'Gloanțe toxice & Daune toxice pe rază 15m & Grenade toxice (kill instant + efect)', multiWeapon:true},
 'soldat-rus-modern': {
    name: 'Soldat Rus Modern', 
    front: 'soldat-rus-modern-front.png', 
@@ -80,12 +84,16 @@ const GRS_PLAYLIST = [
 ];
 let gopnikAudio = null;
 
-const gs=()=>{const g=window.gameStats;return g.shooter||(g.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes',mpWins:0})};
+const gs=()=>{
+ window.gameStats = window.gameStats || {};
+ return window.gameStats.shooter||(window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes',mpWins:0});
+};
 window.mergeShooterStats=s=>{const m=gs();['kills','wins','score','mpWins'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
-const pl=(a,v=.5)=>{try{const c=a.cloneNode();c.volume=v;c.play().catch(()=>{})}catch(e){}};
+const pl=(a,v=.5)=>{try{if(a){const c=a.cloneNode();c.volume=v;c.play().catch(()=>{});}}catch(e){}};
 
 function getMaxWeapons(skinKey){
  const sk=SKINS[skinKey];
+ if(!sk) return 3;
  if(sk.maxWeapons) return sk.maxWeapons;
  return sk.multiWeapon ? 5 : 3;
 }
@@ -131,10 +139,28 @@ st.textContent=`
  cursor: pointer; font-weight: bold;
 }
 #mp-back-btn:hover { background: #e74c3c; }
+
+/* Mobile Touch Controls */
+#sh-touch-controls {
+ display: none;
+ position: absolute; bottom: 15px; left: 0; width: 100%;
+ justify-content: space-between; padding: 0 20px; box-sizing: border-box;
+ z-index: 999; pointer-events: none;
+}
+.t-btn-group { display: flex; gap: 8px; pointer-events: auto; }
+.t-btn {
+ width: 55px; height: 55px; background: rgba(0,0,0,0.65);
+ border: 2px solid #ffcc00; color: #ffcc00; font-size: 18px; font-weight: bold;
+ border-radius: 50%; display: flex; align-items: center; justify-content: center;
+ user-select: none; touch-action: manipulation;
+}
+.t-btn:active { background: rgba(255,204,0,0.4); }
 `;
 document.head.appendChild(st);
 
-$('game-container').insertAdjacentHTML('beforeend',`
+const gc = $('game-container');
+if(gc){
+ gc.insertAdjacentHTML('beforeend',`
 <button id="mp-back-btn" class="hidden" onclick="backToMain()">Ieși la meniu</button>
 <div id="sh-menu" class="screen hidden"><h1 class="main-title" style="font-size:50px">Modul Shooter</h1>
 <div class="modes-list" style="margin-top:30px">
@@ -164,15 +190,34 @@ $('game-container').insertAdjacentHTML('beforeend',`
 <div id="sh-lose" class="screen hidden">
   <button id="sh-lose-btn" class="btn btn-back" onclick="backToMain()">Înapoi la meniu</button>
 </div>
-<div id="sh-win" class="screen hidden"><div class="end-title" style="color:#33ff33">Misiune Îndeplinită! ☭</div><button class="btn btn-back" onclick="backToMain()">Înapoi la meniu</button></div>`);
+<div id="sh-win" class="screen hidden"><div class="end-title" style="color:#33ff33">Misiune Îndeplinită! ☭</div><button class="btn btn-back" onclick="backToMain()">Înapoi la meniu</button></div>
 
-document.querySelector('#main-menu .modes-list').insertAdjacentHTML('beforeend','<button class="btn btn-shooter" onclick="shMenu()">Modul Shooter</button>');
+<div id="sh-touch-controls">
+  <div class="t-btn-group">
+    <div class="t-btn" ontouchstart="window.mobileKeys.a=1" ontouchend="window.mobileKeys.a=0">◄</div>
+    <div class="t-btn" ontouchstart="window.mobileKeys.w=1" ontouchend="window.mobileKeys.w=0">▲</div>
+    <div class="t-btn" ontouchstart="window.mobileKeys.s=1" ontouchend="window.mobileKeys.s=0">▼</div>
+    <div class="t-btn" ontouchstart="window.mobileKeys.d=1" ontouchend="window.mobileKeys.d=0">►</div>
+  </div>
+  <div class="t-btn-group">
+    <div class="t-btn" style="border-color:#00ffcc; color:#00ffcc;" onclick="window.triggerMobileAbility()">G</div>
+    <div class="t-btn" style="background:rgba(200,0,0,0.7); border-color:#fff; color:#fff;" ontouchstart="window.mobileShooterFire=1" ontouchend="window.mobileShooterFire=0">FIRE</div>
+  </div>
+</div>
+`);
+}
 
-const show=(id,v)=>$(id).classList.toggle('hidden',!v);
+const mainMenuList = document.querySelector('#main-menu .modes-list');
+if(mainMenuList){
+ mainMenuList.insertAdjacentHTML('beforeend','<button class="btn btn-shooter" onclick="shMenu()">Modul Shooter</button>');
+}
+
+const show=(id,v)=>{ const el=$(id); if(el) el.classList.toggle('hidden',!v); };
 let shooterGameType='stalingrad';
 
 window.shMenu=()=>{
  show('main-menu',0);show('auth-panel',0);show('sh-arsenal',0);show('sh-menu',1);$('mp-back-btn').classList.add('hidden');
+ show('sh-touch-controls', 0);
  if(window.hideMobileControls) window.hideMobileControls();
 };
 window.shArsenal=(type)=>{
@@ -181,6 +226,7 @@ window.shArsenal=(type)=>{
  cards();
  renderSideInfo();
  $('mp-back-btn').classList.add('hidden');
+ show('sh-touch-controls', 0);
 };
 
 function renderSideInfo(){
@@ -194,13 +240,15 @@ function renderSideInfo(){
    <span style="font-size:10px;color:#ffcc00"><b>Abilitate:</b> ${sk.ab}</span>
   </div>`;
  });
- $('skin-info-list').innerHTML=html;
+ const infoList = $('skin-info-list');
+ if(infoList) infoList.innerHTML=html;
 }
 
 function cards(){
  const g=gs();
  const maxWeapons = getMaxWeapons(g.skin);
- $('arsenal-sub').innerText=`Alege armele (max ${maxWeapons}) și skinul.`;
+ const arsenalSub = $('arsenal-sub');
+ if(arsenalSub) arsenalSub.innerText=`Alege armele (max ${maxWeapons}) și skinul.`;
 
  let html='<div style="width:100%;text-align:center;color:#00ffcc;font-size:12px;"><b>ARME:</b></div>';
  html+=Object.keys(WP).map(id=>{
@@ -214,8 +262,10 @@ function cards(){
   return`<div class="shc ${ok?'':'lock'} ${on&&ok?'on':''}" onclick="shPickSkin('${key}')"><img src="${sk.front}"><b>${sk.name}</b><br>${ok?(on?'✔ selectat':'disponibil'):'🔒 Blocat'}</div>`
  }).join('');
 
- $('sh-cards').innerHTML=html+`<div style="width:100%;text-align:center;margin-top:6px;font-size:11px;">Victime totale: ${g.kills}</div>`;
- $('skin-desc').innerText=`Skin activ: ${SKINS[g.skin].name} — Abilitate: ${SKINS[g.skin].ab}`;
+ const shCards = $('sh-cards');
+ if(shCards) shCards.innerHTML=html+`<div style="width:100%;text-align:center;margin-top:6px;font-size:11px;">Victime totale: ${g.kills}</div>`;
+ const skinDesc = $('skin-desc');
+ if(skinDesc) skinDesc.innerText=`Skin activ: ${SKINS[g.skin].name} — Abilitate: ${SKINS[g.skin].ab}`;
 }
 
 window.shPickW=id=>{
@@ -233,7 +283,7 @@ window.shPickW=id=>{
 };
 
 window.shPickSkin=key=>{
- if(SKINS[key].unlock()){
+ if(SKINS[key] && SKINS[key].unlock()){
   const g=gs();
   g.skin=key;
   const maxW = getMaxWeapons(key);
@@ -254,31 +304,36 @@ window.shStartGame=()=>{
  startShooterSession(shooterGameType);
 };
 
+// --- RESTABILIRE INTEGRĂ LEADERBOARD ---
 const ulb=window.updateLeaderboardUI,slt=window.switchLeaderboardTab;
 window.updateLeaderboardUI=function(){
- ulb();
+ if(typeof ulb === 'function') ulb();
  const c=$('leaderboard-content');
- if(currentLeaderboardTab==='shooter'){
+ if(c && typeof currentLeaderboardTab !== 'undefined' && currentLeaderboardTab==='shooter'){
   const L=(window.globalUsersList||[]).slice().sort((a,b)=>(b.shooterScore||0)-(a.shooterScore||0));
   c.innerHTML=L.length?L.map((p,i)=>`<div class="global-item"><span>#${i+1} <strong>${p.name}</strong></span><span>Scor: <strong style="color:#ff6b6b">${p.shooterScore||0}</strong> | Victime: ${p.shooterKills||0}</span></div>`).join(''):'<div style="text-align:center;margin-top:20px;color:#aaa">Fără scoruri în această categorie.</div>';
- } else if(currentLeaderboardTab==='personal'){
+ } else if(c && typeof currentLeaderboardTab !== 'undefined' && currentLeaderboardTab==='personal'){
   const s=gs();
   c.insertAdjacentHTML('beforeend','<hr style="border:0;border-top:1px solid #444;margin:5px 0"><strong>Shooter:</strong> victime <span style="color:#ff6b6b">'+s.kills+'</span> · victorii '+s.wins+' · scor '+s.score);
  }
 };
 window.switchLeaderboardTab=t=>{
- slt(t);
+ if(typeof slt === 'function') slt(t);
  const tabShooter=$('tab-shooter');
  if(tabShooter) tabShooter.classList.toggle('active',t==='shooter');
 };
-window.updateLeaderboardUI();
+if(typeof updateLeaderboardUI === 'function') updateLeaderboardUI();
+// ----------------------------------------
 
-let S={on:false};let loseTimer=null;const k=n=>(window.keys||{})[n];
+let S={on:false};let loseTimer=null;
+const k=n=>(window.keys||{})[n];
 const bm=window.backToMain;
+
 window.backToMain=()=>{
  S.on=false;
  if(loseTimer){clearTimeout(loseTimer);loseTimer=null;}
- $('sh-lose-btn').classList.remove('show-btn');
+ show('sh-touch-controls', 0);
+ const loseBtn = $('sh-lose-btn'); if(loseBtn) loseBtn.classList.remove('show-btn');
  $('mp-back-btn').classList.add('hidden');
  ['sh-menu','sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));
  if(window.db && window.fsDeleteDoc){
@@ -289,17 +344,25 @@ window.backToMain=()=>{
  if(S.music)S.music.pause();
  if(window.sndStalingradBgm){window.sndStalingradBgm.pause();window.sndStalingradBgm.currentTime=0;}
  try { document.exitPointerLock && document.exitPointerLock(); } catch(e){}
- bm();
+ if(typeof bm === 'function') bm();
 };
 
 function startShooterSession(mode){
  const g=gs();
  if(loseTimer){clearTimeout(loseTimer);loseTimer=null;}
- $('sh-lose-btn').classList.remove('show-btn');
- ['sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));$('sh-lose').classList.remove('dark');
- stopMenuMusic();if(window.sndUssrWin)sndUssrWin.pause();currentMode='SHOOTER';gameActive=false;
+ const loseBtn = $('sh-lose-btn'); if(loseBtn) loseBtn.classList.remove('show-btn');
+ ['sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));
+ const shLose = $('sh-lose'); if(shLose) shLose.classList.remove('dark');
+ 
+ if(typeof stopMenuMusic === 'function') stopMenuMusic();
+ if(window.sndUssrWin) window.sndUssrWin.pause();
+ currentMode='SHOOTER';
+ gameActive=false;
 
- if(window.setupMobileShooterUI) window.setupMobileShooterUI();
+ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+ if(isMobile){
+  show('sh-touch-controls', 1);
+ }
 
  if(window.sndStalingradBgm){
   window.sndStalingradBgm.volume=0.8;
@@ -352,8 +415,6 @@ function startShooterSession(mode){
   $('mp-back-btn').classList.add('hidden');
  }
 
- // Verificăm dacă suntem pe dispozitiv mobil sau desktop înainte de Pointer Lock
- const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
  if(!isMobile && cv.requestPointerLock){
   try { cv.requestPointerLock(); } catch(e){}
  }
@@ -375,7 +436,7 @@ addEventListener('mouseup',()=>S.fire=0);
 addEventListener('mousemove',e=>{
  if(S.on){
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if(isMobile || document.pointerLockElement===cv){
+  if(!isMobile && document.pointerLockElement===cv){
    S.a += (e.movementX || 0) * .0028;
   }
  }
@@ -427,7 +488,7 @@ function triggerKatyusha(){
   }
  });
  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit Katyusha!`);
- saveStats();
+ if(typeof saveStats === 'function') saveStats();
 }
 
 function triggerSkinAbility(){
@@ -512,7 +573,7 @@ function dmg(e,n){
   if(S.skin==='anti-furry-hetes' && S.rage){
    S.hp = Math.min(200, S.hp + 25);
   }
-  saveStats(); 
+  if(typeof saveStats === 'function') saveStats(); 
   S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
  }
 }
@@ -546,6 +607,7 @@ function hurt(n){
 
 function end(w){
  S.on=false;
+ show('sh-touch-controls', 0);
  try { document.exitPointerLock && document.exitPointerLock(); } catch(e){}
  $('mp-back-btn').classList.add('hidden');
  if(window.db && window.fsDeleteDoc){
@@ -557,19 +619,19 @@ function end(w){
  if(w) g.wins = (g.wins || 0) + 1;
  if(S.mode==='multiplayer') g.mpWins = (g.mpWins || 0) + 1;
  g.score = (g.score || 0) + (w ? 2000 : 500);
- saveStats();
- stopMenuMusic();
+ if(typeof saveStats === 'function') saveStats();
+ if(typeof stopMenuMusic === 'function') stopMenuMusic();
  if(window.sndStalingradBgm){window.sndStalingradBgm.pause();window.sndStalingradBgm.currentTime=0;}
  S.music=new Audio(w?'gimn-sssr.mp3':'tyomnaya-noch.mp3');S.music.play().catch(()=>{});
- const el=$(w?'sh-win':'sh-lose');el.classList.remove('hidden');
- if(!w){
+ const el=$(w?'sh-win':'sh-lose'); if(el) el.classList.remove('hidden');
+ if(!w && el){
   setTimeout(()=>el.classList.add('dark'),50);
   loseTimer=setTimeout(()=>{$('sh-lose-btn').classList.add('show-btn');},10000);
  }
 }
 
 function shoot(){
- const id=S.w[S.cur],w=WP[id];if(S.ammo[id]<=0){S.cd=.3;return}
+ const id=S.w[S.cur],w=WP[id];if(!w||S.ammo[id]<=0){S.cd=.3;return}
  let rateMultiplier = 1;
  if(S.rage) rateMultiplier = 0.6;
  if(S.skin==='anti-furry-hetes' && S.abilityCd <= 0 && Math.random() < 0.35){
@@ -595,7 +657,7 @@ function shoot(){
    g.kills = (g.kills || 0) + 1;
    g.score = (g.score || 0) + 50;
    addKillFeed(`${window.currentUserDisplayName || 'Jucător'} l-a eliminat pe ${best.name || 'Inamic'}!`);
-   saveStats(); 
+   if(typeof saveStats === 'function') saveStats(); 
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
      hp: Math.max(0, (best.hp || 100) - w.dmg)
@@ -795,7 +857,7 @@ function render(){
   }
  });
 
- const id=S.w[S.cur],wp=WP[id],wi=IMG[wp.img];
+ const id=S.w[S.cur],wp=WP[id],wi=IMG[wp?.img];
  if(wi&&wi.complete&&wi.naturalWidth){const h=H*.5,ww=h*wi.naturalWidth/wi.naturalHeight;
   cx.drawImage(wi,W*.62-ww*.35+Math.sin(S.bob)*12+S.kick*14,H-h*.92+Math.abs(Math.cos(S.bob))*10+S.kick*28,ww,h)}
  if(S.flash>0){cx.fillStyle=`rgba(200,0,0,${S.flash})`;cx.fillRect(0,0,W,H)}
@@ -863,7 +925,7 @@ function render(){
   cx.fillText(curTrackName, gopX + 8, gopY + 36);
  }
 
- S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i].n}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i])}`,20,H-100+n*20)});
+ S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i]?.n||''}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i]||0)}`,20,H-100+n*20)});
  if(S.ban>0){cx.fillStyle='#ff3333';cx.font='bold 48px sans-serif';cx.textAlign='center';cx.fillText(S.bt,W/2,200);cx.textAlign='left'}
 
  let nowTime = performance.now();
