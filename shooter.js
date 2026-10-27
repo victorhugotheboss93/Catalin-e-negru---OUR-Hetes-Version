@@ -1,4 +1,4 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.8.0 - SOUNDS, AMMO RESPAWN & CHAT POSITION) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.9.0 - MP DAMAGE REDUCED & RESPAWN FIX) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
@@ -98,7 +98,7 @@ const gs=()=>{
  return window.gameStats.shooter||(window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes',mpWins:0});
 };
 window.mergeShooterStats=s=>{const m=gs();['kills','wins','score','mpWins'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
-const pl=(a,v=.5)=>{try{if(a){const c=a.cloneNode();c.volume=v;c.play().catch(()=>{});}}catch(e){}};
+const pl=(a,v=.5)=>{try{if(a){const c=a.cloneNode();c.volume=v;c.play().catch(()=>{});}}catch(e}{}};
 
 function getMaxWeapons(skinKey){
  const sk=SKINS[skinKey];
@@ -734,16 +734,24 @@ function hurt(n){
    addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a fost trimis în GULAG!`);
    end(0);
   } else {
+   // Respawn instant în multiplayer la un alt punct de spawn
    S.hp=(S.skin==='anti-furry-hetes'?200:100);
-   const hash = [...myUniqueId].reduce((acc, char) => acc + char.charCodeAt(0), 0);
    const spawns = [[5.5, 5.5], [26.5, 5.5], [5.5, 26.5], [26.5, 26.5], [16.5, 16.5]];
-   let chosen = spawns[hash % spawns.length];
+   let chosen = spawns[Math.floor(Math.random() * spawns.length)];
    S.x = chosen[0]; S.y = chosen[1];
+   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a fost respawnat!`);
   }
  }
 }
 
 function end(w){
+ // În multiplayer nu oprim sesiunea și nu trimitem la meniu, doar afișăm mesaj sau resetăm runda dacă e cazul
+ if(S.mode === 'multiplayer'){
+  addKillFeed(`Runda s-a terminat! Continuăm jocul...`);
+  S.mpTimeLeft = 300; // Resetăm cronometrul rundei pentru a continua
+  return;
+ }
+
  S.on=false;
  show('sh-touch-controls', 0);
  try { document.exitPointerLock && document.exitPointerLock(); } catch(e){}
@@ -757,7 +765,6 @@ function end(w){
  if(gopnikAudio){ gopnikAudio.pause(); gopnikAudio=null; }
  const g=gs();
  if(w) g.wins = (g.wins || 0) + 1;
- if(S.mode==='multiplayer') g.mpWins = (g.mpWins || 0) + 1;
  g.score = (g.score || 0) + (w ? 2000 : 500);
  if(typeof saveStats === 'function') saveStats();
  if(typeof stopMenuMusic === 'function') stopMenuMusic();
@@ -793,12 +800,22 @@ function shoot(){
 
  let weaponDamage = w.dmg;
  if(S.mode === 'multiplayer'){
-  if(id === 'mak') weaponDamage = 25;
-  else if(id === 'mos') weaponDamage = 30;
-  else if(id === 'ppsh') weaponDamage = 5;
-  else if(id === 'svt') weaponDamage = 8;
-  else if(id === 'rpg') weaponDamage = 40;
-  else weaponDamage = 5;
+  // Damage redus drastic în multiplayer (la automate doar 1 sau 2 health)
+  if(id === 'ppsh' || id === 'ak' || id === 'rpk16' || id === 'ak12') {
+   weaponDamage = 1 + (Math.random() > 0.5 ? 1 : 0); // 1 sau 2 damage
+  } else if(id === 'pkm') {
+   weaponDamage = 2;
+  } else if(id === 'mak') {
+   weaponDamage = 3;
+  } else if(id === 'svt') {
+   weaponDamage = 4;
+  } else if(id === 'mos') {
+   weaponDamage = 10;
+  } else if(id === 'rpg') {
+   weaponDamage = 25;
+  } else {
+   weaponDamage = 1;
+  }
  }
 
  if(w.sp){
@@ -961,7 +978,6 @@ function update(dt){
    
    if(see&&(e.cd-=dt)<=0){
     e.cd=1+Math.random();
-    // Sunet de tragere pentru inamici
     pl(window.sndNaziRifle || sndGun, 0.4);
     if(Math.random()<.75-d*.035)hurt(5+(Math.random()*4|0));
    }
