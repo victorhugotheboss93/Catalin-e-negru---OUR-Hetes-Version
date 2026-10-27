@@ -1,10 +1,16 @@
-// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.6.7 - MOBILE & LEADERBOARD FIXED) =====
+// ===== MODUL SHOOTER & MULTIPLAYER FIREBASE FIRESTORE (V3.8.0 - SOUNDS, AMMO RESPAWN & CHAT POSITION) =====
 (()=>{
 const W=1280,H=720,N=32,FOV=1.15,C=640,$=id=>document.getElementById(id),cv=$('gameCanvas'),cx=cv.getContext('2d');
 const IMG={};
-['enemy','makarov','ppsh','mosin','svt40','rpg7','ak47','rpk16','pkm','ak12'].forEach(n=>{
+['enemy','makarov','ppsh','mosin','svt40','rpg7','ak47','rpk16','pkm','ak12','ammo'].forEach(n=>{
  IMG[n]=new Image(); IMG[n].src=n+'.png';
 });
+
+// Sunete
+const sndReload = new Audio('reload.mp3');
+const sndGun = new Audio('gun.mp3');
+const sndKatyusha = new Audio('st explosion sound6.mp3');
+const sndAmmoPickup = new Audio('clasic-jump.mp3');
 
 // Inițializare controale mobile globale
 window.mobileKeys = window.mobileKeys || { w: 0, s: 0, a: 0, d: 0 };
@@ -12,8 +18,11 @@ window.mobileShooterFire = 0;
 
 const myUniqueId = 'p_' + Math.random().toString(36).substring(2, 9);
 let unsubscribeMp = null;
+let unsubscribeChat = null;
 let lastSyncTime = 0;
 let killFeedMessages = []; 
+let chatMessages = [];
+let chatOpen = false;
 
 function addKillFeed(text) {
  killFeedMessages.push({ text: text, time: performance.now() + 4000 });
@@ -64,15 +73,15 @@ Object.keys(SKINS).forEach(k=>{
 });
 
 const WP={
- mak:{n:'Makarov',img:'makarov',dmg:26,rate:.33,ammo:Infinity,give:0,need:0},
- mos:{n:'Mosin-Nagant',img:'mosin',dmg:100,rate:1.1,ammo:30,give:3,need:0},
- ppsh:{n:'PPSh-41',img:'ppsh',dmg:14,rate:.075,ammo:200,give:14,need:15},
- svt:{n:'SVT-40',img:'svt40',dmg:45,rate:.25,ammo:70,give:6,need:40},
- rpg:{n:'RPG-7',img:'rpg7',dmg:150,rate:1.8,ammo:8,give:1,need:80,sp:2.5},
- ak:{n:'AK-47',img:'ak47',dmg:30,rate:.1,ammo:150,give:10,need:120},
- rpk16:{n:'RPK-16',img:'rpk16',dmg:28,rate:.09,ammo:200,give:15,need:200},
- pkm:{n:'PKM',img:'pkm',dmg:40,rate:.12,ammo:250,give:20,need:350},
- ak12:{n:'AK-12',img:'ak12',dmg:34,rate:.08,ammo:180,give:15,need:500}
+ mak:{n:'Makarov',img:'makarov',dmg:26,rate:.33,mag:8,ammo:40,give:16,need:0,isPistol:true},
+ mos:{n:'Mosin-Nagant',img:'mosin',dmg:100,rate:1.1,mag:5,ammo:25,give:10,need:0,isPistol:false},
+ ppsh:{n:'PPSh-41',img:'ppsh',dmg:14,rate:.075,mag:71,ammo:142,give:71,need:15,isPistol:false},
+ svt:{n:'SVT-40',img:'svt40',dmg:45,rate:.25,mag:10,ammo:50,give:20,need:40,isPistol:false},
+ rpg:{n:'RPG-7',img:'rpg7',dmg:150,rate:1.8,mag:1,ammo:5,give:2,need:80,sp:2.5,isPistol:false},
+ ak:{n:'AK-47',img:'ak47',dmg:30,rate:.1,mag:30,ammo:120,give:60,need:120,isPistol:false},
+ rpk16:{n:'RPK-16',img:'rpk16',dmg:28,rate:.09,mag:45,ammo:180,give:90,need:200,isPistol:false},
+ pkm:{n:'PKM',img:'pkm',dmg:40,rate:.12,mag:100,ammo:200,give:100,need:350,isPistol:false},
+ ak12:{n:'AK-12',img:'ak12',dmg:34,rate:.08,mag:30,ammo:150,give:60,need:500,isPistol:false}
 };
 
 const GRS_PLAYLIST = [
@@ -140,6 +149,18 @@ st.textContent=`
 }
 #mp-back-btn:hover { background: #e74c3c; }
 
+/* Chat Multiplayer - Poziționat mai sus */
+#mp-chat-container {
+ position: absolute; bottom: 160px; left: 20px; width: 350px; height: 180px;
+ background: rgba(0,0,0,0.7); border: 1px solid #444; border-radius: 6px;
+ display: none; flex-direction: column; padding: 8px; z-index: 999; pointer-events: none;
+}
+#mp-chat-messages { flex: 1; overflow-y: auto; font-size: 12px; color: #fff; margin-bottom: 5px; display: flex; flex-direction: column; gap: 3px; }
+#mp-chat-input {
+ width: 100%; background: #111; border: 1px solid #ffcc00; color: #fff;
+ padding: 5px; border-radius: 4px; font-size: 12px; display: none; pointer-events: auto; outline: none;
+}
+
 /* Mobile Touch Controls */
 #sh-touch-controls {
  display: none;
@@ -162,6 +183,12 @@ const gc = $('game-container');
 if(gc){
  gc.insertAdjacentHTML('beforeend',`
 <button id="mp-back-btn" class="hidden" onclick="backToMain()">Ieși la meniu</button>
+
+<div id="mp-chat-container">
+ <div id="mp-chat-messages"></div>
+ <input type="text" id="mp-chat-input" placeholder="Scrie mesajul... (Apasa Enter)">
+</div>
+
 <div id="sh-menu" class="screen hidden"><h1 class="main-title" style="font-size:50px">Modul Shooter</h1>
 <div class="modes-list" style="margin-top:30px">
 <button class="btn btn-aura" onclick="shArsenal('stalingrad')">Modul Stalingrad</button>
@@ -304,7 +331,7 @@ window.shStartGame=()=>{
  startShooterSession(shooterGameType);
 };
 
-// --- RESTABILIRE INTEGRĂ LEADERBOARD ---
+// --- LEADERBOARD ---
 const ulb=window.updateLeaderboardUI,slt=window.switchLeaderboardTab;
 window.updateLeaderboardUI=function(){
  if(typeof ulb === 'function') ulb();
@@ -323,7 +350,6 @@ window.switchLeaderboardTab=t=>{
  if(tabShooter) tabShooter.classList.toggle('active',t==='shooter');
 };
 if(typeof updateLeaderboardUI === 'function') updateLeaderboardUI();
-// ----------------------------------------
 
 let S={on:false};let loseTimer=null;
 const k=n=>(window.keys||{})[n];
@@ -335,11 +361,13 @@ window.backToMain=()=>{
  show('sh-touch-controls', 0);
  const loseBtn = $('sh-lose-btn'); if(loseBtn) loseBtn.classList.remove('show-btn');
  $('mp-back-btn').classList.add('hidden');
+ const chatContainer = $('mp-chat-container'); if(chatContainer) chatContainer.style.display = 'none';
  ['sh-menu','sh-arsenal','sh-lose','sh-win'].forEach(i=>show(i,0));
  if(window.db && window.fsDeleteDoc){
   window.fsDeleteDoc(window.fsDoc(window.db, "mp_sessions", myUniqueId)).catch(()=>{});
  }
  if(unsubscribeMp){ unsubscribeMp(); unsubscribeMp = null; }
+ if(unsubscribeChat){ unsubscribeChat(); unsubscribeChat = null; }
  if(gopnikAudio){ gopnikAudio.pause(); gopnikAudio=null; }
  if(S.music)S.music.pause();
  if(window.sndStalingradBgm){window.sndStalingradBgm.pause();window.sndStalingradBgm.currentTime=0;}
@@ -377,6 +405,9 @@ function startShooterSession(mode){
   let chosen = spawns[hash % spawns.length];
   spawnX = chosen[0]; spawnY = chosen[1];
 
+  const chatContainer = $('mp-chat-container');
+  if(chatContainer) chatContainer.style.display = 'flex';
+
   if(window.db && window.fsOnSnapshot && window.fsCollection) {
    if(unsubscribeMp) unsubscribeMp();
    unsubscribeMp = window.fsOnSnapshot(window.fsCollection(window.db, "mp_sessions"), (snapshot) => {
@@ -389,7 +420,20 @@ function startShooterSession(mode){
      }
     });
    });
+
+   if(unsubscribeChat) unsubscribeChat();
+   unsubscribeChat = window.fsOnSnapshot(window.fsCollection(window.db, "mp_chat"), (snapshot) => {
+    chatMessages = [];
+    snapshot.forEach(docSnap => {
+     chatMessages.push(docSnap.data());
+    });
+    chatMessages.sort((a,b) => a.time - b.time);
+    updateChatUI();
+   });
   }
+ } else {
+  const chatContainer = $('mp-chat-container');
+  if(chatContainer) chatContainer.style.display = 'none';
  }
 
  let baseHp = 100;
@@ -398,16 +442,28 @@ function startShooterSession(mode){
 
  S={
   on:true, mode:mode, x:spawnX, y:spawnY, a:0, hp:baseHp, maxHp:baseHp,
-  w:g.loadout.slice(), cur:0, ammo:{}, cd:0, en:[], mpPlayers:[],
+  w:g.loadout.slice(), cur:0, ammo:{}, mag:{}, cd:0, en:[], mpPlayers:[],
   wave:0, left:0, nw:1, sp:0, kills:0, katcd:0, flash:0, kick:0, hm:0,
   bob:0, ban:0, bt:'', t:performance.now(), fire:0,
   skin:g.skin, abilityCd:0, rage:false, rageTimer:0, extraLife:(g.skin==='catalin'?1:0),
   proletarCount:0, proletarRegenTimer:0, proletarWeaponProgress:0, toxicTarget:null, toxicTimer:0,
   nazbolSmokeTimer:0, nazbolInvincible:false,
   mpTimeLeft: 300,
-  gopnikTrack: 0
+  gopnikTrack: 0,
+  gopnikPlaying: false,
+  ammoBoxes: [
+   {x: 8.5, y: 8.5, active: true, respawnTimer: 0}, 
+   {x: 22.5, y: 8.5, active: true, respawnTimer: 0}, 
+   {x: 16.5, y: 22.5, active: true, respawnTimer: 0}, 
+   {x: 8.5, y: 22.5, active: true, respawnTimer: 0}
+  ],
+  katyushaExplosionAnim: 0
  };
- S.w.forEach(i=>S.ammo[i]=WP[i].ammo);
+ 
+ S.w.forEach(i=>{
+  S.mag[i] = WP[i].mag;
+  S.ammo[i] = WP[i].ammo;
+ });
 
  if(mode==='multiplayer'){
   $('mp-back-btn').classList.remove('hidden');
@@ -422,8 +478,15 @@ function startShooterSession(mode){
  requestAnimationFrame(loop);
 }
 
+function updateChatUI(){
+ const msgDiv = $('mp-chat-messages');
+ if(!msgDiv) return;
+ msgDiv.innerHTML = chatMessages.map(m => `<div><b>${m.name}:</b> ${m.text}</div>`).join('');
+ msgDiv.scrollTop = msgDiv.scrollHeight;
+}
+
 cv.addEventListener('mousedown',()=>{
- if(!S.on)return;
+ if(!S.on || chatOpen)return;
  S.fire=1;
  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
  if(!isMobile && document.pointerLockElement!==cv && cv.requestPointerLock){
@@ -434,7 +497,7 @@ cv.addEventListener('mousedown',()=>{
 addEventListener('mouseup',()=>S.fire=0);
 
 addEventListener('mousemove',e=>{
- if(S.on){
+ if(S.on && !chatOpen){
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   if(!isMobile && document.pointerLockElement===cv){
    S.a += (e.movementX || 0) * .0028;
@@ -442,25 +505,83 @@ addEventListener('mousemove',e=>{
  }
 });
 
-window.updateMobileLookAngle = (delta) => { if(S.on) S.a += delta; };
+window.updateMobileLookAngle = (delta) => { if(S.on && !chatOpen) S.a += delta; };
 window.triggerMobileAbility = () => { if(S.on) triggerSkinAbility(); };
 window.triggerMobileKatyusha = () => { if(S.on && S.mode==='stalingrad') triggerKatyusha(); };
 
 addEventListener('keydown',e=>{
  if(!S.on)return;
+
+ if(e.key==='/' && S.mode==='multiplayer' && !chatOpen){
+  e.preventDefault();
+  chatOpen = true;
+  const inp = $('mp-chat-input');
+  if(inp){ inp.style.display = 'block'; inp.focus(); }
+  try { document.exitPointerLock && document.exitPointerLock(); } catch(err){}
+  return;
+ }
+
+ if(chatOpen){
+  if(e.key==='Enter'){
+   const inp = $('mp-chat-input');
+   if(inp && inp.value.trim()){
+    let text = inp.value.trim();
+    inp.value = '';
+    if(window.db && window.fsSetDoc && window.fsCollection){
+     const chatDocId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2,6);
+     window.fsSetDoc(window.fsDoc(window.db, "mp_chat", chatDocId), {
+      name: window.currentUserDisplayName || 'Anonim',
+      text: text,
+      time: Date.now()
+     }).catch(()=>{});
+    }
+   }
+   chatOpen = false;
+   const inp2 = $('mp-chat-input');
+   if(inp2) inp2.style.display = 'none';
+   if(!/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    try { cv.requestPointerLock(); } catch(err){}
+   }
+  }
+  return;
+ }
+
  if(e.key===' '||e.key.startsWith('Arrow'))e.preventDefault();
  if(e.key.toLowerCase()==='g'){ triggerSkinAbility(); }
  if(e.key.toLowerCase()==='f' && S.mode==='stalingrad'){ triggerKatyusha(); }
+ if(e.key.toLowerCase()==='r'){ reloadWeapon(); }
 
  if(S.skin==='gopnik'){
   let key = e.key.toLowerCase();
   if(key==='m'){ S.gopnikTrack=0; playGopnikMusic(); }
   else if(key==='k'){ S.gopnikTrack = (S.gopnikTrack - 1 + GRS_PLAYLIST.length) % GRS_PLAYLIST.length; playGopnikMusic(); }
   else if(key==='l'){ S.gopnikTrack = (S.gopnikTrack + 1) % GRS_PLAYLIST.length; playGopnikMusic(); }
+ } else if (e.key.toLowerCase()==='m') {
+  let activePlaying = S.mpPlayers.find(p => p.gopnikPlaying);
+  if(activePlaying){
+   S.gopnikTrack = activePlaying.gopnikTrack || 0;
+   playGopnikMusicFromRemote(activePlaying.gopnikTrack);
+  }
  }
 });
 
+function reloadWeapon(){
+ const id=S.w[S.cur],w=WP[id];
+ if(!w || S.mag[id] >= w.mag) return;
+ let needed = w.mag - S.mag[id];
+ if(S.ammo[id] <= 0) {
+  addKillFeed(`Fără muniție în rezervă pentru reîncărcare!`);
+  return;
+ }
+ let transfer = Math.min(needed, S.ammo[id]);
+ S.ammo[id] -= transfer;
+ S.mag[id] += transfer;
+ pl(sndReload, 0.7);
+ addKillFeed(`Arma ${w.n} a fost reîncărcată (${S.mag[id]}/${w.mag})!`);
+}
+
 function playGopnikMusic(){
+ S.gopnikPlaying = true;
  if(window.sndStalingradBgm){ window.sndStalingradBgm.pause(); }
  if(gopnikAudio){ gopnikAudio.pause(); }
  let track = GRS_PLAYLIST[S.gopnikTrack];
@@ -471,11 +592,24 @@ function playGopnikMusic(){
  addKillFeed(`Gopnik a pus melodia: ${track.name}`);
 }
 
+function playGopnikMusicFromRemote(trackIdx){
+ if(window.sndStalingradBgm){ window.sndStalingradBgm.pause(); }
+ if(gopnikAudio){ gopnikAudio.pause(); }
+ S.gopnikTrack = trackIdx;
+ let track = GRS_PLAYLIST[trackIdx];
+ gopnikAudio = new Audio(track.src);
+ gopnikAudio.loop = true;
+ gopnikAudio.volume = 0.8;
+ gopnikAudio.play().catch(()=>{});
+ addKillFeed(`Ai pornit muzica de la alt jucător: ${track.name}`);
+}
+
 function triggerKatyusha(){
  if(S.katcd>0)return;
  S.katcd=50;
- if(window.sndExplosionRocket) pl(window.sndExplosionRocket);
- S.flash=0.2;
+ S.katyushaExplosionAnim = 1.0;
+ pl(sndKatyusha, 0.7);
+ S.flash=0.5;
  let killed=0;
  const g = gs();
  S.en.forEach(e=>{
@@ -499,6 +633,7 @@ function triggerSkinAbility(){
   S.nazbolSmokeTimer = 5;
   S.nazbolInvincible = true;
   S.flash = 0.5;
+  pl(sndAmmoPickup, 0.7);
   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a activat fumul roșu Nazbol (Invulnerabil 5s)!`);
   return;
  }
@@ -512,44 +647,48 @@ function triggerSkinAbility(){
   }
   S.flash=0.4;
   let targets = [];
+  let abDmg = S.mode==='multiplayer' ? 25 : 99999;
   S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ targets.push(e); } });
   
   if(targets.length > 0){
    let primary = targets[0];
-   dmg(primary, 99999);
+   dmg(primary, abDmg);
    if(S.skin==='cernobil-stalker'){ S.toxicTarget=primary; S.toxicTimer=3; }
    
    S.en.forEach(e=>{
     if(!e.dead && e !== primary && Math.hypot(e.x-primary.x, e.y-primary.y)<=2){
-     dmg(e, 99999);
+     dmg(e, abDmg);
      if(S.skin==='cernobil-stalker'){ S.toxicTarget=e; S.toxicTimer=3; }
     }
    });
   }
-  if(window.sndExplosionRocket) pl(window.sndExplosionRocket);
-  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a aruncat o grenadă devastatoare (Kill Instant)!`);
+  pl(sndKatyusha, 0.7);
+  addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a aruncat o grenadă!`);
   return;
  }
 
  S.abilityCd=10;
  if(S.skin==='hetes'){
   S.flash=0.4;
-  S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ dmg(e, 100); } });
-  if(window.sndExplosionRocket) pl(window.sndExplosionRocket);
+  let laserDmg = S.mode==='multiplayer' ? 20 : 100;
+  S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10){ dmg(e, laserDmg); } });
+  pl(sndKatyusha, 0.7);
   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a folosit laserele din ochi!`);
  } else if(S.skin==='gopnik'){
   S.hp=Math.min(S.maxHp, S.hp+50);
-  if(window.sndGun) pl(window.sndGun);
+  pl(sndAmmoPickup, 0.7);
   addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a băut Vodka (+50 HP)!`);
  } else if(S.skin==='proletar'){
   S.proletarCount++;
   S.proletarWeaponProgress++;
+  pl(sndAmmoPickup, 0.7);
   if(S.proletarWeaponProgress >= 6){
    S.proletarWeaponProgress = 0;
    const allWKeys=Object.keys(WP);
    const newW = allWKeys.find(w=>!S.w.includes(w));
    if(newW && S.w.length < 5){ 
     S.w.push(newW); 
+    S.mag[newW]=WP[newW].mag;
     S.ammo[newW]=WP[newW].ammo; 
     addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a primit o armă nouă după 6 utilizări: ${WP[newW].n}!`);
    }
@@ -574,7 +713,6 @@ function dmg(e,n){
    S.hp = Math.min(200, S.hp + 25);
   }
   if(typeof saveStats === 'function') saveStats(); 
-  S.w.forEach(i=>{const w=WP[i];if(w.ammo!==Infinity)S.ammo[i]=Math.min(w.ammo*1.5,S.ammo[i]+w.give)});
  }
 }
 
@@ -610,10 +748,12 @@ function end(w){
  show('sh-touch-controls', 0);
  try { document.exitPointerLock && document.exitPointerLock(); } catch(e){}
  $('mp-back-btn').classList.add('hidden');
+ const chatContainer = $('mp-chat-container'); if(chatContainer) chatContainer.style.display = 'none';
  if(window.db && window.fsDeleteDoc){
   window.fsDeleteDoc(window.fsDoc(window.db, "mp_sessions", myUniqueId)).catch(()=>{});
  }
  if(unsubscribeMp){ unsubscribeMp(); unsubscribeMp = null; }
+ if(unsubscribeChat){ unsubscribeChat(); unsubscribeChat = null; }
  if(gopnikAudio){ gopnikAudio.pause(); gopnikAudio=null; }
  const g=gs();
  if(w) g.wins = (g.wins || 0) + 1;
@@ -631,25 +771,39 @@ function end(w){
 }
 
 function shoot(){
- const id=S.w[S.cur],w=WP[id];if(!w||S.ammo[id]<=0){S.cd=.3;return}
- let rateMultiplier = 1;
- if(S.rage) rateMultiplier = 0.6;
- if(S.skin==='anti-furry-hetes' && S.abilityCd <= 0 && Math.random() < 0.35){
-  S.en.forEach(e=>{ if(Math.hypot(e.x-S.x, e.y-S.y)<=10) dmg(e, 50); });
+ const id=S.w[S.cur],w=WP[id];
+ if(!w || S.mag[id] <= 0){
+  S.cd=.3;
+  return;
  }
 
- S.cd=w.rate*rateMultiplier;S.ammo[id]--;S.kick=1;
- if(w.sp && window.sndExplosionRocket) pl(window.sndExplosionRocket);
- else if(window.sndGun) pl(window.sndGun);
+ let rateMultiplier = 1;
+ if(S.rage) rateMultiplier = 0.6;
+
+ S.cd=w.rate*rateMultiplier; 
+ S.mag[id]--; 
+ S.kick=1;
+
+ pl(w.sp ? sndKatyusha : sndGun, 0.6);
 
  const wd=cast(S.x,S.y,S.a)[0];let best=null,bd=1e9;
  
  S.en.forEach(e=>{const dx=e.x-S.x,dy=e.y-S.y,d=Math.hypot(dx,dy);let df=Math.atan2(dy,dx)-S.a;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)*d<.38&&d<bd&&d<wd+.3){best=e;bd=d}});
  S.mpPlayers.forEach(p=>{if(p.dead)return;const dx=p.x-S.x,dy=p.y-S.y,d=Math.hypot(dx,dy);let df=Math.atan2(dy,dx)-S.a;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)*d<.38&&d<bd&&d<wd+.3){best=p;bd=d}});
 
+ let weaponDamage = w.dmg;
+ if(S.mode === 'multiplayer'){
+  if(id === 'mak') weaponDamage = 25;
+  else if(id === 'mos') weaponDamage = 30;
+  else if(id === 'ppsh') weaponDamage = 5;
+  else if(id === 'svt') weaponDamage = 8;
+  else if(id === 'rpg') weaponDamage = 40;
+  else weaponDamage = 5;
+ }
+
  if(w.sp){
   const L=best?bd:wd,ex=S.x+Math.cos(S.a)*L,ey=S.y+Math.sin(S.a)*L;
-  S.en.forEach(e=>{const d=Math.hypot(e.x-ex,e.y-ey);if(d<w.sp)dmg(e,w.dmg)});
+  S.en.forEach(e=>{const d=Math.hypot(e.x-ex,e.y-ey);if(d<w.sp)dmg(e, weaponDamage)});
  } else if(best){
   if(best.id){
    S.kills++;
@@ -660,11 +814,11 @@ function shoot(){
    if(typeof saveStats === 'function') saveStats(); 
    if(window.db && window.fsSetDoc){
     window.fsSetDoc(window.fsDoc(window.db, "mp_sessions", best.id), {
-     hp: Math.max(0, (best.hp || 100) - w.dmg)
+     hp: Math.max(0, (best.hp || 100) - weaponDamage)
     }, { merge: true }).catch(()=>{});
    }
   } else {
-   dmg(best,w.dmg);
+   dmg(best, weaponDamage);
    if(S.skin==='cernobil-stalker'){ S.toxicTarget=best; S.toxicTimer=3; }
   }
  }
@@ -684,6 +838,8 @@ function spawn(){
 }
 
 function update(dt){
+ if(chatOpen) return;
+
  let forward = (k('w') || k('arrowup') || (window.mobileKeys && window.mobileKeys.w) ? 1 : 0) - (k('s') || k('arrowdown') || (window.mobileKeys && window.mobileKeys.s) ? 1 : 0);
  let strafe = (k('d') || (window.mobileKeys && window.mobileKeys.d) ? 1 : 0) - (k('a') || (window.mobileKeys && window.mobileKeys.a) ? 1 : 0);
 
@@ -692,9 +848,8 @@ function update(dt){
  let my = forward * s + strafe * c;
  
  let spd = 3.2;
- if(S.skin==='gopnik'||S.skin==='hetes') spd = 4.2;
- if(S.skin==='nazbol' && S.nazbolInvincible) spd = 5.5;
- if(S.rage) spd = 5.8;
+ if(S.skin==='gopnik') spd = 4.5;
+ if(S.skin==='anti-furry-hetes' || S.rage) spd = 5.8;
 
  S.a += ((k('arrowright')?1:0)-(k('arrowleft')?1:0))*2.2*dt;
  const l = Math.hypot(mx, my);
@@ -708,6 +863,27 @@ function update(dt){
  
  for(let i=0;i<5;i++)if(k(''+(i+1))&&S.w[i])S.cur=i;
  S.cd-=dt;S.kick=Math.max(0,S.kick-dt*6);S.flash-=dt;S.hm-=dt;S.ban-=dt;S.katcd-=dt;S.abilityCd-=dt;
+ if(S.katyushaExplosionAnim > 0) S.katyushaExplosionAnim -= dt;
+
+ // Gestionare Ammo Boxes și Respawn (60 secunde)
+ S.ammoBoxes.forEach((box) => {
+  if(box.active){
+   if(Math.hypot(S.x - box.x, S.y - box.y) < 0.6){
+    pl(sndAmmoPickup, 0.7);
+    S.w.forEach(wId => {
+     S.ammo[wId] += WP[wId].give;
+    });
+    addKillFeed(`${window.currentUserDisplayName || 'Jucător'} a colectat muniție!`);
+    box.active = false;
+    box.respawnTimer = 60; // 60 de secunde respawn
+   }
+  } else {
+   box.respawnTimer -= dt;
+   if(box.respawnTimer <= 0){
+    box.active = true;
+   }
+  }
+ });
 
  if(S.skin==='proletar'){
   S.proletarRegenTimer += dt;
@@ -752,6 +928,7 @@ function update(dt){
     weapon: S.w[S.cur],
     kills: S.kills,
     gopnikTrack: S.gopnikTrack,
+    gopnikPlaying: S.gopnikPlaying,
     updatedAt: Date.now()
    }, { merge: true }).catch(()=>{});
   }
@@ -782,7 +959,12 @@ function update(dt){
    if(!solid(nx,e.y,.25)){e.x=nx;} else {e.x+=Math.sin(a)*e.sp*dt;}
    if(!solid(e.x,ny,.25)){e.y=ny;} else {e.y+=Math.cos(a)*e.sp*dt;}
    
-   if(see&&(e.cd-=dt)<=0){e.cd=1+Math.random();if(window.sndNaziRifle)pl(window.sndNaziRifle,.3);if(Math.random()<.75-d*.035)hurt(5+(Math.random()*4|0))}
+   if(see&&(e.cd-=dt)<=0){
+    e.cd=1+Math.random();
+    // Sunet de tragere pentru inamici
+    pl(window.sndNaziRifle || sndGun, 0.4);
+    if(Math.random()<.75-d*.035)hurt(5+(Math.random()*4|0));
+   }
   });
   S.en=S.en.filter(e=>!e.dead);
  }
@@ -798,6 +980,24 @@ function render(){
   const h=H/p,y0=(H-h)/2,sh=Math.max(.1,1-p/15)*(s?.7:1),c=COL[t];
   for(let r=0;r<8;r++){const u=wx*4+(r&1)*.5,f=u-Math.floor(u),v=(.7+.3*Math.abs(Math.sin(Math.floor(u)*91.7+r*13.3+t)))*(f<.06?.55:1)*sh;
    cx.fillStyle=`rgb(${c[0]*v|0},${c[1]*v|0},${c[2]*v|0})`;cx.fillRect(i*2,y0+h*r/8,2,h/8+1)}}
+
+ S.ammoBoxes.forEach(box => {
+  if(!box.active) return;
+  let df=Math.atan2(box.y-S.y, box.x-S.x)-S.a; df=Math.atan2(Math.sin(df), Math.cos(df));
+  if(Math.abs(df)<FOV/2+.4){
+   let dist=Math.hypot(box.x-S.x, box.y-S.y);
+   let pDist=Math.max(0.3, dist*Math.cos(df));
+   let h=H/pDist*0.4, w=h;
+   let l=(.5+df/FOV)*W - w/2, y=(H-h)/2 + h*0.3;
+   const ammoImg = IMG.ammo;
+   for(let x=Math.max(0,l|0);x<Math.min(W,l+w);x+=2){
+    if(Z[x>>1]<pDist)continue;
+    if(ammoImg && ammoImg.complete && ammoImg.naturalWidth){
+     cx.drawImage(ammoImg, (x-l)/w*ammoImg.naturalWidth, 0, 2/w*ammoImg.naturalWidth, ammoImg.naturalHeight, x, y, 2, h);
+    }
+   }
+  }
+ });
 
  if(S.nazbolSmokeTimer > 0){
   cx.fillStyle = 'rgba(200, 0, 0, 0.45)';
@@ -860,6 +1060,14 @@ function render(){
  const id=S.w[S.cur],wp=WP[id],wi=IMG[wp?.img];
  if(wi&&wi.complete&&wi.naturalWidth){const h=H*.5,ww=h*wi.naturalWidth/wi.naturalHeight;
   cx.drawImage(wi,W*.62-ww*.35+Math.sin(S.bob)*12+S.kick*14,H-h*.92+Math.abs(Math.cos(S.bob))*10+S.kick*28,ww,h)}
+ 
+ if(S.katyushaExplosionAnim > 0){
+  cx.save();
+  cx.fillStyle = `rgba(255, 120, 0, ${S.katyushaExplosionAnim * 0.35})`;
+  cx.fillRect(0, 0, W, H);
+  cx.restore();
+ }
+
  if(S.flash>0){cx.fillStyle=`rgba(200,0,0,${S.flash})`;cx.fillRect(0,0,W,H)}
  cx.restore();
 
@@ -913,19 +1121,33 @@ function render(){
   currentTextY += 22;
  }
 
- if(S.skin==='gopnik'){
-  let gopX = W - 320, gopY = 20, gopW = 240, gopH = 50;
+ let playingGopnikPeer = S.mpPlayers.find(p => p.gopnikPlaying);
+ if(playingGopnikPeer){
+  cx.fillStyle = 'rgba(0,0,0,0.75)';
+  cx.fillRect(W/2 - 220, 20, 440, 40);
+  cx.strokeStyle = '#ffcc00'; cx.strokeRect(W/2 - 220, 20, 440, 40);
+  cx.fillStyle = '#ffcc00'; cx.font = 'bold 13px sans-serif'; cx.textAlign = 'center';
+  cx.fillText(`🔊 ${playingGopnikPeer.name || 'Gopnik'} ascultă muzică! Apasă 'M' pentru a asculta`, W/2, 45);
+  cx.textAlign = 'left';
+ }
+
+ if(S.skin==='gopnik' || playingGopnikPeer){
+  let gopX = W - 320, gopY = 80, gopW = 240, gopH = 50;
   cx.fillStyle='rgba(0,0,0,0.8)'; cx.fillRect(gopX, gopY, gopW, gopH);
   cx.strokeStyle='#ffcc00'; cx.lineWidth=2; cx.strokeRect(gopX, gopY, gopW, gopH);
   cx.fillStyle='#ffcc00'; cx.font='bold 11px sans-serif';
-  cx.fillText('🎵 Gopnik Hardbass (M, K, L)', gopX + 8, gopY + 16);
+  cx.fillText('🎵 Hardbass Player (M, K, L)', gopX + 8, gopY + 16);
   cx.fillStyle='#fff'; cx.font='10px sans-serif';
   let curTrackName = GRS_PLAYLIST[S.gopnikTrack].name;
   if(curTrackName.length > 32) curTrackName = curTrackName.substring(0, 30) + '...';
   cx.fillText(curTrackName, gopX + 8, gopY + 36);
  }
 
- S.w.forEach((i,n)=>{cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';cx.fillText(`${n+1}. ${WP[i]?.n||''}  ${S.ammo[i]===Infinity?'∞':Math.floor(S.ammo[i]||0)}`,20,H-100+n*20)});
+ S.w.forEach((i,n)=>{
+  cx.fillStyle=n==S.cur?'#ffcc00':'#aaa';
+  cx.fillText(`${n+1}. ${WP[i]?.n||''}  Mag: ${S.mag[i]} / Rez: ${S.ammo[i]} (R-Reload)`,20,H-100+n*20);
+ });
+
  if(S.ban>0){cx.fillStyle='#ff3333';cx.font='bold 48px sans-serif';cx.textAlign='center';cx.fillText(S.bt,W/2,200);cx.textAlign='left'}
 
  let nowTime = performance.now();
