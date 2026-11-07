@@ -1,8 +1,13 @@
-// sandbox.js - Modul Sandbox (Pixel Physics / Soviet Edition V2)
+// sandbox.js - Modul Sandbox (Pixel Physics / Soviet Edition V2 + Ultramarin Naukograd BGM)
 (() => {
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+
+    // Sunet de fundal pentru Sandbox
+    const sndSandboxBgm = new Audio('ultramarin - naukograd.mp3');
+    sndSandboxBgm.loop = true;
+    sndSandboxBgm.volume = 0.7;
 
     const GRID_WIDTH = 256;
     const GRID_HEIGHT = 144;
@@ -373,7 +378,6 @@
 
         const ui = document.createElement('div');
         ui.id = 'sandbox-ui';
-        // Meniul este extras complet în afara suprafeței de joc
         ui.style.cssText = `
             position: relative; z-index: 1000;
             background: rgba(20, 20, 25, 0.95); border: 2px solid #ea2027;
@@ -498,8 +502,14 @@
         grid = createGrid();
         createSandboxUI();
 
+        // Pornire muzică de fundal Sandbox
+        sndSandboxBgm.currentTime = 0;
+        sndSandboxBgm.play().catch(e => {});
+
         function loop() {
             if (currentMode !== 'SANDBOX') {
+                sndSandboxBgm.pause();
+                sndSandboxBgm.currentTime = 0;
                 let ui = document.getElementById('sandbox-ui');
                 if (ui) ui.remove();
                 return;
