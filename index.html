@@ -424,6 +424,29 @@
             font-size: 13px;
         }
 
+        /* Stiluri Arsenal Shooter */
+        .sh-card {
+            background: rgba(30, 30, 35, 0.9);
+            border: 2px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sh-card:hover {
+            border-color: #e67e22;
+            transform: translateY(-2px);
+        }
+        .sh-card.selected {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.15);
+        }
+        .sh-card.locked {
+            opacity: 0.5;
+            filter: grayscale(80%);
+        }
+
         #mobile-controls {
             position: absolute;
             top: 0;
@@ -593,8 +616,10 @@
         <div class="modes-list">
             <button class="btn btn-classic" onclick="openClassicMenu()">Modul Clasic</button>
             <button class="btn btn-aura" onclick="startAuraMode()">Modul Aura Hetes</button>
+            <button class="btn btn-aura" style="border-left-color: #e17055;" onclick="window.startSandboxMode()">Modul Sandbox</button>
             <button class="btn btn-tetris" onclick="if(window.openTetrisMenu) window.openTetrisMenu(); else if(window.tetrisMenu) window.tetrisMenu();">Modul Tetris</button>
-            <button class="btn btn-shooter" onclick="if(window.openShooterMenu) window.openShooterMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
+            <!-- Modificarea efectuată: Butonul "Modul Shooter" care deschide shoot.js -->
+           <button class="btn btn-shooter" onclick="if(window.openShootMenu) window.openShootMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
             <button id="btn-gulag-escape" class="btn btn-soviet" onclick="window.startGulagSession()">Modul Gulag Escape</button>
         </div>
 
@@ -620,8 +645,8 @@
             <div class="credits-section" style="margin-top: 15px;">
                 <div class="credits-section-title">Muzica:</div>
                 <div>День Победы Ayden George - remix (Meniu)</div>
-                <div>Священная война Sp00n.exe - 8 bit remix (Modul Stalingrad)</div>
-                <div>Тёмная ночь - The Sour Kraut - instrumental pian (Modul Stalingrad pierdut..)</div>
+                <div>Священная война Sp00n.exe - 8 bit remix (Modul Shooter)</div>
+                <div>Тёмная ночь - The Sour Kraut - instrumental pian (Modul Shooter pierdut..)</div>
                 <div>Тёмная ночь - Ayden George - remix + reverb by Tovarisch Gabi (Modul Gulag)</div>
                 <div>Патриотическая песня - Forte Republic - Sovietwave Remix (Modul Gulag)</div>
                 <div>Game Boy Tetris Music A - 071047 (Modul Tetris Original)</div>
@@ -629,11 +654,59 @@
                 <br>
                 <div class="credits-section-title">Music player Gopnik Hardbass</div>
                 <div>Наш гимн - Hard Bass School</div>
-                <div>Триполоски - Davay</div>
+                <div>Триpoloски - Davay</div>
                 <div>Cheeki Breeki Hardbass Anthem - apartje</div>
                 <div>Kalinka Hardbass Remix - DJ Bonebreaker</div>
             </div>
         </div>
+    </div>
+
+    <!-- PANOUL ARSENAL & SELECȚIE SHOOTER -->
+    <div id="sh-arsenal" class="screen hidden" style="background: rgba(15, 15, 20, 0.95); display: flex; flex-direction: column; padding: 20px; z-index: 50;">
+        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
+            <h1 style="color: #e67e22; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ARSENAL & SKINURI SHOOTER</h1>
+            <div>
+                <button class="btn" style="background: #e74c3c; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('stalingrad')">Start Survival Shooter (PvE)</button>
+                <button class="btn" style="background: #3498db; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('multiplayer')">Start Multiplayer (FFA)</button>
+                <button class="btn btn-back" style="margin: 0; font-size: 16px; padding: 10px 20px;" onclick="backToMain()">Înapoi</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 20px; width: 100%; max-width: 1200px; flex: 1; overflow: hidden;">
+            <div id="sh-side-info" style="width: 300px; background: rgba(0,0,0,0.8); border: 2px solid #e67e22; border-radius: 8px; padding: 15px; overflow-y: auto;">
+            </div>
+
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px;">
+                <div>
+                    <h3 style="color: #ffcc00; margin: 0 0 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">ARME DISPONIBILE</h3>
+                    <div id="sh-weapon-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="color: #ffcc00; margin: 10px 0 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">SKINURI</h3>
+                    <div id="sh-skin-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT MULTIPLAYER -->
+    <div id="mp-chat-container" class="hidden" style="position: absolute; bottom: 20px; left: 20px; width: 350px; background: rgba(0,0,0,0.8); border: 1px solid #555; border-radius: 6px; padding: 10px; z-index: 100;">
+        <div id="mp-chat-messages" style="height: 120px; overflow-y: auto; font-size: 12px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px;"></div>
+        <input type="text" id="mp-chat-input" placeholder="Scrie mesaj... (Apasă Enter)" style="width: 100%; padding: 6px; background: #222; border: 1px solid #666; color: #fff; border-radius: 4px; font-size: 12px;">
+    </div>
+
+    <!-- ECRANE FINALE STALINGRAD -->
+    <div id="sh-lose" class="screen hidden" style="background: #000; z-index: 100; transition: background 8s;">
+        <div class="end-title" style="color: #ff3333;">Misiune Eșuată...</div>
+        <button id="sh-lose-btn" class="btn btn-back" style="opacity: 0; pointer-events: none; transition: opacity 1s;" onclick="backToMain()">Înapoi la meniu</button>
+    </div>
+
+    <div id="sh-win" class="screen hidden" style="background: rgba(0,0,0,0.6); z-index: 100;">
+        <div class="end-title" style="color: #33ff33;">Misiune Îndeplinită! ☭</div>
+        <button class="btn btn-back" onclick="backToMain()">Înapoi la meniu</button>
     </div>
 
     <div id="tetris-menu" class="screen hidden">
@@ -684,7 +757,8 @@
     </div>
 </div>
 
-<script src="shooter.js"></script>
+<script src="sandbox.js"></script>
+<script src="shoot.js"></script>
 <script src="gulag.js"></script>
 <script src="tetris.js"></script>
 
@@ -916,52 +990,13 @@
 </script>
 
 <script>
-    window.openShooterMenu = window.openShooterMenu || function() {
+    window.openShootMenu = window.openShootMenu || function() {
         if (typeof window.shMenu === 'function') {
             window.shMenu();
         } else {
-            console.error("Modul Shooter nu a fost încărcat corect.");
+            console.error("Modul Shooter (shoot.js) nu a fost încărcat corect.");
         }
     };
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const modesList = document.querySelector('.modes-list');
-        if (!modesList) return;
-        
-        const gulagBtn = document.getElementById('btn-gulag-escape');
-        const shooterBtns = Array.from(modesList.querySelectorAll('button')).filter(b => 
-            b.textContent.toLowerCase().includes('shooter') && b.id !== 'btn-gulag-escape'
-        );
-
-        if (shooterBtns.length > 1) {
-            for (let i = 1; i < shooterBtns.length; i++) {
-                shooterBtns[i].remove();
-            }
-        }
-
-        if (shooterBtns.length > 0 && gulagBtn) {
-            modesList.insertBefore(shooterBtns[0], gulagBtn);
-        }
-    });
-
-    const observer = new MutationObserver(() => {
-        const modesList = document.querySelector('.modes-list');
-        if (!modesList) return;
-        const gulagBtn = document.getElementById('btn-gulag-escape');
-        const shooterBtns = Array.from(modesList.querySelectorAll('button')).filter(b => 
-            b.textContent.toLowerCase().includes('shooter') && b.id !== 'btn-gulag-escape'
-        );
-
-        if (shooterBtns.length > 1) {
-            for (let i = 1; i < shooterBtns.length; i++) {
-                shooterBtns[i].remove();
-            }
-        }
-        if (shooterBtns.length > 0 && gulagBtn && shooterBtns[0].nextElementSibling !== gulagBtn) {
-            modesList.insertBefore(shooterBtns[0], gulagBtn);
-        }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -1073,16 +1108,17 @@
                 htmlStr += `<div class="global-item" style="font-size:10px;"><span>#${index + 1} <strong>${player.name}</strong></span><span>Original: <strong style="color:#9b59b6">${player.tetrisOriginalScore || 0}</strong> | Berlin: <strong style="color:#e74c3c">${player.tetrisBerlinScore || 0}</strong></span></div>`;
             });
         } else if (currentLeaderboardTab === 'shooter') {
-            // Notă: Randarea efectivă a tab-ului de shooter este suprescrisă și gestionată din shooter.js folosind shooterScore și shooterKills
+            sortedList.sort((a, b) => b.shooterScore - a.shooterScore);
+            sortedList.forEach((player, index) => {
+                htmlStr += `<div class="global-item"><span>#${index + 1} <strong>${player.name}</strong></span><span>Victime: <strong style="color:#e67e22">${player.shooterKills}</strong></span></div>`;
+            });
         } else if (currentLeaderboardTab === 'gulag') {
             sortedList.sort((a, b) => b.gulagEscapes - a.gulagEscapes);
             sortedList.forEach((player, index) => {
                 htmlStr += `<div class="global-item"><span>#${index + 1} <strong>${player.name}</strong></span><span>Evadări Gulag: <strong style="color:#ff3333">${player.gulagEscapes}</strong></span></div>`;
             });
         }
-        if (currentLeaderboardTab !== 'shooter') {
-            content.innerHTML = htmlStr || `<div style="text-align:center; margin-top:20px; color:#aaa;">Fără scoruri.</div>`;
-        }
+        content.innerHTML = htmlStr || `<div style="text-align:center; margin-top:20px; color:#aaa;">Fără scoruri.</div>`;
     }
 
     window.updateLeaderboardUI();
@@ -1149,7 +1185,6 @@
         if (currentMode === 'CLASSIC' && gameActive) triggerClassicJump();
     });
     
-    // Suport touch preluat din old.html pentru salt direct pe canvas în mod clasic
     canvas.addEventListener('touchstart', (e) => {
         if (currentMode === 'CLASSIC' && gameActive) {
             triggerClassicJump();
@@ -1167,6 +1202,9 @@
         currentMode = 'NONE'; gameActive = false;
         document.getElementById('classic-menu').classList.add('hidden');
         document.getElementById('tetris-menu').classList.add('hidden');
+        document.getElementById('sh-arsenal').classList.add('hidden');
+        document.getElementById('sh-lose').classList.add('hidden');
+        document.getElementById('sh-win').classList.add('hidden');
         document.getElementById('lose-screen').classList.add('hidden');
         document.getElementById('win-screen').classList.add('hidden');
         document.getElementById('main-menu').classList.remove('hidden');
@@ -1188,6 +1226,7 @@
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('classic-menu').classList.add('hidden');
         document.getElementById('tetris-menu').classList.add('hidden');
+        document.getElementById('sh-arsenal').classList.add('hidden');
         document.getElementById('lose-screen').classList.add('hidden');
         document.getElementById('win-screen').classList.add('hidden');
         document.getElementById('auth-panel').classList.add('hidden');
@@ -1226,7 +1265,6 @@
     }
     window.showWinScreen = showWinScreen;
 
-    // ================== LOGICA MOD CLASIC (PRELUATĂ DIN OLD) ==================
     function startClassicMode(difficulty) {
         hideAllMenus(); stopMenuMusic();
         currentMode = 'CLASSIC'; currentDifficulty = difficulty;
@@ -1624,7 +1662,7 @@
             abBtn.onclick = () => { if(window.triggerMobileAbility) window.triggerMobileAbility(); };
 
             const katBtn = document.getElementById('mob-sh-katyusha');
-            if (shooterGameType === 'stalingrad') {
+            if (window.shooterGameType === 'stalingrad') {
                 katBtn.style.display = 'flex';
                 katBtn.onclick = () => { if(window.triggerMobileKatyusha) window.triggerMobileKatyusha(); };
             } else {
