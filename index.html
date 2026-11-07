@@ -1073,7 +1073,10 @@
                         <strong>Aura & Gulag:</strong><br>
                         • Aura Victorii: ${window.gameStats.auraCompletions || 0}<br>
                         • Record Aură: ${window.gameStats.auraRecord || 0}<br>
-                        • <span style="color:#ffcc00">Gulag Evadări: ${window.gameStats.gulagEscapes || 0}</span>
+                        • <span style="color:#ffcc00">Gulag Evadări: ${window.gameStats.gulagEscapes || 0}</span><br><br>
+                        <strong>Shooter:</strong><br>
+                        • <span style="color:#33ff33">Victorii Survival: ${(window.gameStats.shooter && window.gameStats.shooter.wins) || 0}</span><br>
+                        • <span style="color:#e67e22">Victime: ${(window.gameStats.shooter && window.gameStats.shooter.kills) || 0}</span>
                     </div>
                 </div>
             `;
@@ -1161,6 +1164,35 @@
     let gameActive = false;
     let keys = {};
     window.keys = keys;
+
+    // Muzica de meniu pornește imediat la intrare / refresh.
+    // Dacă browserul blochează redarea automată (nu a existat încă nicio interacțiune cu pagina),
+    // pornește la PRIMA interacțiune de orice fel (mouse, tastă, touch), nu doar la click.
+    (function autoStartMenuMusic() {
+        const tryPlay = () => {
+            if (currentMode !== 'NONE' || !sndUssrWin.paused) return Promise.resolve(true);
+            if (!sndMenu.paused) return Promise.resolve(true);
+            return sndMenu.play().then(() => true).catch(() => false);
+        };
+        tryPlay().then(ok => {
+            if (ok) return;
+            // Browserul a blocat redarea automată -> afișăm un ecran de intrare.
+            // Primul click / tastă / touch pornește melodia instant și închide ecranul.
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.65);color:#fff;text-shadow:0 2px 12px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:sans-serif;text-align:center;user-select:none;';
+            ov.innerHTML = '<div style="font-size:clamp(24px,5vw,48px);font-weight:bold;letter-spacing:2px;">APASĂ PENTRU A INTRA</div><div style="margin-top:14px;font-size:clamp(12px,2vw,16px);opacity:.6;">click, tastă sau touch</div>';
+            document.body.appendChild(ov);
+            const evs = ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'click', 'wheel'];
+            const h = (ev) => {
+                tryPlay().then(ok2 => {
+                    if (!ok2) return;
+                    evs.forEach(e => window.removeEventListener(e, h, true));
+                    setTimeout(() => ov.remove(), 60);
+                });
+            };
+            evs.forEach(e => window.addEventListener(e, h, true));
+        });
+    })();
     let lastTime = 0;
 
     let player = {}; let obstacles = []; let auraOrbs = []; let enemies = [];
