@@ -473,10 +473,9 @@ function mpCredit() {
     const maxOther = rows.filter(r => !r.me).reduce((m, r) => Math.max(m, r.kills), 0);
     const winner = MP.ended && rows.length > 1 && k > 0 && k >= maxOther;
     const gain = k * 10 + (winner ? 50 : 0);
-    const gs = window.gameStats = window.gameStats || {};
-    gs.shooter = gs.shooter || { kills: 0, score: 0 };
-    gs.shooter.kills = (gs.shooter.kills || 0) + k;
-    gs.shooter.score = (gs.shooter.score || 0) + gain;
+    const g = gs();
+    g.kills = (g.kills || 0) + k;
+    g.score = (g.score || 0) + gain;
     MP.lastGain = gain;
     if (k > 0 || gain > 0) { if (typeof saveStats === 'function') saveStats(); }
 }
@@ -741,14 +740,23 @@ window.addEventListener('beforeunload', () => {
     try { mpCredit(); window.fsDeleteDoc(window.fsDoc(window.db, 'mp_players', MP.id)); } catch (e) {}
 });
 
-// statistici shooter (victime + scor) pentru leaderboard-ul din index.html
-window.mergeShooterStats = function(s) {
-    if (!s) return;
-    const gs = window.gameStats = window.gameStats || {};
-    gs.shooter = gs.shooter || { kills: 0, score: 0 };
-    gs.shooter.kills = Math.max(gs.shooter.kills || 0, s.kills || 0);
-    gs.shooter.score = Math.max(gs.shooter.score || 0, s.score || 0);
+// statistici shooter - EXACT aceleasi variabile ca in shootold.js (kills, wins, score, loadout, skin)
+const gs=()=>{
+ window.gameStats = window.gameStats || {};
+ return window.gameStats.shooter||(window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes'});
 };
+window.mergeShooterStats=s=>{const m=gs();['kills','wins','score'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
+
+// Survival/Stalingrad: fiecare victima = +1 kills si +50 scor (ca in shootold.js)
+function creditShooterKills() {
+    const d = SG.kills - (SG.statKills || 0);
+    if (d <= 0) return;
+    SG.statKills = SG.kills;
+    const g = gs();
+    g.kills = (g.kills || 0) + d;
+    g.score = (g.score || 0) + d * 50;
+    if (typeof saveStats === 'function') saveStats();
+}
 
 function mpDrawHUD() {
     cx.save();
@@ -942,7 +950,7 @@ window.startShooterSession = function(mode) {
 
     SG.on = true;
     SG.x = 10.5; SG.y = 10.5; SG.a = 0;
-    SG.kills = 0;
+    SG.kills = 0; SG.statKills = 0;
     SG.wave = 1;
     SG.left = SG.mode === 'multiplayer' ? 0 : 5 + 4 * SG.wave;
     SG.en = [];
@@ -1208,6 +1216,7 @@ function spawnEnemy() {
 
 function updateShooter(dt) {
     if (!SG.on) return;
+    if (SG.mode !== 'multiplayer') creditShooterKills();
 
     let k = window.keys || {};
     const mpMode = SG.mode === 'multiplayer' && MP;
@@ -1303,6 +1312,8 @@ function updateShooter(dt) {
 }
 
 function triggerStalingradLose() {
+    creditShooterKills();
+    { const g = gs(); g.score = (g.score || 0) + 500; if (typeof saveStats === 'function') saveStats(); }
     SG.on = false;
     stopAllMusic();
     sndLose.currentTime = 0; sndLose.play().catch(e => {});
@@ -1325,6 +1336,8 @@ function triggerStalingradLose() {
 }
 
 function triggerStalingradWin() {
+    creditShooterKills();
+    { const g = gs(); g.wins = (g.wins || 0) + 1; g.score = (g.score || 0) + 2000; if (typeof saveStats === 'function') saveStats(); }
     SG.on = false;
     stopAllMusic();
     sndWin.currentTime = 0; sndWin.play().catch(e => {});
