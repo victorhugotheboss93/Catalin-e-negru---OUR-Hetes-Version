@@ -63,7 +63,7 @@ const WEAPONS_DEF = {
     ak12:  { name: 'AK-12', dmg: 34, rate: 0.08, mag: 30, maxAmmo: 150, give: 60, reqKills: 500, img: 'ak12' }
 };
 
-// Skin-uri (Proletar poate echipa 2 arme la start, iar restul până la 5 le creează în joc)
+// Skin-uri cu cerințele exacte de deblocare
 const SKINS_DEF = {
     hetes: { name: 'Hetes', front: 'hetes-front', back: 'hetes-back', desc: 'Lasere din ochi roșii (max 10m pe AI)', req: 'Disponibil din oficiu', abilityKey: '[G]' },
     catalin: { name: 'Catalin', front: 'catalin-front', back: 'catalin-back', desc: 'Aura luminoasă, rezistență la gloanțe și o viață în plus', req: 'Câștigi modul Aura', abilityKey: '[G]' },
@@ -73,7 +73,7 @@ const SKINS_DEF = {
     'soldat-sovietic': { name: 'Soldat Sovietic', front: 'soldat-sovietic-front', back: 'soldat-sovietic-back', desc: 'Până la 5 arme & grenade devastation', req: 'Câștigi 3 sovietic, 3 survival și 500 de victime', maxWeapons: 5, abilityKey: '[G]/[F]' },
     'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice, daune toxice 15m', req: 'Câștigi 3 sovietic, 5 survival și 1000 de victime', maxWeapons: 5, abilityKey: '[G]' },
     'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Rezistență sporită, 125 HP, 5 arme', req: 'Câștigi 5 sovietic, 10 survival și 1500 de victime', maxWeapons: 5, abilityKey: '[G]' },
-    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Rage Mode (200 HP, viteză mare, lasere), 5 arme', req: 'Câștigi 5 sovietic, 15 survival și 2500 victime', maxWeapons: 5, abilityKey: '[G]' }
+    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Rage Mode (200 HP, viteză mare, lasere), 5 arme', req: 'Câștigi 5 sovietic, 15 survival și 2500 de victime', maxWeapons: 5, abilityKey: '[G]' }
 };
 
 // Harta Raycasting
@@ -172,19 +172,18 @@ let loseTimer = null;
 // =====================================================================
 // ===================== MULTIPLAYER (FFA, Firestore) ==================
 // =====================================================================
-const MP_ROUND_MS = 5 * 60 * 1000;      // o runda = 5 minute
-const MP_TICK_MS = 250;                 // la cat timp trimitem starea
-const MP_HEARTBEAT_MS = 3000;           // semnal de viata cand stai pe loc
-const MP_TIMEOUT_MS = 12000;            // jucator fara semnal = a iesit
+const MP_ROUND_MS = 5 * 60 * 1000;
+const MP_TICK_MS = 250;
+const MP_HEARTBEAT_MS = 3000;
+const MP_TIMEOUT_MS = 12000;
 const MP_SPAWNS = [
     [2.5, 2.5], [16.5, 2.5], [29.5, 2.5], [2.5, 14.5], [29.5, 14.5],
     [8.5, 14.5], [23.5, 14.5], [16.5, 10.5], [2.5, 29.5], [16.5, 29.5],
     [29.5, 29.5], [12.5, 24.5], [20.5, 24.5], [12.5, 6.5], [20.5, 6.5]
 ];
-// Damage in multiplayer: automatele extrem de mic, restul putin mai mare (dar tot mult mai mic decat in PvE)
 const MP_DMG = {
-    ppsh: 1.2, ak: 2, rpk16: 1.8, pkm: 2.5, ak12: 2,   // automate
-    mak: 6, mos: 25, svt: 7, rpg: 35                   // restul
+    ppsh: 1.2, ak: 2, rpk16: 1.8, pkm: 2.5, ak12: 2,
+    mak: 6, mos: 25, svt: 7, rpg: 35
 };
 
 let MP = null;
@@ -230,7 +229,6 @@ function mpFail(err) {
     mpToMenu();
 }
 
-// ---------- runda (comuna tuturor jucatorilor) ----------
 function mpAdoptRound(d) { MP.round = { id: d.id, start: d.start, joinedAt: Date.now() }; }
 function mpCreateRound() {
     const r = { id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), start: Date.now() };
@@ -241,7 +239,6 @@ function mpCreateRound() {
 
 function mpOnRoom(snap) {
     if (!MP || MP.failed) return;
-    // asteptam raspunsul real de la server (nu din cache), altfel am putea suprascrie o runda activa
     if (!MP.ready && snap.metadata && snap.metadata.fromCache) return;
     const d = snap.exists() ? snap.data() : null;
     const now = Date.now();
@@ -256,8 +253,8 @@ function mpOnRoom(snap) {
     if (!d) return;
     MP.lastRoom = d;
     if (MP.round && d.id !== MP.round.id && !MP.ended) {
-        if (now - MP.round.joinedAt < 4000) mpAdoptRound(d);   // doi jucatori au creat runda simultan
-        else mpEndRound();                                      // altcineva a pornit deja o runda noua
+        if (now - MP.round.joinedAt < 4000) mpAdoptRound(d);
+        else mpEndRound();
     }
 }
 
@@ -283,10 +280,9 @@ function mpSpawn(first) {
     SG.hp = SG.maxHp;
     SG.cd = 0.3;
     SG.w.forEach(id => { SG.mag[id] = WEAPONS_DEF[id].mag; SG.ammo[id] = WEAPONS_DEF[id].maxAmmo; });
-    MP.invUntil = Date.now() + 2500;   // protectie scurta la spawn
+    MP.invUntil = Date.now() + 2500;
 }
 
-// ---------- retea ----------
 function mpSend(force) {
     if (!MP || !MP.round) return;
     const now = Date.now();
@@ -337,7 +333,7 @@ function mpOnPlayers(snap) {
 
 function mpApplyRemote(id, d) {
     if (!d) return;
-    if (Date.now() - (d.t || 0) > 60000) {            // document ramas de la un jucator care a iesit brusc
+    if (Date.now() - (d.t || 0) > 60000) {
         try { window.fsDeleteDoc(window.fsDoc(window.db, 'mp_players', id)).catch(() => {}); } catch (e) {}
         return;
     }
@@ -351,14 +347,12 @@ function mpApplyRemote(id, d) {
     p.kills = d.kills || 0; p.deaths = d.deaths || 0; p.round = d.round; p.inv = d.inv;
     p.track = (typeof d.track === 'number') ? d.track : -1; p.trackAt = d.trackAt || 0;
     p.tx = d.x; p.ty = d.y; p.ta = d.a;
-    if (Math.hypot(p.tx - p.x, p.ty - p.y) > 3) { p.x = p.tx; p.y = p.ty; }   // teleportare (respawn)
+    if (Math.hypot(p.tx - p.x, p.ty - p.y) > 3) { p.x = p.tx; p.y = p.ty; }
 
-    // damage primit de la acest jucator (contor cumulativ)
     const v = (d.dmgTo && d.dmgTo[MP.id]) || 0;
     if (v < p.lastDmg) p.lastDmg = v;
     else if (v > p.lastDmg) { const delta = v - p.lastDmg; p.lastDmg = v; mpTakeDamage(delta, id, p.name); }
 
-    // a murit cineva -> credit pentru ucigas
     const ds = d.deathSeq || 0;
     if (ds > p.lastDeathSeq) {
         p.lastDeathSeq = ds;
@@ -368,7 +362,6 @@ function mpApplyRemote(id, d) {
         }
     }
 
-    // sunet de tragere de la ceilalti
     const sh = d.shots || 0;
     if (sh > p.lastShots) { p.lastShots = sh; mpRemoteShot(p); } else if (sh < p.lastShots) p.lastShots = sh;
 
@@ -393,7 +386,6 @@ function mpInterpolate(dt) {
     }
 }
 
-// ---------- lupta ----------
 function mpTargets() {
     return Object.values(MP.players).filter(p => mpActive(p) && p.hp > 0 && !p.inv);
 }
@@ -422,7 +414,6 @@ function mpShoot(w, id, wd) {
     }
 }
 
-// abilitati de zona (lasere / grenada) folosite si in multiplayer, cu damage mic
 function mpAreaDamage(radius, dmg) {
     if (!MP || !MP.ready || MP.ended) return;
     mpTargets().forEach(p => {
@@ -449,12 +440,11 @@ function mpDie() {
     MP.deaths++; MP.deathSeq++;
     MP.killedBy = MP.lastHitBy; MP.killedByName = MP.lastHitName;
     addKillFeed(`${MP.lastHitName || 'Cineva'} te-a eliminat!`);
-    mpSpawn(false);                     // teleportare la un spawn point
+    mpSpawn(false);
     SG.flash = 0.6;
     mpSend(true);
 }
 
-// ---------- sfarsit de runda + clasament ----------
 function mpBuildBoard() {
     const rid = MP.round.id;
     const rows = [{ name: MP.name, kills: SG.kills, deaths: MP.deaths, me: true }];
@@ -490,7 +480,7 @@ function mpEndRound() {
     MP.frozen = null;
     mpShowBoard();
     clearTimeout(MP.freezeT);
-    MP.freezeT = setTimeout(() => {          // dupa 2.5s toate scorurile finale au ajuns, inghetam clasamentul
+    MP.freezeT = setTimeout(() => {
         if (!MP || !MP.ended) return;
         MP.frozen = mpBuildBoard();
         mpCredit();
@@ -504,8 +494,8 @@ function mpContinue() {
     mpCredit();
     mpHideBoard();
     const d = MP.lastRoom, now = Date.now();
-    if (d && d.id !== MP.round.id && d.start + MP_ROUND_MS > now) mpAdoptRound(d);   // runda noua exista deja
-    else mpCreateRound();                                                            // o pornim noi
+    if (d && d.id !== MP.round.id && d.start + MP_ROUND_MS > now) mpAdoptRound(d);
+    else mpCreateRound();
     MP.ended = false; MP.credited = false; MP.frozen = null; MP.lastGain = 0;
     MP.deaths = 0; SG.kills = 0;
     mpSpawn(true);
@@ -546,7 +536,6 @@ function mpHideBoard() {
     if (MP && MP.ui && MP.ui.board) { MP.ui.board.style.display = 'none'; MP.ui.board.innerHTML = ''; }
 }
 
-// ---------- UI (buton rosu, overlay clasament, chat) ----------
 function mpEnsureUI() {
     if (!MP) return;
     if (!MP.ui) {
@@ -571,7 +560,7 @@ function mpEnsureUI() {
         if (!inp._mpBound) {
             inp._mpBound = true;
             inp.addEventListener('keydown', ev => {
-                ev.stopPropagation();                      // tastele scrise nu misca jucatorul
+                ev.stopPropagation();
                 if (ev.key === 'Enter') {
                     const t = inp.value.trim();
                     if (t) mpSendChat(t);
@@ -616,7 +605,7 @@ function mpCloseChat(relock) {
     MP.chatOpen = false;
     const inp = $('mp-chat-input');
     if (inp) { inp.blur(); inp.style.display = 'none'; inp.value = ''; }
-    if (window.keys) Object.keys(window.keys).forEach(k => { window.keys[k] = false; });   // evitam taste "blocate"
+    if (window.keys) Object.keys(window.keys).forEach(k => { window.keys[k] = false; });
     mpChatStyle(); mpChatRefresh();
     if (relock && !MP.ended) lockPointer();
 }
@@ -642,7 +631,7 @@ function mpOnChat(snap) {
         MP.seenChat[ch.doc.id] = 1;
         const d = ch.doc.data();
         if (first || !d || !box) return;
-        if (Date.now() - (d.t || 0) > 20000) return;        // ignoram istoricul vechi
+        if (Date.now() - (d.t || 0) > 20000) return;
         const line = document.createElement('div');
         line.dataset.t = Date.now();
         const nm = document.createElement('b');
@@ -670,7 +659,6 @@ function mpChatRefresh() {
     });
 }
 
-// ---------- muzica Gopnikului (M pentru ceilalti) ----------
 function mpTune() {
     if (MP.tuned) { mpUntune(false); return; }
     const g = Object.values(MP.players).find(p => mpActive(p) && p.skin === 'gopnik' && p.track >= 0);
@@ -690,7 +678,7 @@ function mpSyncTuned(force) {
     const tr = GRS_PLAYLIST[g.track];
     const a = new Audio(tr.src);
     a.loop = true;
-    a.addEventListener('loadedmetadata', () => {       // sincronizam pozitia cu melodia Gopnikului
+    a.addEventListener('loadedmetadata', () => {
         try {
             const el = (Date.now() - g.trackAt) / 1000;
             if (a.duration && el > 0) a.currentTime = el % a.duration;
@@ -712,7 +700,6 @@ function mpUntune(gone) {
     addKillFeed(gone ? 'Gopnikul a oprit muzica.' : 'Ai oprit muzica Gopnikului.');
 }
 
-// ---------- plecare ----------
 function mpLeave() {
     if (!MP) return;
     const m = MP;
@@ -725,7 +712,6 @@ function mpLeave() {
     MP = null;
 }
 
-// iesire in meniu: exact ca la ecranul "Misiune Esuata" din shoot 2 (opreste jocul, ascunde canvasul, apoi backToMain() din html)
 function mpToMenu() {
     mpLeave();
     SG.on = false;
@@ -740,14 +726,12 @@ window.addEventListener('beforeunload', () => {
     try { mpCredit(); window.fsDeleteDoc(window.fsDoc(window.db, 'mp_players', MP.id)); } catch (e) {}
 });
 
-// statistici shooter - EXACT aceleasi variabile ca in shootold.js (kills, wins, score, loadout, skin)
 const gs=()=>{
  window.gameStats = window.gameStats || {};
  return window.gameStats.shooter||(window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes'});
 };
 window.mergeShooterStats=s=>{const m=gs();['kills','wins','score'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
 
-// Survival/Stalingrad: fiecare victima = +1 kills si +50 scor (ca in shootold.js)
 function creditShooterKills() {
     const d = SG.kills - (SG.statKills || 0);
     if (d <= 0) return;
@@ -778,7 +762,6 @@ function mpDrawHUD() {
     cx.fillStyle = '#ccc'; cx.font = '12px sans-serif';
     cx.fillText(`Jucători: ${others.length + 1}  ·  / = chat`, W / 2, 55);
 
-    // top 3 live
     const rows = mpBuildBoard().slice(0, 3);
     cx.textAlign = 'left'; cx.font = 'bold 12px sans-serif';
     rows.forEach((r, i) => {
@@ -786,7 +769,6 @@ function mpDrawHUD() {
         cx.fillText(`${i + 1}. ${r.name.slice(0, 14)} - ${r.kills}`, W / 2 - 70, 80 + i * 16);
     });
 
-    // indiciu pentru muzica Gopnikului
     if (SG.skin !== 'gopnik' && !MP.tuned) {
         const g = others.find(p => p.skin === 'gopnik' && p.track >= 0);
         if (g) {
@@ -799,7 +781,6 @@ function mpDrawHUD() {
     cx.restore();
 }
 
-// ---------- randare jucatori (sprite-uri cu skin fata/spate + nume + HP) ----------
 function mpRenderPlayers() {
     const list = Object.values(MP.players).filter(mpActive)
         .map(p => (p.d = Math.hypot(p.x - SG.x, p.y - SG.y), p)).sort((a, b) => b.d - a.d);
@@ -809,7 +790,6 @@ function mpRenderPlayers() {
         if (Math.abs(df) > FOV / 2 + 0.4) return;
         const pd = p.d * Math.cos(df); if (pd < 0.3) return;
         const h = H / pd * 0.95, w = h * 0.65, l = (.5 + df / FOV) * W - w / 2, y = (H - h) / 2 + h * 0.03;
-        // daca jucatorul priveste in aceeasi directie cu cea in care ma uit eu spre el, ii vad spatele
         let rel = p.a - toT; rel = Math.atan2(Math.sin(rel), Math.cos(rel));
         const sk = SKINS_DEF[p.skin] || SKINS_DEF.hetes;
         const im = IMG[Math.abs(rel) < Math.PI / 2 ? sk.back : sk.front];
@@ -840,9 +820,8 @@ function mpRenderPlayers() {
     });
 }
 
-
 window.openShootMenu = function() {
-    currentMode = 'SHOOTER'; // la fel ca TETRIS/GULAG/SANDBOX: blocheaza listener-ul de click din index.html care porneste melodia Victory Day
+    currentMode = 'SHOOTER';
     stopAllMusic();
     hideAllScreens();
     $('sh-arsenal').classList.remove('hidden');
@@ -882,30 +861,42 @@ function getMaxWeapons(skinKey) {
     return sk.maxWeapons || 2;
 }
 
-function buildArsenalUI() {
-    const skinCardsDiv = $('sh-skin-cards');
-    const weaponCardsDiv = $('sh-weapon-cards');
-    const infoDiv = $('sh-side-info');
-    if (!skinCardsDiv || !weaponCardsDiv || !infoDiv) return;
-
+// Verificare strictă de deblocare skin-uri conform cerințelor specificate
+function isSkinUnlocked(sKey) {
     let stats = window.gameStats || {};
     let sovietWins = (stats.classicCompletions && stats.classicCompletions.soviet) || 0;
     let survivalWins = (stats.shooter && (stats.shooter.wins || stats.shooter.stalingradWins)) || 0;
     let totalKills = (stats.shooter && stats.shooter.kills) || 0;
     let auraWins = stats.auraCompletions || 0;
 
+    if (sKey === 'hetes') return true;
+    if (sKey === 'catalin' && auraWins >= 1) return true;
+    if (sKey === 'proletar' && sovietWins >= 1) return true;
+    if (sKey === 'gopnik' && sovietWins >= 1 && survivalWins >= 1) return true;
+    if (sKey === 'nazbol' && sovietWins >= 1 && survivalWins >= 1 && totalKills >= 100) return true;
+    if (sKey === 'soldat-sovietic' && sovietWins >= 3 && survivalWins >= 3 && totalKills >= 500) return true;
+    if (sKey === 'cernobil-stalker' && sovietWins >= 3 && survivalWins >= 5 && totalKills >= 1000) return true;
+    if (sKey === 'soldat-rus-modern' && sovietWins >= 5 && survivalWins >= 10 && totalKills >= 1500) return true;
+    if (sKey === 'anti-furry-hetes' && sovietWins >= 5 && survivalWins >= 15 && totalKills >= 2500) return true;
+
+    return false;
+}
+
+function buildArsenalUI() {
+    const skinCardsDiv = $('sh-skin-cards');
+    const weaponCardsDiv = $('sh-weapon-cards');
+    const infoDiv = $('sh-side-info');
+    if (!skinCardsDiv || !weaponCardsDiv || !infoDiv) return;
+
+    // În cazul în care skin-ul selectat curent devine blocat sau invalid, se revine la 'hetes'
+    if (!isSkinUnlocked(SG.skin)) {
+        SG.skin = 'hetes';
+    }
+
     skinCardsDiv.innerHTML = '';
     Object.keys(SKINS_DEF).forEach(sKey => {
         let s = SKINS_DEF[sKey];
-        let unlocked = true;
-        if (sKey === 'catalin' && auraWins < 1) unlocked = false;
-        if (sKey === 'proletar' && sovietWins < 1) unlocked = false;
-        if (sKey === 'gopnik' && (sovietWins < 1 || survivalWins < 1)) unlocked = false;
-        if (sKey === 'nazbol' && (sovietWins < 1 || survivalWins < 1 || totalKills < 100)) unlocked = false;
-        if (sKey === 'soldat-sovietic' && (sovietWins < 3 || survivalWins < 3 || totalKills < 500)) unlocked = false;
-        if (sKey === 'cernobil-stalker' && (sovietWins < 3 || survivalWins < 5 || totalKills < 1000)) unlocked = false;
-        if (sKey === 'soldat-rus-modern' && (sovietWins < 5 || survivalWins < 10 || totalKills < 1500)) unlocked = false;
-        if (sKey === 'anti-furry-hetes' && (sovietWins < 5 || survivalWins < 15 || totalKills < 2500)) unlocked = false;
+        let unlocked = isSkinUnlocked(sKey);
 
         let card = document.createElement('div');
         card.className = `sh-card ${SG.skin === sKey ? 'selected' : ''} ${unlocked ? '' : 'locked'}`;
@@ -957,6 +948,13 @@ window.startShooterSession = function(mode) {
         alert('Multiplayer necesită conexiunea la server (Firebase). Verifică internetul și reîncarcă pagina.');
         return;
     }
+    
+    // Verificare suplimentară la începerea sesiunii
+    if (!isSkinUnlocked(SG.skin)) {
+        alert("Skin-ul " + (SKINS_DEF[SG.skin]?.name || '') + " este blocat! A fost resetat la Hetes.");
+        SG.skin = 'hetes';
+    }
+
     mpLeave();
     SG.mode = mode || 'stalingrad';
     currentMode = 'SHOOTER';
@@ -985,7 +983,6 @@ window.startShooterSession = function(mode) {
     SG.maxHp = (SG.skin === 'anti-furry-hetes') ? 200 : ((SG.skin === 'soldat-rus-modern') ? 125 : 100);
     SG.hp = SG.maxHp;
 
-    // Fundal: svoina.mp3 (melodia "Victory Day" din meniu rămâne oprită; gopnik o poate schimba cu M/K/L)
     SG.gopnikPlaying = false; SG.gopnikTrack = 0; SG.gopnikTrackAt = 0;
     SG.nazbolInvincible = false; SG.nazbolSmokeTimer = 0;
     sndStalingradBgm.currentTime = 0;
@@ -1024,7 +1021,7 @@ window.shBackToMain = function() {
         window.startMenuMusic();
     }
     if (typeof playMenuMusic === 'function') playMenuMusic();
-    setTimeout(() => location.reload(), 500);   // reset complet al site-ului la revenirea in meniu
+    setTimeout(() => location.reload(), 500);
 };
 
 cv.addEventListener('mousemove', e => {
@@ -1067,7 +1064,7 @@ window.addEventListener('keydown', e => {
         else if (k === 'k') { SG.gopnikTrack = (SG.gopnikTrack - 1 + GRS_PLAYLIST.length) % GRS_PLAYLIST.length; playGopnikMusic(); }
         else if (k === 'l') { SG.gopnikTrack = (SG.gopnikTrack + 1) % GRS_PLAYLIST.length; playGopnikMusic(); }
     } else if (mpm && k === 'm') {
-        mpTune();   // ascultă ce pune Gopnikul din meci
+        mpTune();
     }
 
     for (let i = 0; i < 5; i++) {
@@ -1285,7 +1282,7 @@ function updateShooter(dt) {
         if (SG.nazbolSmokeTimer <= 0) SG.nazbolInvincible = false;
     }
 
-    if (mpMode) { mpInterpolate(dt); return; }   // multiplayer: fara valuri / inamici AI
+    if (mpMode) { mpInterpolate(dt); return; }
 
     if (!SG.left && !SG.en.length) {
         if (SG.wave === 4) { triggerStalingradWin(); return; }
@@ -1441,7 +1438,7 @@ function renderShooter() {
     cx.moveTo(W / 2 - 10, H / 2); cx.lineTo(W / 2 + 10, H / 2);
     cx.moveTo(W / 2, H / 2 - 10); cx.lineTo(W / 2, H / 2 + 10); cx.stroke();
 
-    const hudOy = (SG.mode === 'multiplayer') ? 50 : 0;   // loc pentru butonul rosu din stanga sus
+    const hudOy = (SG.mode === 'multiplayer') ? 50 : 0;
     cx.save(); cx.translate(0, hudOy);
     let hpBarWidth = Math.min(260, (SG.maxHp / 100) * 260);
     cx.fillStyle = 'rgba(0,0,0,.6)'; cx.fillRect(20, 20, hpBarWidth, 26);
@@ -1462,7 +1459,7 @@ function renderShooter() {
     else cx.fillText(`Victime: ${SG.kills} · Rămași: ${SG.en.length + SG.left}`, 20, 70);
 
     let currentTextY = 95;
-    if (SG.mode !== 'multiplayer') {   // fără Katyusha în multiplayer
+    if (SG.mode !== 'multiplayer') {
         cx.fillStyle = SG.katcd <= 0 ? '#00ffcc' : '#888';
         cx.fillText('F - Katyusha: ' + (SG.katcd <= 0 ? '[GATA]' : Math.ceil(SG.katcd) + 's'), 20, currentTextY);
         currentTextY += 22;
@@ -1471,7 +1468,7 @@ function renderShooter() {
     cx.fillStyle = SG.abilityCd <= 0 ? '#00ffcc' : '#888';
     cx.fillText('G - Abilitate: ' + (SG.abilityCd <= 0 ? '[GATA]' : Math.ceil(SG.abilityCd) + 's'), 20, currentTextY);
     cx.restore();
-    cx.font = 'bold 16px sans-serif';   // ca in shoot 2 (textul armelor era 32px din cauza save/restore)
+    cx.font = 'bold 16px sans-serif';
 
     if (SG.skin === 'gopnik' || SG.gopnikPlaying) {
         let gopX = W - 320, gopY = 80, gopW = 240, gopH = 50;
@@ -1540,8 +1537,6 @@ function shooterLoop(timestamp) {
     if (SG.on) requestAnimationFrame(shooterLoop);
 }
 
-// La revenirea la meniu din ORICE mod (clasic, aura, tetris, gulag, sandbox, shooter) site-ul se reîncarcă automat.
-// backToMain() din index.html face curățarea obișnuită, apoi paginea se reîncarcă (după 500ms, ca să se termine salvarea scorului).
 window.addEventListener('load', () => {
     const orig = window.backToMain;
     if (typeof orig !== 'function' || orig._reloads) return;
