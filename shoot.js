@@ -1,4 +1,4 @@
-// shoot.js - Modul Shooter (Survival Shooter & Stalingrad Mechanics - V7)
+// shoot.js - Modul Shooter (Survival Shooter & Stalingrad Mechanics - V10)
 (() => {
 const W = 1280, H = 720, N = 32, FOV = 1.15, C = 640;
 const $ = id => document.getElementById(id);
@@ -25,7 +25,6 @@ imgNames.forEach(n => {
     IMG[n].src = n + '.png';
 });
 
-// Sunete preluate exact din shootold.js
 const sndGun = new Audio('gun.mp3');
 const sndReload = new Audio('reload.mp3');
 const sndExplosion = new Audio('st explosion sound6.mp3');
@@ -50,33 +49,30 @@ function addKillFeed(text) {
     if (killFeedMessages.length > 5) killFeedMessages.shift();
 }
 
-// Arme cu cadența și cooldown-ul exact preluat din shootold.js
 const WEAPONS_DEF = {
     mak:   { name: 'Makarov', dmg: 26, rate: 0.33, mag: 8, maxAmmo: 40, give: 16, reqKills: 0, img: 'makarov' },
     mos:   { name: 'Mosin-Nagant', dmg: 100, rate: 1.1, mag: 5, maxAmmo: 25, give: 10, reqKills: 0, img: 'mosin' },
-    ppsh:  { name: 'PPSh-41', dmg: 14, rate: 0.075, mag: 71, maxAmmo: 142, give: 71, reqKills: 15, img: 'ppsh' },
-    svt:   { name: 'SVT-40', dmg: 45, rate: 0.25, mag: 10, maxAmmo: 50, give: 20, reqKills: 40, img: 'svt40' },
-    rpg:   { name: 'RPG-7', dmg: 150, rate: 1.8, mag: 1, maxAmmo: 5, give: 2, splash: 2.5, reqKills: 80, img: 'rpg7' },
-    ak:    { name: 'AK-47', dmg: 30, rate: 0.1, mag: 30, maxAmmo: 120, give: 60, reqKills: 120, img: 'ak47' },
-    rpk16: { name: 'RPK-16', dmg: 28, rate: 0.09, mag: 45, maxAmmo: 180, give: 90, reqKills: 200, img: 'rpk16' },
-    pkm:   { name: 'PKM', dmg: 40, rate: 0.12, mag: 100, maxAmmo: 200, give: 100, reqKills: 350, img: 'pkm' },
-    ak12:  { name: 'AK-12', dmg: 34, rate: 0.08, mag: 30, maxAmmo: 150, give: 60, reqKills: 500, img: 'ak12' }
+    ppsh:  { name: 'PPSh-41', dmg: 14, rate: 0.075, mag: 71, maxAmmo: 142, give: 71, reqKills: 50, img: 'ppsh' },
+    svt:   { name: 'SVT-40', dmg: 45, rate: 0.25, mag: 10, maxAmmo: 50, give: 20, reqKills: 150, img: 'svt40' },
+    rpg:   { name: 'RPG-7', dmg: 150, rate: 1.8, mag: 1, maxAmmo: 5, give: 2, splash: 2.5, reqKills: 300, img: 'rpg7' },
+    ak:    { name: 'AK-47', dmg: 30, rate: 0.1, mag: 30, maxAmmo: 120, give: 60, reqKills: 500, img: 'ak47' },
+    rpk16: { name: 'RPK-16', dmg: 28, rate: 0.09, mag: 45, maxAmmo: 180, give: 90, reqKills: 650, img: 'rpk16' },
+    pkm:   { name: 'PKM', dmg: 40, rate: 0.12, mag: 100, maxAmmo: 200, give: 100, reqKills: 800, img: 'pkm' },
+    ak12:  { name: 'AK-12', dmg: 34, rate: 0.08, mag: 30, maxAmmo: 150, give: 60, reqKills: 1000, img: 'ak12' }
 };
 
-// Skin-uri cu cerințele exacte de deblocare
 const SKINS_DEF = {
     hetes: { name: 'Hetes', front: 'hetes-front', back: 'hetes-back', desc: 'Lasere din ochi roșii (max 10m pe AI)', req: 'Disponibil din oficiu', abilityKey: '[G]' },
     catalin: { name: 'Catalin', front: 'catalin-front', back: 'catalin-back', desc: 'Aura luminoasă, rezistență la gloanțe și o viață în plus', req: 'Câștigi modul Aura', abilityKey: '[G]' },
-    proletar: { name: 'Proletar', front: 'proletar-front', back: 'proletar-back', desc: 'Echipează 2 arme la start, creează 3 arme noi prin abilitate', req: 'Câștigi modul sovietic', maxWeapons: 2, dynamicWeapons: 5, abilityKey: '[G]' },
-    gopnik: { name: 'Gopnik', front: 'gopnik-front', back: 'gopnik-back', desc: 'Player muzical Hardbass (M, K, L) și Vodka (+50 HP)', req: 'Câștigi modul sovietic și survival', abilityKey: '[G]/[K]' },
-    nazbol: { name: 'Nazbol', front: 'nazbol-front', back: 'nazbol-back', desc: 'Fum roșu (invulnerabilitate 5s, CD 20s)', req: 'Câștigi modul sovietic, survival și 100 de victime', abilityKey: '[G]/[E]' },
+    proletar: { name: 'Proletar', front: 'proletar-front', back: 'proletar-back', desc: 'Echipează 2 arme la start, creează armă nouă la fiecare 5 activări', req: 'Câștigi modul sovietic', maxWeapons: 2, dynamicWeapons: 5, abilityKey: '[G]' },
+    gopnik: { name: 'Gopnik', front: 'gopnik-front', back: 'gopnik-back', desc: 'Viteză sporită permanent, Player muzical (M, K, L) și Vodka (+50 HP)', req: 'Câștigi modul sovietic și survival', abilityKey: '[G]/[K]' },
+    nazbol: { name: 'Nazbol', front: 'nazbol-front', back: 'nazbol-back', desc: 'Ecran roșu și fum vizibil, viteză mare și invulnerabilitate 5s (CD 20s)', req: 'Câștigi modul sovietic, survival și 100 de victime', abilityKey: '[G]/[E]' },
     'soldat-sovietic': { name: 'Soldat Sovietic', front: 'soldat-sovietic-front', back: 'soldat-sovietic-back', desc: 'Până la 5 arme & grenade devastation', req: 'Câștigi 3 sovietic, 3 survival și 500 de victime', maxWeapons: 5, abilityKey: '[G]/[F]' },
-    'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice, daune toxice 15m', req: 'Câștigi 3 sovietic, 5 survival și 1000 de victime', maxWeapons: 5, abilityKey: '[G]' },
-    'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Rezistență sporită, 125 HP, 5 arme', req: 'Câștigi 5 sovietic, 10 survival și 1500 de victime', maxWeapons: 5, abilityKey: '[G]' },
-    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Rage Mode (200 HP, viteză mare, lasere), 5 arme', req: 'Câștigi 5 sovietic, 15 survival și 2500 de victime', maxWeapons: 5, abilityKey: '[G]' }
+    'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice pasive 15m (daune x2), daune toxice de la grenade', req: 'Câștigi 3 sovietic, 5 survival și 1000 de victime', maxWeapons: 5, abilityKey: '[G]' },
+    'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Viteză mărită permanent, 125 HP, 5 arme', req: 'Câștigi 5 sovietic, 10 survival și 1500 de victime', maxWeapons: 5, abilityKey: '[G]' },
+    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Viteză mare permanent, Rage Mode 20s, Laser [L] (CD 3s în Rage)', req: 'Câștigi 5 sovietic, 15 survival și 2500 de victime', maxWeapons: '5' }
 };
 
-// Harta Raycasting
 const MAP_GRID = [
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
@@ -152,7 +148,7 @@ let SG = {
     mag: {}, ammo: {},
     cd: 0, kick: 0, flash: 0, hm: 0, bob: 0,
     wave: 0, left: 0, nw: 1, sp: 0,
-    katcd: 0, abilityCd: 0,
+    katcd: 0, abilityCd: 0, laserCd: 0,
     rage: false, rageTimer: 0, extraLife: 0,
     proletarWeaponProgress: 0,
     nazbolSmokeTimer: 0, nazbolInvincible: false,
@@ -295,7 +291,7 @@ function mpSend(force) {
         shots: MP.shots,
         track: (SG.skin === 'gopnik' && SG.gopnikPlaying) ? SG.gopnikTrack : -1,
         trackAt: SG.gopnikTrackAt || 0,
-        inv: (SG.nazbolInvincible || now < MP.invUntil) ? 1 : 0
+        inv: (SG.nazbolInvincible || SG.nazbolSmokeTimer > 0 || now < MP.invUntil) ? 1 : 0
     };
     const key = JSON.stringify(st);
     if (!force && key === MP.lastSent && now - MP.lastSend < MP_HEARTBEAT_MS) return;
@@ -397,7 +393,13 @@ function mpDealDamage(p, dmg) {
 
 function mpShoot(w, id, wd) {
     MP.shots++;
-    const dmg = MP_DMG[id] != null ? MP_DMG[id] : 3;
+    const baseDmg = MP_DMG[id] != null ? MP_DMG[id] : 3;
+    let dmg = baseDmg;
+    
+    if (SG.skin === 'cernobil-stalker') {
+        dmg *= 2;
+    }
+
     let best = null, bd = 1e9;
     mpTargets().forEach(p => {
         const dx = p.x - SG.x, dy = p.y - SG.y, d = Math.hypot(dx, dy);
@@ -407,23 +409,39 @@ function mpShoot(w, id, wd) {
     if (w.splash) {
         const dist = best ? bd : Math.max(0, wd - 0.2);
         const ex = SG.x + Math.cos(SG.a) * dist, ey = SG.y + Math.sin(SG.a) * dist;
-        mpTargets().forEach(p => { if (Math.hypot(p.x - ex, p.y - ey) < w.splash) mpDealDamage(p, dmg); });
+        mpTargets().forEach(p => { 
+            let distToExplosion = Math.hypot(p.x - ex, p.y - ey);
+            if (distToExplosion < w.splash) {
+                mpDealDamage(p, dmg); 
+            } else if (SG.skin === 'cernobil-stalker' && distToExplosion <= w.splash + 3.0) {
+                mpDealDamage(p, 15);
+            }
+        });
         sndExplosion.currentTime = 0; sndExplosion.play().catch(() => {});
     } else if (best) {
         mpDealDamage(best, dmg);
+        if (SG.skin === 'cernobil-stalker' && bd <= 15) {
+            setTimeout(() => { if (best && best.hp > 0) mpDealDamage(best, 15); }, 300);
+            setTimeout(() => { if (best && best.hp > 0) mpDealDamage(best, 15); }, 600);
+        }
     }
 }
 
 function mpAreaDamage(radius, dmg) {
     if (!MP || !MP.ready || MP.ended) return;
     mpTargets().forEach(p => {
-        if (Math.hypot(p.x - SG.x, p.y - SG.y) <= radius && los(SG.x, SG.y, p.x, p.y)) mpDealDamage(p, dmg);
+        let dToP = Math.hypot(p.x - SG.x, p.y - SG.y);
+        if (dToP <= radius && los(SG.x, SG.y, p.x, p.y)) {
+            mpDealDamage(p, dmg);
+        } else if (SG.skin === 'cernobil-stalker' && dToP <= radius + 3.0 && los(SG.x, SG.y, p.x, p.y)) {
+            mpDealDamage(p, 15);
+        }
     });
 }
 
 function mpTakeDamage(amount, fromId, fromName) {
     if (!MP || MP.ended || !SG.on) return;
-    if (SG.nazbolInvincible || Date.now() < MP.invUntil) return;
+    if (SG.nazbolInvincible || SG.nazbolSmokeTimer > 0 || Date.now() < MP.invUntil) return;
     SG.hp -= amount;
     SG.flash = Math.max(SG.flash, Math.min(0.3, 0.08 + amount * 0.015));
     MP.lastHitBy = fromId; MP.lastHitName = fromName;
@@ -794,6 +812,9 @@ function mpRenderPlayers() {
         const sk = SKINS_DEF[p.skin] || SKINS_DEF.hetes;
         const im = IMG[Math.abs(rel) < Math.PI / 2 ? sk.back : sk.front];
         cx.save();
+        if (p.skin === 'nazbol' && p.inv) {
+            cx.fillStyle = 'rgba(255, 0, 0, 0.4)';
+        }
         if (p.inv) cx.globalAlpha = 0.55;
         for (let x = Math.max(0, l | 0); x < Math.min(W, l + w); x += 2) {
             if (Z[x >> 1] < pd) continue;
@@ -861,7 +882,6 @@ function getMaxWeapons(skinKey) {
     return sk.maxWeapons || 2;
 }
 
-// Verificare strictă de deblocare skin-uri conform cerințelor specificate
 function isSkinUnlocked(sKey) {
     let stats = window.gameStats || {};
     let sovietWins = (stats.classicCompletions && stats.classicCompletions.soviet) || 0;
@@ -882,13 +902,19 @@ function isSkinUnlocked(sKey) {
     return false;
 }
 
+function isWeaponUnlocked(wKey) {
+    let stats = window.gameStats || {};
+    let totalKills = (stats.shooter && stats.shooter.kills) || 0;
+    let req = WEAPONS_DEF[wKey] ? WEAPONS_DEF[wKey].reqKills : 0;
+    return totalKills >= req;
+}
+
 function buildArsenalUI() {
     const skinCardsDiv = $('sh-skin-cards');
     const weaponCardsDiv = $('sh-weapon-cards');
     const infoDiv = $('sh-side-info');
     if (!skinCardsDiv || !weaponCardsDiv || !infoDiv) return;
 
-    // În cazul în care skin-ul selectat curent devine blocat sau invalid, se revine la 'hetes'
     if (!isSkinUnlocked(SG.skin)) {
         SG.skin = 'hetes';
     }
@@ -927,11 +953,17 @@ function buildArsenalUI() {
     weaponCardsDiv.innerHTML = '';
     Object.keys(WEAPONS_DEF).forEach(wKey => {
         let w = WEAPONS_DEF[wKey];
+        let wUnlocked = isWeaponUnlocked(wKey);
         let equipped = SG.weapons.includes(wKey);
+        
         let card = document.createElement('div');
-        card.className = `sh-card ${equipped ? 'selected' : ''}`;
-        card.innerHTML = `<img src="${w.img}.png" style="width:65px; height:40px; object-fit:contain;"><div style="font-weight:bold; font-size:10px;">${w.name}</div>`;
+        card.className = `sh-card ${equipped ? 'selected' : ''} ${wUnlocked ? '' : 'locked'}`;
+        card.innerHTML = `<img src="${w.img}.png" style="width:65px; height:40px; object-fit:contain;"><div style="font-weight:bold; font-size:10px;">${w.name}</div><div style="font-size:9px; color:${wUnlocked ? '#2ecc71':'#e74c3c'}">${w.reqKills === 0 ? 'Gratis' : w.reqKills + ' kill-uri'}</div>`;
         card.onclick = () => {
+            if (!wUnlocked) {
+                alert(`Armă blocată! Necesită ${w.reqKills} victime (kill-uri).`);
+                return;
+            }
             if (equipped) {
                 if (SG.weapons.length > 1) SG.weapons = SG.weapons.filter(x => x !== wKey);
             } else {
@@ -949,11 +981,13 @@ window.startShooterSession = function(mode) {
         return;
     }
     
-    // Verificare suplimentară la începerea sesiunii
     if (!isSkinUnlocked(SG.skin)) {
         alert("Skin-ul " + (SKINS_DEF[SG.skin]?.name || '') + " este blocat! A fost resetat la Hetes.");
         SG.skin = 'hetes';
     }
+
+    SG.weapons = SG.weapons.filter(wKey => isWeaponUnlocked(wKey));
+    if (SG.weapons.length === 0) SG.weapons = ['mak'];
 
     mpLeave();
     SG.mode = mode || 'stalingrad';
@@ -985,6 +1019,8 @@ window.startShooterSession = function(mode) {
 
     SG.gopnikPlaying = false; SG.gopnikTrack = 0; SG.gopnikTrackAt = 0;
     SG.nazbolInvincible = false; SG.nazbolSmokeTimer = 0;
+    SG.rage = false; SG.rageTimer = 0;
+    SG.proletarWeaponProgress = 0;
     sndStalingradBgm.currentTime = 0;
     sndStalingradBgm.play().catch(e => {});
 
@@ -1056,7 +1092,8 @@ window.addEventListener('keydown', e => {
     }
 
     if (k === 'r') reloadCurrentWeapon();
-    if (k === 'g') triggerSkinAbility();
+    if (k === 'g' || (SG.skin === 'anti-furry-hetes' && k === 'g')) triggerSkinAbility();
+    if (k === 'l' && SG.skin === 'anti-furry-hetes') triggerAntiFurryLaser();
     if (k === 'f' && SG.mode === 'stalingrad') triggerKatyusha();
 
     if (SG.skin === 'gopnik') {
@@ -1116,6 +1153,23 @@ function triggerKatyusha() {
     addKillFeed(`Ai folosit Katyusha!`);
 }
 
+function triggerAntiFurryLaser() {
+    let currentLaserCd = SG.rage ? 3 : 10;
+    if (SG.laserCd > 0) return;
+    SG.laserCd = currentLaserCd;
+    
+    SG.en.forEach(e => {
+        if (Math.hypot(e.x - SG.x, e.y - SG.y) <= 12) {
+            e.hp -= 120;
+            if (e.hp <= 0) { e.dead = true; SG.kills++; }
+        }
+    });
+    SG.en = SG.en.filter(e => !e.dead);
+    sndExplosion.currentTime = 0; sndExplosion.play().catch(e => {});
+    if (SG.mode === 'multiplayer') mpAreaDamage(12, 40);
+    addKillFeed(`Laser Anti-Furry tras! (CD: ${currentLaserCd}s)`);
+}
+
 function triggerSkinAbility() {
     if (SG.abilityCd > 0) return;
 
@@ -1124,21 +1178,34 @@ function triggerSkinAbility() {
         SG.nazbolSmokeTimer = 5;
         SG.nazbolInvincible = true;
         sndJump.currentTime = 0; sndJump.play().catch(e => {});
-        addKillFeed(`Fum roșu Nazbol activat!`);
+        addKillFeed(`Fum roșu Nazbol activat! (Invulnerabilitate 5s)`);
         return;
     }
 
-    if (['soldat-sovietic', 'soldat-rus-modern', 'cernobil-stalker', 'anti-furry-hetes'].includes(SG.skin)) {
-        SG.abilityCd = SG.skin === 'anti-furry-hetes' ? 75 : 15;
-        if (SG.skin === 'anti-furry-hetes') {
-            SG.rage = true; SG.rageTimer = 15; SG.hp = 200;
-        }
+    if (SG.skin === 'anti-furry-hetes') {
+        SG.abilityCd = 45;
+        SG.rage = true;
+        SG.rageTimer = 20;
+        SG.hp = 200;
+        sndJump.currentTime = 0; sndJump.play().catch(e => {});
+        addKillFeed(`Rage Mode activat (20s, 200 HP)!`);
+        return;
+    }
+
+    if (['soldat-sovietic', 'soldat-rus-modern', 'cernobil-stalker'].includes(SG.skin)) {
+        SG.abilityCd = 15;
         SG.en.forEach(e => {
-            if (Math.hypot(e.x - SG.x, e.y - SG.y) <= 10) { e.hp -= 999; e.dead = true; SG.kills++; }
+            let dist = Math.hypot(e.x - SG.x, e.y - SG.y);
+            if (dist <= 10) { 
+                e.hp -= 999; e.dead = true; SG.kills++; 
+            } else if (SG.skin === 'cernobil-stalker' && dist <= 13) {
+                e.hp -= 30;
+                if (e.hp <= 0) { e.dead = true; SG.kills++; }
+            }
         });
         SG.en = SG.en.filter(e => !e.dead);
         sndExplosion.currentTime = 0; sndExplosion.play().catch(e => {});
-        if (SG.mode === 'multiplayer') mpAreaDamage(6, 20);
+        if (SG.mode === 'multiplayer') mpAreaDamage(10, 25);
         addKillFeed(`Grenadă aruncată!`);
         return;
     }
@@ -1160,7 +1227,7 @@ function triggerSkinAbility() {
         SG.hp = Math.min(SG.maxHp, SG.hp + 25);
         SG.proletarWeaponProgress++;
         sndJump.currentTime = 0; sndJump.play().catch(e => {});
-        if (SG.proletarWeaponProgress >= 2) {
+        if (SG.proletarWeaponProgress >= 5) {
             SG.proletarWeaponProgress = 0;
             let allWKeys = Object.keys(WEAPONS_DEF);
             let newW = allWKeys.find(w => !SG.w.includes(w));
@@ -1168,10 +1235,10 @@ function triggerSkinAbility() {
                 SG.w.push(newW);
                 SG.mag[newW] = WEAPONS_DEF[newW].mag;
                 SG.ammo[newW] = WEAPONS_DEF[newW].maxAmmo;
-                addKillFeed(`Proletar a creat o armă nouă în joc: ${WEAPONS_DEF[newW].name}!`);
+                addKillFeed(`Proletar a creat o armă nouă în joc după 5 activări: ${WEAPONS_DEF[newW].name}!`);
             }
         } else {
-            addKillFeed(`Proletar regenerare HP (+25) și progres armă (${SG.proletarWeaponProgress}/2)!`);
+            addKillFeed(`Proletar regenerare HP (+25) și progres armă (${SG.proletarWeaponProgress}/5)!`);
         }
     }
 }
@@ -1201,18 +1268,42 @@ function shootWeapon() {
         }
     });
 
+    let effectiveDmg = w.dmg;
+    if (SG.skin === 'cernobil-stalker') {
+        effectiveDmg *= 2;
+    }
+
     if (w.splash && best) {
         let ex = SG.x + Math.cos(SG.a) * bd, ey = SG.y + Math.sin(SG.a) * bd;
         SG.en.forEach(e => {
-            if (Math.hypot(e.x - ex, e.y - ey) < w.splash) {
-                e.hp -= w.dmg;
+            let distToSplash = Math.hypot(e.x - ex, e.y - ey);
+            if (distToSplash < w.splash) {
+                e.hp -= effectiveDmg;
+                if (e.hp <= 0) { e.dead = true; SG.kills++; }
+            } else if (SG.skin === 'cernobil-stalker' && distToSplash <= w.splash + 3.0) {
+                e.hp -= 15;
                 if (e.hp <= 0) { e.dead = true; SG.kills++; }
             }
         });
     } else if (best) {
-        best.hp -= w.dmg;
+        best.hp -= effectiveDmg;
         SG.hm = 0.12;
-        if (best.hp <= 0) { best.dead = true; SG.kills++; }
+        if (best.hp <= 0) { 
+            best.dead = true; SG.kills++; 
+        } else if (SG.skin === 'cernobil-stalker' && bd <= 15) {
+            setTimeout(() => {
+                if (best && !best.dead) {
+                    best.hp -= 15;
+                    if (best.hp <= 0) { best.dead = true; SG.kills++; }
+                }
+            }, 300);
+            setTimeout(() => {
+                if (best && !best.dead) {
+                    best.hp -= 15;
+                    if (best.hp <= 0) { best.dead = true; SG.kills++; }
+                }
+            }, 600);
+        }
     }
     SG.en = SG.en.filter(e => !e.dead);
 }
@@ -1243,7 +1334,13 @@ function updateShooter(dt) {
     let cosA = Math.cos(SG.a), sinA = Math.sin(SG.a);
     let mx = forward * cosA - strafe * sinA;
     let my = forward * sinA + strafe * cosA;
-    let spd = (SG.skin === 'gopnik') ? 4.5 : (SG.rage ? 5.8 : 3.2);
+    
+    let baseSpd = 3.2;
+    if (['gopnik', 'soldat-rus-modern', 'anti-furry-hetes'].includes(SG.skin)) {
+        baseSpd = 4.8;
+    }
+    let spd = SG.rage ? 6.2 : baseSpd;
+    if (SG.nazbolSmokeTimer > 0) spd = 5.5;
 
     let l = Math.hypot(mx, my);
     if (l) {
@@ -1255,7 +1352,12 @@ function updateShooter(dt) {
     }
 
     SG.cd -= dt; SG.kick = Math.max(0, SG.kick - dt * 6);
-    SG.flash -= dt; SG.hm -= dt; SG.katcd -= dt; SG.abilityCd -= dt;
+    SG.flash -= dt; SG.hm -= dt; SG.katcd -= dt; SG.abilityCd -= dt; SG.laserCd -= dt;
+
+    if (SG.rage) {
+        SG.rageTimer -= dt;
+        if (SG.rageTimer <= 0) SG.rage = false;
+    }
 
     let firePressed = SG.fire || (window.mobileShooterFire || 0) || (k[' '] ? 1 : 0);
     if (mpMode && (MP.ended || MP.chatOpen)) firePressed = 0;
@@ -1311,7 +1413,7 @@ function updateShooter(dt) {
 
         if (see && (e.cd -= dt) <= 0) {
             e.cd = 1 + Math.random();
-            if (!SG.nazbolInvincible && Math.random() < 0.75 - d * 0.035) {
+            if (!SG.nazbolInvincible && SG.nazbolSmokeTimer <= 0 && Math.random() < 0.75 - d * 0.035) {
                 SG.hp -= (5 + (Math.random() * 4 | 0));
                 SG.flash = 0.3;
                 if (SG.hp <= 0) {
@@ -1432,6 +1534,12 @@ function renderShooter() {
     }
 
     if (SG.flash > 0) { cx.fillStyle = `rgba(200,0,0,${SG.flash})`; cx.fillRect(0, 0, W, H); }
+    
+    if (SG.skin === 'nazbol' && SG.nazbolSmokeTimer > 0) {
+        cx.fillStyle = 'rgba(255, 0, 0, 0.28)';
+        cx.fillRect(0, 0, W, H);
+    }
+
     cx.restore();
 
     cx.strokeStyle = SG.hm > 0 ? '#f33' : '#fff'; cx.lineWidth = 2; cx.beginPath();
@@ -1465,8 +1573,18 @@ function renderShooter() {
         currentTextY += 22;
     }
 
-    cx.fillStyle = SG.abilityCd <= 0 ? '#00ffcc' : '#888';
-    cx.fillText('G - Abilitate: ' + (SG.abilityCd <= 0 ? '[GATA]' : Math.ceil(SG.abilityCd) + 's'), 20, currentTextY);
+    // Afișaj separat pe ecran pentru Anti-Furry Hetes: sus [L] lasere, sub el [G] rage mode
+    if (SG.skin === 'anti-furry-hetes') {
+        cx.fillStyle = SG.laserCd <= 0 ? '#00ffcc' : '#888';
+        cx.fillText('L - Lasere: ' + (SG.laserCd <= 0 ? '[GATA]' : Math.ceil(SG.laserCd) + 's'), 20, currentTextY);
+        currentTextY += 22;
+        cx.fillStyle = SG.abilityCd <= 0 ? '#00ffcc' : '#888';
+        cx.fillText('G - Rage Mode: ' + (SG.abilityCd <= 0 ? '[GATA]' : Math.ceil(SG.abilityCd) + 's'), 20, currentTextY);
+    } else {
+        cx.fillStyle = SG.abilityCd <= 0 ? '#00ffcc' : '#888';
+        cx.fillText('G - Abilitate: ' + (SG.abilityCd <= 0 ? '[GATA]' : Math.ceil(SG.abilityCd) + 's'), 20, currentTextY);
+    }
+
     cx.restore();
     cx.font = 'bold 16px sans-serif';
 
