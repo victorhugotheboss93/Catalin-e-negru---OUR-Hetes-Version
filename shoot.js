@@ -66,14 +66,14 @@ const WEAPONS_DEF = {
 // Skin-uri (Proletar poate echipa 2 arme la start, iar restul până la 5 le creează în joc)
 const SKINS_DEF = {
     hetes: { name: 'Hetes', front: 'hetes-front', back: 'hetes-back', desc: 'Lasere din ochi roșii (max 10m pe AI)', req: 'Disponibil din oficiu', abilityKey: '[G]' },
-    catalin: { name: 'Catalin', front: 'catalin-front', back: 'catalin-back', desc: 'Aura luminoasă, rezistență la gloanțe și o viață în plus', req: 'Câștigi modul Aura Hetes', abilityKey: '[G]' },
-    proletar: { name: 'Proletar', front: 'proletar-front', back: 'proletar-back', desc: 'Echipează 2 arme la start, creează 3 arme noi prin abilitate', req: 'Câștigi modul sovietic din modul clasic', maxWeapons: 2, dynamicWeapons: 5, abilityKey: '[G]' },
-    gopnik: { name: 'Gopnik', front: 'gopnik-front', back: 'gopnik-back', desc: 'Player muzical Hardbass (M, K, L) și Vodka (+50 HP)', req: 'Câștigi modul sovietic și modul Survival', abilityKey: '[G]/[K]' },
-    nazbol: { name: 'Nazbol', front: 'nazbol-front', back: 'nazbol-back', desc: 'Fum roșu (invulnerabilitate 5s, CD 20s)', req: 'Câștigi sovietic, Survival de 2 ori + 100 victime', abilityKey: '[G]/[E]' },
-    'soldat-sovietic': { name: 'Soldat Sovietic', front: 'soldat-sovietic-front', back: 'soldat-sovietic-back', desc: 'Până la 5 arme & grenade devastation', req: 'Câștigi sovietic, Survival de 5 ori + 300 victime', maxWeapons: 5, abilityKey: '[G]/[F]' },
-    'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice, daune toxice 15m', req: 'Câștigi sovietic, Survival 10 ori + 500 victime', maxWeapons: 5, abilityKey: '[G]' },
-    'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Rezistență sporită, 125 HP, 5 arme', req: 'Câștigi sovietic de 3 ori, Survival 10 ori', maxWeapons: 5, abilityKey: '[G]' },
-    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Rage Mode (200 HP, viteză mare, lasere), 5 arme', req: 'Câștigi sovietic de 7 ori, Survival 20 ori', maxWeapons: 5, abilityKey: '[G]' }
+    catalin: { name: 'Catalin', front: 'catalin-front', back: 'catalin-back', desc: 'Aura luminoasă, rezistență la gloanțe și o viață în plus', req: 'Câștigi modul Aura', abilityKey: '[G]' },
+    proletar: { name: 'Proletar', front: 'proletar-front', back: 'proletar-back', desc: 'Echipează 2 arme la start, creează 3 arme noi prin abilitate', req: 'Câștigi modul sovietic', maxWeapons: 2, dynamicWeapons: 5, abilityKey: '[G]' },
+    gopnik: { name: 'Gopnik', front: 'gopnik-front', back: 'gopnik-back', desc: 'Player muzical Hardbass (M, K, L) și Vodka (+50 HP)', req: 'Câștigi modul sovietic și survival', abilityKey: '[G]/[K]' },
+    nazbol: { name: 'Nazbol', front: 'nazbol-front', back: 'nazbol-back', desc: 'Fum roșu (invulnerabilitate 5s, CD 20s)', req: 'Câștigi modul sovietic, survival și 100 de victime', abilityKey: '[G]/[E]' },
+    'soldat-sovietic': { name: 'Soldat Sovietic', front: 'soldat-sovietic-front', back: 'soldat-sovietic-back', desc: 'Până la 5 arme & grenade devastation', req: 'Câștigi 3 sovietic, 3 survival și 500 de victime', maxWeapons: 5, abilityKey: '[G]/[F]' },
+    'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice, daune toxice 15m', req: 'Câștigi 3 sovietic, 5 survival și 1000 de victime', maxWeapons: 5, abilityKey: '[G]' },
+    'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Rezistență sporită, 125 HP, 5 arme', req: 'Câștigi 5 sovietic, 10 survival și 1500 de victime', maxWeapons: 5, abilityKey: '[G]' },
+    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Rage Mode (200 HP, viteză mare, lasere), 5 arme', req: 'Câștigi 5 sovietic, 15 survival și 2500 victime', maxWeapons: 5, abilityKey: '[G]' }
 };
 
 // Harta Raycasting
@@ -889,15 +889,33 @@ function buildArsenalUI() {
     if (!skinCardsDiv || !weaponCardsDiv || !infoDiv) return;
 
     let stats = window.gameStats || {};
-    let totalKills = stats.shooter ? stats.shooter.kills || 0 : 0;
+    let sovietWins = (stats.classicCompletions && stats.classicCompletions.soviet) || 0;
+    let survivalWins = (stats.shooter && (stats.shooter.wins || stats.shooter.stalingradWins)) || 0;
+    let totalKills = (stats.shooter && stats.shooter.kills) || 0;
+    let auraWins = stats.auraCompletions || 0;
 
     skinCardsDiv.innerHTML = '';
     Object.keys(SKINS_DEF).forEach(sKey => {
         let s = SKINS_DEF[sKey];
+        let unlocked = true;
+        if (sKey === 'catalin' && auraWins < 1) unlocked = false;
+        if (sKey === 'proletar' && sovietWins < 1) unlocked = false;
+        if (sKey === 'gopnik' && (sovietWins < 1 || survivalWins < 1)) unlocked = false;
+        if (sKey === 'nazbol' && (sovietWins < 1 || survivalWins < 1 || totalKills < 100)) unlocked = false;
+        if (sKey === 'soldat-sovietic' && (sovietWins < 3 || survivalWins < 3 || totalKills < 500)) unlocked = false;
+        if (sKey === 'cernobil-stalker' && (sovietWins < 3 || survivalWins < 5 || totalKills < 1000)) unlocked = false;
+        if (sKey === 'soldat-rus-modern' && (sovietWins < 5 || survivalWins < 10 || totalKills < 1500)) unlocked = false;
+        if (sKey === 'anti-furry-hetes' && (sovietWins < 5 || survivalWins < 15 || totalKills < 2500)) unlocked = false;
+
         let card = document.createElement('div');
-        card.className = `sh-card ${SG.skin === sKey ? 'selected' : ''}`;
-        card.innerHTML = `<img src="${s.front}.png" style="width:40px; height:60px; object-fit:contain; margin-bottom:5px;"><div style="font-weight:bold; font-size:11px;">${s.name}</div>`;
+        card.className = `sh-card ${SG.skin === sKey ? 'selected' : ''} ${unlocked ? '' : 'locked'}`;
+        card.style.cssText = "width: 120px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; padding: 5px;";
+        card.innerHTML = `<img src="${s.front}.png" style="width:50px; height:65px; object-fit:contain; margin-bottom:5px;"><div style="font-weight:bold; font-size:11px; text-align:center; line-height:1.1;">${s.name}</div>`;
         card.onclick = () => {
+            if (!unlocked) {
+                alert("Skin blocat! Cerință: " + s.req);
+                return;
+            }
             SG.skin = sKey;
             let maxW = getMaxWeapons(sKey);
             if (SG.weapons.length > maxW) SG.weapons = SG.weapons.slice(0, maxW);
@@ -1337,7 +1355,7 @@ function triggerStalingradLose() {
 
 function triggerStalingradWin() {
     creditShooterKills();
-    { const g = gs(); g.wins = (g.wins || 0) + 1; g.score = (g.score || 0) + 2000; if (typeof saveStats === 'function') saveStats(); }
+    { const g = gs(); g.wins = (g.wins || 0) + 1; g.stalingradWins = (g.stalingradWins || 0) + 1; g.score = (g.score || 0) + 2000; if (typeof saveStats === 'function') saveStats(); }
     SG.on = false;
     stopAllMusic();
     sndWin.currentTime = 0; sndWin.play().catch(e => {});
