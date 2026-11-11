@@ -3,490 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="_ob0-oeemaraqDbeUweh1NQw1XIawSZ0dS44O__onn4" />
-    <meta name="description" content="Catalin e negru - OUR HETES Version este un joc inceput din gluma unui coleg de clasa, avand mai multe moduri de joc, cum ar fi cu colectare aura, Tetris in stilul original si construirea Zidului Berlinului, shooter survival sau multiplayer , mod sandbox, modul gulag escape si cu geometry dash, salvand progresul cu conturi. Te poti juca ca Hetes , marele nostru Ghidus, in mai multe moduri. Ataca fascistii, distruge capitalismul si instaureaza comunismul. Acest joc nu promoveaza ideologii extremiste si dictatoriale! Joaca-te acum jocul nostru indie gratis Catalin e negru - OUR HETES Version"/>
+    <meta name="description" content="Catalin e negru - OUR HETES Version - joc indie cu moduri multiple: clasic, aura, tetris, shooter, gulag, hide and seek."/>
     <meta name="robots" content="index, follow"/>
-    <title>Catalin e negru - OUR HETES V4.2</title>
+    <title>Catalin e negru - OUR HETES V5.3</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #111;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        canvas {
-            display: block;
-            background: #222;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .dev-team {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            text-align: right;
-            font-weight: bold;
-            font-size: 18px;
-            color: #aaa;
-            line-height: 1.4;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .song-credit {
-            position: absolute;
-            bottom: 240px;
-            left: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #ffcc00;
-            background: rgba(0,0,0,0.6);
-            padding: 6px 10px;
-            border-radius: 4px;
-            border-left: 4px solid #cc0000;
-            pointer-events: none;
-            z-index: 11;
-        }
-
-        .auth-container {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 10px;
-            z-index: 20;
-            font-size: 13px;
-        }
-
-        .auth-container input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 6px;
-            background: #222;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .auth-container input:focus {
-            border-color: #ffcc00;
-            outline: none;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 5px;
-        }
-
-        .auth-btn {
-            flex: 1;
-            padding: 8px;
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .auth-btn:hover {
-            background: #ffcc00;
-            color: black;
-            border-color: #ffcc00;
-        }
-
-        .auth-status {
-            text-align: center;
-            color: #aaa;
-            font-size: 11px;
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-
-        .name-section {
-            border-top: 1px solid #555;
-            padding-top: 10px;
-            margin-top: 5px;
-        }
-        
-        .locked-name {
-            text-align: center;
-            color: #2ecc71;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 10px;
-            padding: 5px;
-            background: rgba(46, 204, 113, 0.1);
-            border: 1px solid #2ecc71;
-            border-radius: 4px;
-        }
-
-        .menu-header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            width: 95%;
-            margin-bottom: 40px;
-        }
-
-        .title-area {
-            text-align: center;
-            min-width: 380px;
-        }
-
-        h1.main-title {
-            color: #ff0000;
-            font-size: 64px;
-            margin: 0;
-            text-shadow: 3px 3px 0px #000;
-            letter-spacing: 2px;
-        }
-
-        h2.subtitle {
-            color: #ffff00;
-            font-size: 28px;
-            margin: 5px 0 0 0;
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        .leaderboard-panel {
-            width: 420px;
-            height: 270px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #ffcc00;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: left;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
-        }
-
-        .leaderboard-panel h3 {
-            margin: 0 0 6px 0;
-            color: #ffcc00;
-            border-bottom: 1px solid #444;
-            padding-bottom: 4px;
-            font-size: 15px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .leaderboard-tabs {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            flex: 1;
-            min-width: 50px;
-            padding: 4px 1px;
-            font-size: 9px;
-            font-weight: bold;
-            background: #333;
-            color: #ccc;
-            border: 1px solid #555;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .tab-btn.active {
-            background: #ffcc00;
-            color: #000;
-            border-color: #ffcc00;
-        }
-
-        .tab-content {
-            flex: 1;
-            overflow-y: auto;
-            line-height: 1.4;
-            color: #eee;
-            padding-right: 4px;
-        }
-
-        .update-log {
-            width: 340px;
-            height: 270px;
-            background: rgba(0, 0, 0, 0.75);
-            border: 2px solid #555;
-            border-radius: 8px;
-            padding: 12px;
-            overflow-y: auto;
-            text-align: left;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .update-log h3 {
-            margin-top: 0;
-            margin-bottom: 8px;
-            color: #00ffcc;
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .global-item {
-            display: flex;
-            justify-content: space-between;
-            background: #222;
-            margin-bottom: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border-left: 3px solid #ffcc00;
-            font-size: 11px;
-        }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #111; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        canvas { display: block; background: #222; box-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 100%; max-height: 100%; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+        .hidden { display: none !important; }
+        .dev-team { position: absolute; top: 20px; right: 20px; text-align: right; font-weight: bold; font-size: 18px; color: #aaa; line-height: 1.4; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; }
+        .song-credit { position: absolute; bottom: 240px; left: 20px; font-weight: bold; font-size: 14px; color: #ffcc00; background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 4px; border-left: 4px solid #cc0000; pointer-events: none; z-index: 11; }
+        .auth-container { position: absolute; bottom: 20px; left: 20px; width: 300px; background: rgba(0, 0, 0, 0.85); border: 1px solid #444; border-radius: 6px; padding: 10px; z-index: 20; font-size: 13px; }
+        .auth-container input { width: 100%; padding: 8px; margin-bottom: 6px; background: #222; border: 1px solid #555; color: white; border-radius: 4px; font-size: 12px; }
+        .auth-container input:focus { border-color: #ffcc00; outline: none; }
+        .auth-buttons { display: flex; gap: 6px; margin-bottom: 5px; }
+        .auth-btn { flex: 1; padding: 8px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: all 0.2s; }
+        .auth-btn:hover { background: #ffcc00; color: black; border-color: #ffcc00; }
+        .auth-status { text-align: center; color: #aaa; font-size: 11px; margin-bottom: 5px; word-break: break-all; }
+        .name-section { border-top: 1px solid #555; padding-top: 10px; margin-top: 5px; }
+        .locked-name { text-align: center; color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 10px; padding: 5px; background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; border-radius: 4px; }
+        .menu-header-container { display: flex; align-items: center; justify-content: center; gap: 30px; width: 95%; margin-top: 40px; margin-bottom: 25px; }
+        .title-area { text-align: center; min-width: 380px; }
+        h1.main-title { color: #ff0000; font-size: 64px; margin: 0; text-shadow: 3px 3px 0px #000; letter-spacing: 2px; }
+        h2.subtitle { color: #ffff00; font-size: 28px; margin: 5px 0 0 0; text-shadow: 2px 2px 0px #000; }
+        .leaderboard-panel { width: 440px; height: 270px; background: rgba(0, 0, 0, 0.8); border: 2px solid #ffcc00; border-radius: 8px; padding: 10px; text-align: left; font-size: 12px; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+        .leaderboard-panel h3 { margin: 0 0 6px 0; color: #ffcc00; border-bottom: 1px solid #444; padding-bottom: 4px; font-size: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .leaderboard-tabs { display: flex; gap: 2px; margin-bottom: 6px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; min-width: 45px; padding: 4px 1px; font-size: 9px; font-weight: bold; background: #333; color: #ccc; border: 1px solid #555; cursor: pointer; border-radius: 4px; transition: all 0.2s; text-align: center; }
+        .tab-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
+        .tab-content { flex: 1; overflow-y: auto; line-height: 1.4; color: #eee; padding-right: 4px; }
+        .update-log { width: 340px; height: 270px; background: rgba(0, 0, 0, 0.75); border: 2px solid #555; border-radius: 8px; padding: 12px; overflow-y: auto; text-align: left; font-size: 13px; line-height: 1.5; }
+        .update-log h3 { margin-top: 0; margin-bottom: 8px; color: #00ffcc; border-bottom: 1px solid #444; padding-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .global-item { display: flex; justify-content: space-between; background: #222; margin-bottom: 4px; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #ffcc00; font-size: 11px; }
         .global-item:nth-child(1) { border-color: #ffd700; background: rgba(255, 215, 0, 0.2); font-weight: bold;}
         .global-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.2); }
         .global-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.2); }
-
-        .modes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 12px 35px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            background: #333;
-            color: white;
-            transition: all 0.2s;
-            min-width: 280px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            background: #444;
-        }
-
+        .modes-list { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .btn { padding: 12px 35px; font-size: 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; background: #333; color: white; transition: all 0.2s; min-width: 280px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn:hover { transform: scale(1.05); background: #444; }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn:disabled:hover { transform: none; background: #333; }
         .btn-classic { border-left: 8px solid #00bcff; }
         .btn-aura { border-left: 8px solid #ffcc00; }
         .btn-tetris { border-left: 8px solid #9b59b6; }
+        .btn-ascuns { border-left: 8px solid #2ecc71; }
         .btn-shooter { border-left: 8px solid #e67e22; }
-        .btn-soviet { 
-            background: #cc0000 !important; 
-            color: #ffff00 !important;
-            border: 3px solid #ffff00;
-            box-shadow: 0 0 15px #ffcc00;
-            text-shadow: 1px 1px 0px #000;
-            border-left: 8px solid #ffff00;
-        }
+        .btn-soviet { background: #cc0000 !important; color: #ffff00 !important; border: 3px solid #ffff00; box-shadow: 0 0 15px #ffcc00; text-shadow: 1px 1px 0px #000; border-left: 8px solid #ffff00; }
         .btn-back { background: #555; margin-top: 10px; font-size: 18px; padding: 10px 20px; }
-
-        .end-title {
-            font-size: 50px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            text-align: center;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        }
+        .end-title { font-size: 50px; font-weight: bold; margin-bottom: 30px; text-align: center; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
         .lose-screen .end-title { color: #ff3333; }
         .win-screen .end-title { color: #33ff33; }
-
-        .btn-credits {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: bold;
-            background: #333;
-            color: #ffcc00;
-            border: 1px solid #ffcc00;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 20;
-            transition: all 0.2s;
-        }
-
-        .btn-credits:hover {
-            background: #ffcc00;
-            color: #000;
-        }
-
-        .credits-modal {
-            position: absolute;
-            bottom: 60px;
-            right: 20px;
-            width: 380px;
-            max-height: 480px;
-            background: rgba(0, 0, 0, 0.92);
-            border: 2px solid #ffcc00;
-            border-radius: 8px;
-            padding: 15px;
-            z-index: 30;
-            font-size: 12px;
-            line-height: 1.4;
-            box-shadow: 0 0 15px rgba(0,0,0,0.8);
-            overflow-y: auto;
-        }
-
-        .credits-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ffcc00;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-
-        .credits-header h4 {
-            margin: 0;
-            color: #ffcc00;
-            font-size: 15px;
-        }
-
-        .close-credits {
-            background: transparent;
-            border: none;
-            color: #ffcc00;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 5px;
-        }
-
-        .close-credits:hover {
-            color: #ff3333;
-        }
-
-        .credits-section {
-            margin-bottom: 12px;
-        }
-
-        .credits-section-title {
-            color: #00ffcc;
-            font-weight: bold;
-            margin-bottom: 4px;
-            font-size: 13px;
-        }
-
-        /* Stiluri Arsenal Shooter */
-        .sh-card {
-            background: rgba(30, 30, 35, 0.9);
-            border: 2px solid #444;
-            border-radius: 6px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .sh-card:hover {
-            border-color: #e67e22;
-            transform: translateY(-2px);
-        }
-        .sh-card.selected {
-            border-color: #2ecc71;
-            background: rgba(46, 204, 113, 0.15);
-        }
-        .sh-card.locked {
-            opacity: 0.5;
-            filter: grayscale(80%);
-        }
-
-        #mobile-controls {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-        }
-        .mob-btn {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            color: white;
-            font-weight: bold;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
-            user-select: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            font-size: 22px;
-        }
-        .mob-btn:active, .mob-btn.pressed {
-            background: rgba(255, 204, 0, 0.6);
-            border-color: #ffcc00;
-            transform: scale(0.95);
-        }
-        #mob-back-menu {
-            top: 15px;
-            left: 15px;
-            width: 90px;
-            height: 45px;
-            font-size: 13px;
-            background: rgba(192, 57, 43, 0.8);
-            border-color: #e74c3c;
-            z-index: 105;
-        }
+        .btn-credits { position: absolute; bottom: 20px; right: 20px; padding: 8px 16px; font-size: 13px; font-weight: bold; background: #333; color: #ffcc00; border: 1px solid #ffcc00; border-radius: 4px; cursor: pointer; z-index: 20; transition: all 0.2s; }
+        .btn-credits:hover { background: #ffcc00; color: #000; }
+        .btn-achievements { position: absolute; bottom: 20px; right: 160px; padding: 8px 16px; font-size: 13px; font-weight: bold; background: #333; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 4px; cursor: pointer; z-index: 20; transition: all 0.2s; }
+        .btn-achievements:hover { background: #00ffcc; color: #000; }
+        .credits-modal, .achievements-modal { position: absolute; bottom: 60px; right: 20px; width: 380px; max-height: 480px; background: rgba(0, 0, 0, 0.92); border: 2px solid #ffcc00; border-radius: 8px; padding: 15px; z-index: 30; font-size: 12px; line-height: 1.4; box-shadow: 0 0 15px rgba(0,0,0,0.8); overflow-y: auto; }
+        .achievements-modal { border-color: #00ffcc; }
+        .credits-header, .achievements-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; margin-bottom: 10px; }
+        .achievements-header { border-bottom-color: #00ffcc; }
+        .credits-header h4, .achievements-header h4 { margin: 0; color: #ffcc00; font-size: 15px; }
+        .achievements-header h4 { color: #00ffcc; }
+        .close-credits, .close-achievements { background: transparent; border: none; color: #ffcc00; font-size: 18px; font-weight: bold; cursor: pointer; padding: 0 5px; }
+        .close-achievements { color: #00ffcc; }
+        .close-credits:hover { color: #ff3333; }
+        .close-achievements:hover { color: #ff3333; }
+        .credits-section { margin-bottom: 12px; }
+        .credits-section-title { color: #00ffcc; font-weight: bold; margin-bottom: 4px; font-size: 13px; }
+        .achievement-card { display: flex; gap: 10px; background: #1a1a1a; border: 2px solid #00ffcc; border-radius: 8px; padding: 10px; margin-bottom: 10px; align-items: center; }
+        .achievement-card.locked { opacity: 0.35; filter: grayscale(100%); border-color: #444; }
+        .achievement-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .achievement-info { flex: 1; }
+        .achievement-name { color: #00ffcc; font-weight: bold; font-size: 13px; margin-bottom: 3px; }
+        .achievement-desc { color: #ccc; font-size: 11px; }
+        .achievement-lock { color: #888; font-size: 11px; margin-top: 3px; font-style: italic; }
+        .sh-card { background: rgba(30, 30, 35, 0.9); border: 2px solid #444; border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .sh-card:hover { border-color: #e67e22; transform: translateY(-2px); }
+        .sh-card.selected { border-color: #2ecc71; background: rgba(46, 204, 113, 0.15); }
+        .sh-card.locked { opacity: 0.5; filter: grayscale(80%); cursor: not-allowed; }
+        #mobile-controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; display: none; }
+        .mob-btn { position: absolute; background: rgba(255, 255, 255, 0.25); border: 2px solid rgba(255, 255, 255, 0.6); color: white; font-weight: bold; border-radius: 12px; display: flex; justify-content: center; align-items: center; pointer-events: auto; user-select: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); font-size: 22px; }
+        .mob-btn:active, .mob-btn.pressed { background: rgba(255, 204, 0, 0.6); border-color: #ffcc00; transform: scale(0.95); }
+        #mob-back-menu { top: 15px; left: 15px; width: 90px; height: 45px; font-size: 13px; background: rgba(192, 57, 43, 0.8); border-color: #e74c3c; z-index: 105; }
+        #achievement-popup { position: fixed; bottom: 30px; right: 30px; width: 340px; background: linear-gradient(135deg, rgba(20,20,30,0.97), rgba(0,60,40,0.97)); border: 3px solid #00ffcc; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; z-index: 99998; box-shadow: 0 0 25px rgba(0,255,204,0.6); transform: translateX(400px); transition: transform 0.5s ease-out; pointer-events: none; }
+        #achievement-popup.show { transform: translateX(0); }
+        #achievement-popup img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 2px solid #00ffcc; }
+        .ach-popup-text { flex: 1; }
+        .ach-popup-title { color: #00ffcc; font-weight: bold; font-size: 13px; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .ach-popup-name { color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+        .ach-popup-sub { color: #ffcc00; font-size: 12px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -496,11 +102,9 @@
 
     <div id="mobile-controls">
         <button id="mob-back-menu" class="mob-btn" onclick="backToMain()">Meniu</button>
-        
         <div id="mob-classic-controls" class="hidden">
             <button id="mob-classic-jump" class="mob-btn" style="bottom: 30px; right: 30px; width: 110px; height: 110px; border-radius: 50%; font-size: 20px; background: rgba(0,188,212,0.4);">SARI</button>
         </div>
-
         <div id="mob-aura-controls" class="hidden">
             <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
                 <button id="mob-aura-up" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
@@ -509,7 +113,6 @@
                 <button id="mob-aura-right" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
         </div>
-
         <div id="mob-shooter-controls" class="hidden">
             <div style="position: absolute; bottom: 25px; left: 25px; width: 170px; height: 170px;">
                 <button id="mob-sh-w" class="mob-btn" style="top: 0; left: 60px; width: 55px; height: 55px;">▲</button>
@@ -517,7 +120,6 @@
                 <button id="mob-sh-a" class="mob-btn" style="top: 60px; left: 0; width: 55px; height: 55px;">◄</button>
                 <button id="mob-sh-d" class="mob-btn" style="top: 60px; right: 0; width: 55px; height: 55px;">►</button>
             </div>
-            
             <button id="mob-sh-fire" class="mob-btn" style="bottom: 30px; right: 30px; width: 100px; height: 100px; border-radius: 50%; background: rgba(200,0,0,0.5); border-color:#ff3333; font-size:16px;">TRAGE</button>
             <button id="mob-sh-ability" class="mob-btn" style="bottom: 145px; right: 30px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,204,0,0.4); border-color:#ffcc00; font-size:13px;">ABIL</button>
             <button id="mob-sh-katyusha" class="mob-btn" style="bottom: 145px; right: 115px; width: 75px; height: 75px; border-radius: 50%; background: rgba(0,255,204,0.4); border-color:#00ffcc; font-size:11px; display:none;">KATY</button>
@@ -545,16 +147,13 @@
                     <button class="auth-btn" id="btn-register">Înregistrare</button>
                 </div>
             </div>
-            
             <div id="auth-logged-in" class="hidden">
                 <div class="auth-status" id="user-status-text">Cont: -</div>
-                
                 <div class="name-section">
                     <div id="locked-name-display" class="locked-name hidden">Nume în joc: Anonim</div>
                     <input type="text" id="auth-display-name" placeholder="Numele tău (se setează o singură dată!)" maxlength="15">
                     <button class="auth-btn" id="btn-set-name" style="width:100%; margin-bottom:10px;">Salvează Numele</button>
                 </div>
-
                 <button class="auth-btn" id="btn-logout" style="width:100%; background: #c0392b; border-color: #e74c3c;">Deconectare</button>
             </div>
         </div>
@@ -568,6 +167,7 @@
                     <button id="tab-clasic" class="tab-btn" onclick="window.switchLeaderboardTab('clasic')">Clasic</button>
                     <button id="tab-aura" class="tab-btn" onclick="window.switchLeaderboardTab('aura')">Aura</button>
                     <button id="tab-tetris" class="tab-btn" onclick="window.switchLeaderboardTab('tetris')">Tetris</button>
+                    <button id="tab-ascuns" class="tab-btn" onclick="window.switchLeaderboardTab('ascuns')">Hide & Seek</button>
                     <button id="tab-shooter" class="tab-btn" onclick="window.switchLeaderboardTab('shooter')">Shooter</button>
                     <button id="tab-gulag" class="tab-btn" onclick="window.switchLeaderboardTab('gulag')">Gulag</button>
                 </div>
@@ -576,14 +176,23 @@
 
             <div class="title-area">
                 <h1 class="main-title">Catalin e negru</h1>
-                <h2 class="subtitle">OUR HETES VERSION V4.2</h2>
+                <h2 class="subtitle">OUR HETES VERSION V5.3</h2>
             </div>
             
             <div class="update-log">
                 <h3>Update Log</h3>
+                <strong>V5.3: Modul Astro Hetes</strong><br>
+                modul shooter este acum impartit pe mai multe categorii si meniuri<br>
+                te poti juca ca Astro Hetes unde trebuie sa te lupti cu inamicii<br>
+                acest mod va avea in curand mai multe lucruri<br>
+                urmeaza update-uri masive la modul Shooter, Gulag, Sandbox si noi moduri<br><br>
+                <strong>V5: Modul Hide And Seek</strong><br>
+                are 2 moduri: Singleplayer (cu NPC) si Multiplayer, unde ai sansa de a fi seeker<br>
+                sistem de achivements pentru a putea obtine unele lucruri<br>
+                mecanism de a completa un puzzle la generator pentru o viata in plus<br><br>
                 <strong>V4.2: Modul Sandbox</strong><br>
                 primele elemente la Modul Sandbox<br>
-                Modul Shoter a revenit, dar urmeaza sa fie niste update-uri la inamici<br>
+                Modul Shooter a revenit<br>
                 Modul Stalingrad devine Modul Survival Shooter, deoarece Modul Stalingrad va fi unul nou mult mai intens<br><br>
                 <strong>V4: Modul Tetris</strong><br>
                 modul original Tetris<br>
@@ -622,12 +231,14 @@
             <button class="btn btn-aura" onclick="startAuraMode()">Modul Aura Hetes</button>
             <button class="btn btn-aura" style="border-left-color: #e17055;" onclick="window.startSandboxMode()">Modul Sandbox</button>
             <button class="btn btn-tetris" onclick="if(window.openTetrisMenu) window.openTetrisMenu(); else if(window.tetrisMenu) window.tetrisMenu();">Modul Tetris</button>
-            <!-- Modificarea efectuată: Butonul "Modul Shooter" care deschide shoot.js -->
-           <button class="btn btn-shooter" onclick="if(window.openShootMenu) window.openShootMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
+            <button class="btn btn-ascuns" onclick="if(window.startHideAndSeekMode) window.startHideAndSeekMode(); else if(window.openAscunsMenu) window.openAscunsMenu();">Modul Hide And Seek</button>
+            <button class="btn btn-shooter" onclick="if(window.openShootMenu) window.openShootMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
             <button id="btn-gulag-escape" class="btn btn-soviet" onclick="window.startGulagSession()">Modul Gulag Escape</button>
         </div>
 
         <button class="btn-credits" onclick="toggleCredits()">Credite</button>
+        <button class="btn-achievements" onclick="toggleAchievements()">Achievements</button>
+        
         <div id="credits-modal" class="credits-modal hidden">
             <div class="credits-header">
                 <h4>Credite</h4>
@@ -636,11 +247,13 @@
             <div class="credits-section">
                 <div class="credits-section-title">Contribuitori și echipa:</div>
                 <div>Tovarisch Gabi - editează, face update, adaugă funcţii noi importante;</div>
-                <div>- a avut ideea de a face și el un joc, fiind inspirat de jocul lui B. skinuri shoote Rares;</div>
+                <div>- a avut ideea de a face și el un joc, fiind inspirat de jocul lui B. Rares;</div>
                 <div>Robert - idei peak;</div>
+                <div>- a avut ideea modului Hide And Seek</div>
                 <div>B. Rareş - a făcut jocul original și a avut ideea acestui joc numit "Catalin e negru";</div>
                 <div>Hetes Gydus - a avut ideea de a reface jocul (și a cerut update);</div>
                 <div>- jocul este de fapt mai mult bazat pe el;</div>
+                <div>- ideea de jumpscare</div>
                 <div>Cătălin - numele este al lui si apare ca skin</div>
             </div>
             <div class="credits-section" style="margin-top: 15px;">
@@ -656,6 +269,8 @@
                 <div>Game Boy Tetris Music A - 071047 (Modul Tetris Original)</div>
                 <div>Tetris Theme - Arsenhoz - Orchestral cover (Modul Tetris Zidul Berlinului)</div>
                 <div>Ультрамарин - Naukograd (reverb by T.G.) (Modul Sandbox)</div>
+                <div>Horizon - Paweł Błaszczak (Modul Hide And Seek , Modurile Skibidi)</div>
+
                 <br>
                 <div class="credits-section-title">Music player Gopnik Hardbass</div>
                 <div>Наш гимн - Hard Bass School</div>
@@ -664,46 +279,142 @@
                 <div>Kalinka Hardbass Remix - DJ Bonebreaker</div>
             </div>
         </div>
+
+        <div id="achievements-modal" class="achievements-modal hidden">
+            <div class="achievements-header">
+                <h4>Achievements</h4>
+                <button class="close-achievements" onclick="toggleAchievements()">X</button>
+            </div>
+            <div id="achievements-list"></div>
+        </div>
     </div>
 
-    <!-- PANOUL ARSENAL & SELECȚIE SHOOTER -->
-    <div id="sh-arsenal" class="screen hidden" style="background: rgba(15, 15, 20, 0.95); display: flex; flex-direction: column; padding: 20px; z-index: 50;">
-        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
-            <h1 style="color: #e67e22; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ARSENAL & SKINURI SHOOTER</h1>
-            <div>
-                <button class="btn" style="background: #e74c3c; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('stalingrad')">Start Survival Shooter (PvE)</button>
-                <button class="btn" style="background: #3498db; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('multiplayer')">Start Multiplayer (FFA)</button>
-                <button class="btn btn-back" style="margin: 0; font-size: 16px; padding: 10px 20px;" onclick="backToMain()">Înapoi</button>
+    <!-- ===================== MODUL SHOOTER: MENIU PRINCIPAL (3 BUTOANE) ===================== -->
+    <div id="sh-main-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
+        <div class="menu-header-container">
+            <div class="title-area">
+                <h1 class="main-title" style="font-size: 50px; color: #e67e22;">Modul Shooter</h1>
+                <h2 class="subtitle">Alege tipul de Shooter</h2>
             </div>
         </div>
+        <div class="modes-list">
+            <button class="btn btn-shooter" style="border-left-color:#cc0000;" onclick="window.openSovietShooterMenu()">Modul Shooter Sovietic</button>
+            <button class="btn btn-shooter" style="border-left-color:#9b59b6;" onclick="window.openSkibidiShooterMenu()">Modul Shooter Skibidi</button>
+            <button class="btn btn-back" style="margin-top: 30px;" onclick="backToMain()">Înapoi la meniu</button>
+        </div>
+    </div>
 
+    <!-- ===================== MODUL SHOOTER SOVIETIC (2 BUTOANE) ===================== -->
+    <div id="sh-soviet-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
+        <div class="menu-header-container">
+            <div class="title-area">
+                <h1 class="main-title" style="font-size: 50px; color: #cc0000;">Modul Shooter Sovietic</h1>
+                <h2 class="subtitle">Alege tipul de joc</h2>
+            </div>
+        </div>
+        <div class="modes-list">
+            <button class="btn btn-shooter" style="border-left-color:#e74c3c;" onclick="window.openSovietSurvivalMenu()">Modul Shooter Survival</button>
+            <button class="btn btn-shooter" style="border-left-color:#3498db;" onclick="window.openSovietMultiplayerMenu()">Modul Shooter Multiplayer</button>
+            <button class="btn btn-back" style="margin-top: 30px;" onclick="window.openShootMenu()">Înapoi la meniu</button>
+        </div>
+    </div>
+
+    <!-- ===================== SURVIVAL DIFICULTATE (4 BUTOANE) ===================== -->
+    <div id="sh-survival-diff-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
+        <div class="menu-header-container">
+            <div class="title-area">
+                <h1 class="main-title" style="font-size: 50px; color: #e74c3c;">Survival Shooter</h1>
+                <h2 class="subtitle">Alege dificultatea</h2>
+            </div>
+        </div>
+        <div class="modes-list">
+            <button class="btn btn-shooter" style="border-left-color:#2ecc71;" onclick="window.startSurvivalWithDifficulty('easy')">Ușor</button>
+            <button class="btn btn-shooter" style="border-left-color:#ffcc00; opacity:0.5; cursor:not-allowed;" disabled>Mediu (WIP)</button>
+            <button class="btn btn-shooter" style="border-left-color:#e67e22; opacity:0.5; cursor:not-allowed;" disabled>Greu (WIP)</button>
+            <button class="btn btn-shooter" style="border-left-color:#ff3333; opacity:0.5; cursor:not-allowed;" disabled>Sovietic (WIP)</button>
+            <button class="btn btn-back" style="margin-top: 30px;" onclick="window.openSovietShooterMenu()">Înapoi la meniu</button>
+        </div>
+    </div>
+
+    <!-- ===================== MODUL SHOOTER SKIBIDI (3 BUTOANE) ===================== -->
+    <div id="sh-skibidi-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
+        <div class="menu-header-container">
+            <div class="title-area">
+                <h1 class="main-title" style="font-size: 50px; color: #9b59b6;">Modul Shooter Skibidi</h1>
+                <h2 class="subtitle">Skibidi Universe</h2>
+            </div>
+        </div>
+        <div class="modes-list">
+            <button class="btn btn-shooter" style="border-left-color:#3498db; opacity:0.5; cursor:not-allowed;" disabled>(WIP) Alliance vs Skibidi Toilets</button>
+            <button class="btn btn-shooter" style="border-left-color:#e74c3c; opacity:0.5; cursor:not-allowed;" disabled>(WIP) Union vs Astro Toilets</button>
+            <button class="btn btn-shooter" style="border-left-color:#00ffcc;" onclick="window.openAstroHetesMenu()">Modul Astro Hetes</button>
+            <button class="btn btn-back" style="margin-top: 30px;" onclick="window.openShootMenu()">Înapoi la meniu</button>
+        </div>
+    </div>
+
+    <!-- ===================== MODUL ASTRO HETES (4 DIFICULTĂȚI) ===================== -->
+    <div id="sh-astro-menu" class="screen hidden" style="background: rgba(10, 0, 20, 0.97); z-index: 50; flex-direction: column; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
+            <h1 style="color: #00ffcc; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ASTRO HETES</h1>
+            <button class="btn btn-back" style="margin: 0; font-size: 16px; padding: 10px 20px;" onclick="window.openSkibidiShooterMenu()">Înapoi</button>
+        </div>
+        <div style="display: flex; gap: 20px; width: 100%; max-width: 1200px; flex: 1; overflow: hidden;">
+            <div id="sh-astro-side-info" style="width: 300px; background: rgba(0,0,0,0.8); border: 2px solid #00ffcc; border-radius: 8px; padding: 15px; overflow-y: auto;">
+                <h3 style="color:#00ffcc; margin-top:0;">Astro Hetes</h3>
+                <p style="font-size:12px; color:#ddd;"><strong>Rol:</strong> Seeker (vânează hiderii)</p>
+                <p style="font-size:12px; color:#ddd;"><strong>Armă:</strong> Astro Gun (plasma)</p>
+                <p style="font-size:11px; color:#aaa;"><strong>Descriere:</strong> Continuarea modului Hide and Seek - de data asta ești tu vânătorul.</p>
+                <hr style="border:0; border-top:1px solid #444;">
+                <p style="font-size:11px; color:#ffcc00;">Dificultate selectată: <strong id="astro-diff-label">Ușor</strong></p>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px;">
+                <div>
+                    <h3 style="color: #ffcc00; margin: 0 0 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">DIFICULTATE</h3>
+                    <div id="astro-diff-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                        <div class="sh-card selected" data-diff="easy"><div style="font-weight:bold;font-size:14px;color:#2ecc71;">Ușor</div><div style="font-size:10px;color:#aaa;">Disponibil</div></div>
+                        <div class="sh-card locked" data-diff="medium"><div style="font-weight:bold;font-size:14px;color:#ffcc00;">Mediu</div><div style="font-size:10px;color:#e74c3c;">(WIP)</div></div>
+                        <div class="sh-card locked" data-diff="hard"><div style="font-weight:bold;font-size:14px;color:#e67e22;">Greu</div><div style="font-size:10px;color:#e74c3c;">(WIP)</div></div>
+                        <div class="sh-card locked" data-diff="soviet"><div style="font-weight:bold;font-size:14px;color:#ff3333;">Sovietic</div><div style="font-size:10px;color:#e74c3c;">(WIP)</div></div>
+                    </div>
+                </div>
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <button class="btn" style="background:#00ffcc; color:#000; width:100%; font-size:18px;" onclick="window.startAstroHetesSession(document.querySelector('#astro-diff-cards .selected')?.dataset.diff || 'easy')">▶ START ASTRO HETES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANOU ARSENAL SOVIETIC -->
+    <div id="sh-arsenal" class="screen hidden" style="background: rgba(15, 15, 20, 0.95); display: flex; flex-direction: column; padding: 20px; z-index: 50;">
+        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
+            <h1 style="color: #e67e22; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ARSENAL & SKINURI SHOOTER SOVIETIC</h1>
+            <div>
+                <button class="btn" id="sh-btn-survival" style="background: #e74c3c; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('stalingrad')">Start Survival Shooter (PvE)</button>
+                <button class="btn" id="sh-btn-multiplayer" style="background: #3498db; font-size: 16px; padding: 10px 20px; margin-right: 10px;" onclick="window.startShooterSession('multiplayer')">Start Multiplayer (FFA)</button>
+                <button class="btn btn-back" style="margin: 0; font-size: 16px; padding: 10px 20px;" onclick="window.openSovietShooterMenu()">Înapoi</button>
+            </div>
+        </div>
         <div style="display: flex; gap: 20px; width: 100%; max-width: 1200px; flex: 1; overflow: hidden;">
             <div id="sh-side-info" style="width: 300px; background: rgba(0,0,0,0.8); border: 2px solid #e67e22; border-radius: 8px; padding: 15px; overflow-y: auto;">
             </div>
-
             <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 10px;">
                 <div>
                     <h3 style="color: #ffcc00; margin: 0 0 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">ARME DISPONIBILE</h3>
-                    <div id="sh-weapon-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-                    </div>
+                    <div id="sh-weapon-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;"></div>
                 </div>
-
                 <div>
                     <h3 style="color: #ffcc00; margin: 10px 0 10px 0; border-bottom: 1px solid #444; padding-bottom: 5px;">SKINURI</h3>
-                    <div id="sh-skin-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
-                    </div>
+                    <div id="sh-skin-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CHAT MULTIPLAYER -->
     <div id="mp-chat-container" class="hidden" style="position: absolute; bottom: 20px; left: 20px; width: 350px; background: rgba(0,0,0,0.8); border: 1px solid #555; border-radius: 6px; padding: 10px; z-index: 100;">
         <div id="mp-chat-messages" style="height: 120px; overflow-y: auto; font-size: 12px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px;"></div>
         <input type="text" id="mp-chat-input" placeholder="Scrie mesaj... (Apasă Enter)" style="width: 100%; padding: 6px; background: #222; border: 1px solid #666; color: #fff; border-radius: 4px; font-size: 12px;">
     </div>
 
-    <!-- ECRANE FINALE STALINGRAD -->
     <div id="sh-lose" class="screen hidden" style="background: #000; z-index: 100; transition: background 8s;">
         <div class="end-title" style="color: #ff3333;">Misiune Eșuată...</div>
         <button id="sh-lose-btn" class="btn btn-back" style="opacity: 0; pointer-events: none; transition: opacity 1s;" onclick="backToMain()">Înapoi la meniu</button>
@@ -715,10 +426,6 @@
     </div>
 
     <div id="tetris-menu" class="screen hidden">
-        <div class="song-credit" style="bottom: 20px;">
-            День Победы - Ayden George remix
-        </div>
-
         <div class="menu-header-container">
             <div class="title-area">
                 <h1 class="main-title" style="font-size: 50px; color: #9b59b6;">Modul Tetris</h1>
@@ -733,10 +440,6 @@
     </div>
 
     <div id="classic-menu" class="screen hidden">
-        <div class="song-credit" style="bottom: 20px;">
-            День Победы - Ayden George remix
-        </div>
-
         <div class="menu-header-container">
             <div class="title-area">
                 <h1 class="main-title" style="font-size: 50px;">Modul Clasic</h1>
@@ -762,11 +465,25 @@
     </div>
 </div>
 
+<!-- Achievement popup -->
+<div id="achievement-popup">
+    <img id="ach-popup-img" src="hetes astro-jumpscare.jpg" alt="">
+    <div class="ach-popup-text">
+        <div class="ach-popup-title">🏆 Achievement Unlocked</div>
+        <div class="ach-popup-name">Hetes nu este asa OP..</div>
+        <div class="ach-popup-sub">Good boy dyadya :3</div>
+    </div>
+</div>
+
+<!-- Scripts (ordinea contează) -->
 <script src="sandbox.js"></script>
+<script src="astro-hetes.js"></script>
 <script src="shoot.js"></script>
 <script src="gulag.js"></script>
 <script src="tetris.js"></script>
+<script src="ascuns.js"></script>
 
+<!-- Firebase -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
@@ -783,18 +500,16 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); 
+    const db = getFirestore(app);
 
     const emailInput = document.getElementById('auth-email');
     const passwordInput = document.getElementById('auth-password');
     const btnLogin = document.getElementById('btn-login');
     const btnRegister = document.getElementById('btn-register');
     const btnLogout = document.getElementById('btn-logout');
-    
     const loggedOutDiv = document.getElementById('auth-logged-out');
     const loggedInDiv = document.getElementById('auth-logged-in');
     const userStatusText = document.getElementById('user-status-text');
-    
     const displayNameInput = document.getElementById('auth-display-name');
     const btnSetName = document.getElementById('btn-set-name');
     const lockedNameDisplay = document.getElementById('locked-name-display');
@@ -814,6 +529,17 @@
             displayNameInput.classList.remove('hidden');
             btnSetName.classList.remove('hidden');
         }
+    }
+
+    function migrateShooterStats(sh) {
+        if (!sh) return { kills: 0, wins: 0, score: 0, survival: { kills: 0, wins: 0, completions: 0 } };
+        sh.survival = sh.survival || { kills: 0, wins: 0, completions: 0 };
+        const oldKills = sh.kills || 0;
+        const oldWins = sh.wins || 0;
+        if ((sh.survival.kills || 0) < oldKills) sh.survival.kills = oldKills;
+        if ((sh.survival.wins || 0) < oldWins) sh.survival.wins = oldWins;
+        if ((sh.survival.completions || 0) < oldWins) sh.survival.completions = oldWins;
+        return sh;
     }
 
     async function loadPersonalStatsFromCloud(uid) {
@@ -838,7 +564,20 @@
                     if(data.stats.tetrisOriginalScore && data.stats.tetrisOriginalScore > window.gameStats.tetrisOriginalScore) window.gameStats.tetrisOriginalScore = data.stats.tetrisOriginalScore;
                     if(data.stats.tetrisBerlinScore && data.stats.tetrisBerlinScore > window.gameStats.tetrisBerlinScore) window.gameStats.tetrisBerlinScore = data.stats.tetrisBerlinScore;
                     
-                    if (data.stats.shooter && window.mergeShooterStats) window.mergeShooterStats(data.stats.shooter);
+                    if (data.stats.hideAndSeek && window.mergeHideAndSeekStats) window.mergeHideAndSeekStats(data.stats.hideAndSeek);
+                    else if (data.stats.hideAndSeek) {
+                        window.gameStats.hideAndSeek = Object.assign(window.gameStats.hideAndSeek || {}, data.stats.hideAndSeek);
+                    }
+                    if (data.stats.achievements && window.mergeAchievements) window.mergeAchievements(data.stats.achievements);
+                    else if (data.stats.achievements) {
+                        window.gameStats.achievements = Object.assign(window.gameStats.achievements || {}, data.stats.achievements);
+                    }
+
+                    if (data.stats.shooter) {
+                        const migrated = migrateShooterStats(data.stats.shooter);
+                        if (window.mergeShooterStats) window.mergeShooterStats(migrated);
+                        else window.gameStats.shooter = Object.assign(window.gameStats.shooter || {}, migrated);
+                    }
                     if (data.stats.tetris && window.mergeTetrisStats) window.mergeTetrisStats(data.stats.tetris);
                     localStorage.setItem('catalin_game_stats', JSON.stringify(window.gameStats));
                 }
@@ -847,6 +586,7 @@
                 updateNameUI(null);
             }
             window.updateLeaderboardUI();
+            if (window.updateAchievementsUI) window.updateAchievementsUI();
         } catch(e) { console.error("Eroare încărcare profil", e); }
     }
 
@@ -854,6 +594,15 @@
         if (!auth.currentUser) return;
         try {
             let stats = window.gameStats;
+            stats.shooter = stats.shooter || { kills: 0, wins: 0, score: 0 };
+            stats.shooter.survival = stats.shooter.survival || { kills: 0, wins: 0, completions: 0 };
+            if ((stats.shooter.survival.kills || 0) > (stats.shooter.kills || 0)) stats.shooter.kills = stats.shooter.survival.kills;
+            if ((stats.shooter.survival.wins || 0) > (stats.shooter.wins || 0)) stats.shooter.wins = stats.shooter.survival.wins;
+
+            let tOrig = stats.tetrisOriginalScore || 0;
+            let tBerl = stats.tetrisBerlinScore || 0;
+            let tetrisTotal = Math.max(tOrig, tBerl, stats.tetrisScore || 0);
+
             let calculatedTotalScore = (stats.auraRecord || 0) * 10 + 
                                        (stats.classicCompletions.easy || 0) * 50 +
                                        (stats.classicCompletions.medium || 0) * 150 +
@@ -861,7 +610,8 @@
                                        (stats.classicCompletions.soviet || 0) * 1000 +
                                        (stats.auraCompletions || 0) * 500 + 
                                        (stats.gulagEscapes || 0) * 2000 +
-                                       (stats.tetrisScore || 0) +
+                                       tetrisTotal +
+                                       ((stats.hideAndSeek && stats.hideAndSeek.hiderWins) || 0) * 300 +
                                        ((stats.shooter && stats.shooter.score) || 0);
 
             await setDoc(doc(db, "users", auth.currentUser.uid), {
@@ -893,28 +643,49 @@
                     let aComp = data.stats?.auraCompletions || 0;
                     let gEsc = data.stats?.gulagEscapes || 0;
                     
-                    let tOrig = data.stats?.tetrisOriginalScore || data.stats?.tetris?.originalScore || 0;
-                    let tBerl = data.stats?.tetrisBerlinScore || data.stats?.tetris?.berlinScore || 0;
+                    let tOrig = data.stats?.tetrisOriginalScore || 0;
+                    let tBerl = data.stats?.tetrisBerlinScore || 0;
                     let tScore = Math.max(tOrig, tBerl, data.stats?.tetrisScore || 0);
 
-                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + tScore + (data.stats?.shooter?.score || 0);
+                    let hsWins = (data.stats?.hideAndSeek?.hiderWins || 0);
+                    let hsBossKills = (data.stats?.hideAndSeek?.bossKills || 0);
+
+                    let sh = data.stats?.shooter || {};
+                    let shSurvival = sh.survival || { kills: 0, wins: 0, completions: 0 };
+                    if ((shSurvival.kills || 0) < (sh.kills || 0)) shSurvival.kills = sh.kills;
+                    if ((shSurvival.wins || 0) < (sh.wins || 0)) shSurvival.wins = sh.wins;
+                    if ((shSurvival.completions || 0) < (sh.wins || 0)) shSurvival.completions = sh.wins;
+
+                    let shAlliance = sh.allianceSkibidi || { kills: 0, completions: 0 };
+                    let shUnion = sh.unionAstro || { kills: 0, completions: 0 };
+                    let shAstro = sh.astroHetes || { kills: 0, completions: { easy: 0, medium: 0, hard: 0, soviet: 0 } };
+
+                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + tScore + (hsWins * 300) + (sh.score || 0);
 
                     window.globalUsersList.push({
                         name: data.displayName,
                         totalScore: data.totalScore || calcTotal,
                         auraRec: aRec,
                         classicWins: totalClassicWins,
-                        easyWins: eW,
-                        mediumWins: mW,
-                        hardWins: hW,
-                        sovietWins: sW,
+                        easyWins: eW, mediumWins: mW, hardWins: hW, sovietWins: sW,
                         gulagEscapes: gEsc,
                         tetrisScore: tScore,
                         tetrisOriginalScore: tOrig,
                         tetrisBerlinScore: tBerl,
-                        shooterScore: data.stats?.shooter?.score || 0,
-                        shooterKills: data.stats?.shooter?.kills || 0,
-                        stalingradVictims: data.stats?.shooter?.kills || 0
+                        ascunsWins: hsWins,
+                        ascunsBossKills: hsBossKills,
+                        shooterSurvivalKills: shSurvival.kills,
+                        shooterSurvivalWins: shSurvival.wins,
+                        shooterSurvivalCompletions: shSurvival.completions || 0,
+                        shooterAllianceKills: shAlliance.kills,
+                        shooterAllianceCompletions: shAlliance.completions,
+                        shooterUnionKills: shUnion.kills,
+                        shooterUnionCompletions: shUnion.completions,
+                        shooterAstroKills: shAstro.kills,
+                        shooterAstroEasy: shAstro.completions?.easy || 0,
+                        shooterAstroMedium: shAstro.completions?.medium || 0,
+                        shooterAstroHard: shAstro.completions?.hard || 0,
+                        shooterAstroSoviet: shAstro.completions?.soviet || 0
                     });
                 }
             });
@@ -926,16 +697,13 @@
         const newName = displayNameInput.value.trim();
         if (!newName) return alert("Introdu un nume!");
         if (newName.length < 3 || newName.length > 15) return alert("Numele trebuie să aibă între 3 și 15 caractere!");
-        
         btnSetName.innerText = "Verificare...";
         btnSetName.disabled = true;
-
         try {
             const q = query(collection(db, "users"), where("displayName", "==", newName));
             const snap = await getDocs(q);
             let isTaken = false;
             snap.forEach(d => { if(d.id !== auth.currentUser.uid) isTaken = true; });
-
             if(isTaken) {
                 alert("Acest nume este deja folosit! Alege altul.");
             } else {
@@ -945,7 +713,6 @@
                 alert("Nume salvat cu succes! Acum este blocat.");
             }
         } catch(e) { alert("Eroare la conectarea cu baza de date."); }
-
         btnSetName.innerText = "Salvează Numele";
         btnSetName.disabled = false;
     });
@@ -994,13 +761,15 @@
     window.fsCollection = collection; window.fsOnSnapshot = onSnapshot; window.fsDeleteDoc = deleteDoc;
 </script>
 
+<!-- Script principal joc -->
 <script>
-    window.openShootMenu = window.openShootMenu || function() {
-        if (typeof window.shMenu === 'function') {
-            window.shMenu();
-        } else {
-            console.error("Modul Shooter (shoot.js) nu a fost încărcat corect.");
-        }
+    // ✅ FIX: openShootMenu duce la meniul principal shooter (3 butoane)
+    window.openShootMenu = function() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        const mainMenu = document.getElementById('sh-main-menu');
+        if (mainMenu) mainMenu.classList.remove('hidden');
+        if (typeof window.stopAllMusic === 'function') window.stopAllMusic();
+        if (typeof window.stopMenuMusic === 'function') window.stopMenuMusic();
     };
 
     const canvas = document.getElementById('gameCanvas');
@@ -1028,11 +797,44 @@
         gulagEscapes: 0,
         tetrisScore: 0,
         tetrisOriginalScore: 0,
-        tetrisBerlinScore: 0
+        tetrisBerlinScore: 0,
+        hideAndSeek: { hiderWins: 0, bossKills: 0, seekerVictims: 0 },
+        achievements: { astroHetesUnlocked: false },
+        shooter: {
+            kills: 0, wins: 0, score: 0,
+            survival: { kills: 0, wins: 0, completions: 0 },
+            allianceSkibidi: { kills: 0, completions: 0 },
+            unionAstro: { kills: 0, completions: 0 },
+            astroHetes: { kills: 0, completions: { easy: 0, medium: 0, hard: 0, soviet: 0 } }
+        }
     };
 
     if (localStorage.getItem('catalin_game_stats')) {
-        try { window.gameStats = JSON.parse(localStorage.getItem('catalin_game_stats')); } catch(e) {}
+        try { 
+            let parsed = JSON.parse(localStorage.getItem('catalin_game_stats')); 
+            window.gameStats = Object.assign(window.gameStats, parsed);
+            window.gameStats.hideAndSeek = Object.assign({ hiderWins:0, bossKills:0, seekerVictims:0 }, window.gameStats.hideAndSeek || {});
+            window.gameStats.achievements = Object.assign({ astroHetesUnlocked:false }, window.gameStats.achievements || {});
+            window.gameStats.shooter = Object.assign({
+                kills:0, wins:0, score:0,
+                survival:{kills:0,wins:0,completions:0},
+                allianceSkibidi:{kills:0,completions:0},
+                unionAstro:{kills:0,completions:0},
+                astroHetes:{kills:0,completions:{easy:0,medium:0,hard:0,soviet:0}}
+            }, window.gameStats.shooter || {});
+            window.gameStats.shooter.survival = Object.assign({kills:0,wins:0,completions:0}, window.gameStats.shooter.survival || {});
+            if ((window.gameStats.shooter.survival.kills || 0) < (window.gameStats.shooter.kills || 0)) {
+                window.gameStats.shooter.survival.kills = window.gameStats.shooter.kills || 0;
+            }
+            if ((window.gameStats.shooter.survival.wins || 0) < (window.gameStats.shooter.wins || 0)) {
+                window.gameStats.shooter.survival.wins = window.gameStats.shooter.wins || 0;
+            }
+            if ((window.gameStats.shooter.survival.completions || 0) < (window.gameStats.shooter.wins || 0)) {
+                window.gameStats.shooter.survival.completions = window.gameStats.shooter.wins || 0;
+            }
+            window.gameStats.shooter.astroHetes = Object.assign({kills:0,completions:{easy:0,medium:0,hard:0,soviet:0}}, window.gameStats.shooter.astroHetes || {});
+            window.gameStats.shooter.astroHetes.completions = Object.assign({easy:0,medium:0,hard:0,soviet:0}, window.gameStats.shooter.astroHetes.completions || {});
+        } catch(e) {}
     }
 
     let currentLeaderboardTab = 'personal';
@@ -1041,27 +843,139 @@
         localStorage.setItem('catalin_game_stats', JSON.stringify(window.gameStats));
         if (window.syncStatsToCloud) window.syncStatsToCloud();
     }
+    window.saveStats = saveStats;
 
-    function toggleCredits() {
-        const modal = document.getElementById('credits-modal');
-        modal.classList.toggle('hidden');
+    // ============ SHOOTER MENUS ============
+    window.openSovietShooterMenu = function() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('sh-soviet-menu').classList.remove('hidden');
+    };
+
+    window.openSkibidiShooterMenu = function() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('sh-skibidi-menu').classList.remove('hidden');
+    };
+
+    window.openSovietSurvivalMenu = function() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('sh-survival-diff-menu').classList.remove('hidden');
+    };
+
+    window.openSovietMultiplayerMenu = function() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        const arsenal = document.getElementById('sh-arsenal');
+        arsenal.classList.remove('hidden');
+        const btnSurv = document.getElementById('sh-btn-survival');
+        const btnMp = document.getElementById('sh-btn-multiplayer');
+        if (btnSurv) btnSurv.style.display = 'none';
+        if (btnMp) btnMp.style.display = '';
+        if (typeof window.buildArsenalUI === 'function') window.buildArsenalUI();
+    };
+
+    window.startSurvivalWithDifficulty = function(diff) {
+        if (diff !== 'easy') {
+            alert('Această dificultate este WIP. Doar Ușor este disponibil.');
+            return;
+        }
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        const arsenal = document.getElementById('sh-arsenal');
+        arsenal.classList.remove('hidden');
+        const btnSurv = document.getElementById('sh-btn-survival');
+        const btnMp = document.getElementById('sh-btn-multiplayer');
+        if (btnSurv) btnSurv.style.display = '';
+        if (btnMp) btnMp.style.display = '';
+        if (typeof window.buildArsenalUI === 'function') window.buildArsenalUI();
+    };
+
+    // ============ ACHIEVEMENTS ============
+    function toggleCredits() { document.getElementById('credits-modal').classList.toggle('hidden'); }
+    window.toggleCredits = toggleCredits;
+
+    function toggleAchievements() {
+        document.getElementById('achievements-modal').classList.toggle('hidden');
+        if (window.updateAchievementsUI) window.updateAchievementsUI();
     }
+    window.toggleAchievements = toggleAchievements;
+
+    window.updateAchievementsUI = function() {
+        const list = document.getElementById('achievements-list');
+        if (!list) return;
+        const unlocked = window.gameStats.achievements?.astroHetesUnlocked;
+        if (unlocked) {
+            list.innerHTML = `
+                <div class="achievement-card">
+                    <img src="hetes astro-jumpscare.jpg" alt="">
+                    <div class="achievement-info">
+                        <div class="achievement-name">Hetes nu este asa OP..</div>
+                        <div class="achievement-desc">Invinge-l pe Astro Hetes la Hide And Seek</div>
+                        <div class="achievement-desc">Good boy dyadya :3</div>
+                        <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            list.innerHTML = `
+                <div class="achievement-card locked">
+                    <div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Hetes nu este asa OP..</div>
+                        <div class="achievement-desc">Învinge-l pe Astro Hetes la Hide And Seek</div>
+                        <div class="achievement-lock">Blocat</div>
+                    </div>
+                </div>
+            `;
+        }
+    };
+    window.updateAchievementsUI();
+
+    window.showAchievementPopup = function(name, sub) {
+        const popup = document.getElementById('achievement-popup');
+        if (!popup) return;
+        document.querySelector('.ach-popup-name').textContent = name || 'Hetes nu este asa OP..';
+        document.querySelector('.ach-popup-sub').textContent = sub || 'Good boy dyadya :3';
+        popup.classList.add('show');
+        setTimeout(() => popup.classList.remove('show'), 6000);
+    };
+
+    window.mergeAchievements = function(s) {
+        const m = window.gameStats.achievements;
+        if (s.astroHetesUnlocked) m.astroHetesUnlocked = true;
+    };
+
+    window.unlockAstroAchievement = function() {
+        if (!window.gameStats.achievements) window.gameStats.achievements = {};
+        if (window.gameStats.achievements.astroHetesUnlocked) return;
+        window.gameStats.achievements.astroHetesUnlocked = true;
+        if (typeof saveStats === 'function') saveStats();
+        if (typeof window.showAchievementPopup === 'function') {
+            window.showAchievementPopup('Hetes nu este asa OP..','Good boy dyadya :3');
+       }
+        if (typeof window.updateAchievementsUI === 'function') window.updateAchievementsUI();
+    };
 
     window.switchLeaderboardTab = function(tab) {
         currentLeaderboardTab = tab;
-        document.getElementById('tab-general').classList.toggle('active', tab === 'general');
-        document.getElementById('tab-clasic').classList.toggle('active', tab === 'clasic');
-        document.getElementById('tab-aura').classList.toggle('active', tab === 'aura');
-        document.getElementById('tab-tetris').classList.toggle('active', tab === 'tetris');
-        document.getElementById('tab-shooter').classList.toggle('active', tab === 'shooter');
-        document.getElementById('tab-gulag').classList.toggle('active', tab === 'gulag');
-        document.getElementById('tab-personal').classList.toggle('active', tab === 'personal');
+        ['general','clasic','aura','tetris','ascuns','shooter','gulag','personal'].forEach(t => {
+            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        });
         window.updateLeaderboardUI();
     }
 
     window.updateLeaderboardUI = function() {
         const content = document.getElementById('leaderboard-content');
         if (currentLeaderboardTab === 'personal') {
+            let tOrig = window.gameStats.tetrisOriginalScore || 0;
+            let tBerl = window.gameStats.tetrisBerlinScore || 0;
+            let hs = window.gameStats.hideAndSeek || {};
+            let sh = window.gameStats.shooter || {};
+            let shSurv = sh.survival || { kills: sh.kills || 0, wins: sh.wins || 0, completions: 0 };
+            if ((shSurv.kills || 0) < (sh.kills || 0)) shSurv.kills = sh.kills;
+            if ((shSurv.wins || 0) < (sh.wins || 0)) shSurv.wins = sh.wins;
+            if ((shSurv.completions || 0) < (sh.wins || 0)) shSurv.completions = sh.wins;
+            let shAll = sh.allianceSkibidi || { kills:0, completions:0 };
+            let shUni = sh.unionAstro || { kills:0, completions:0 };
+            let shAst = sh.astroHetes || { kills:0, completions:{easy:0,medium:0,hard:0,soviet:0} };
+
             content.innerHTML = `
                 <strong style="color:#00ffcc">Numele tău: ${window.currentUserDisplayName || "Neresetat"}</strong><hr style="border:0; border-top:1px solid #444; margin:5px 0;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;">
@@ -1071,17 +985,22 @@
                         • Mediu: ${window.gameStats.classicCompletions.medium || 0}<br>
                         • Greu: ${window.gameStats.classicCompletions.hard || 0}<br>
                         • <span style="color:#ff3333">Sovietic: ${window.gameStats.classicCompletions.soviet || 0}</span><br>
-                        • <span style="color:#9b59b6">Tetris Original: ${window.gameStats.tetrisOriginalScore || 0}</span><br>
-                        • <span style="color:#e74c3c">Tetris Berlin: ${window.gameStats.tetrisBerlinScore || 0}</span>
+                        • <span style="color:#9b59b6">Tetris Original: ${tOrig}</span><br>
+                        • <span style="color:#e74c3c">Tetris Berlin: ${tBerl}</span>
                     </div>
                     <div>
-                        <strong>Aura & Gulag:</strong><br>
+                        <strong>Aura, Gulag & Hide & Seek:</strong><br>
                         • Aura Victorii: ${window.gameStats.auraCompletions || 0}<br>
                         • Record Aură: ${window.gameStats.auraRecord || 0}<br>
-                        • <span style="color:#ffcc00">Gulag Evadări: ${window.gameStats.gulagEscapes || 0}</span><br><br>
+                        • <span style="color:#ffcc00">Gulag Evadări: ${window.gameStats.gulagEscapes || 0}</span><br>
+                        • <span style="color:#2ecc71">Victorii la Hide and Seek: ${hs.hiderWins || 0}</span><br>
+                        • <span style="color:#ff00cc">Boss învinși: ${hs.bossKills || 0}</span><br><br>
                         <strong>Shooter:</strong><br>
-                        • <span style="color:#33ff33">Victorii Survival: ${(window.gameStats.shooter && window.gameStats.shooter.wins) || 0}</span><br>
-                        • <span style="color:#e67e22">Victime: ${(window.gameStats.shooter && window.gameStats.shooter.kills) || 0}</span>
+                        • <span style="color:#33ff33">Survival Victorii: ${shSurv.wins || 0}</span><br>
+                        • <span style="color:#e67e22">Survival Victime: ${shSurv.kills || 0}</span><br>
+                        • <span style="color:#3498db">Alliance Skibidi: ${shAll.kills || 0} kill / ${shAll.completions || 0} comp</span><br>
+                        • <span style="color:#e74c3c">Union Astro: ${shUni.kills || 0} kill / ${shUni.completions || 0} comp</span><br>
+                        • <span style="color:#00ffcc">Astro Hetes: ${shAst.kills || 0} kill / Ușor: ${shAst.completions?.easy || 0}</span>
                     </div>
                 </div>
             `;
@@ -1115,10 +1034,21 @@
             sortedList.forEach((player, index) => {
                 htmlStr += `<div class="global-item" style="font-size:10px;"><span>#${index + 1} <strong>${player.name}</strong></span><span>Original: <strong style="color:#9b59b6">${player.tetrisOriginalScore || 0}</strong> | Berlin: <strong style="color:#e74c3c">${player.tetrisBerlinScore || 0}</strong></span></div>`;
             });
-        } else if (currentLeaderboardTab === 'shooter') {
-            sortedList.sort((a, b) => b.shooterScore - a.shooterScore);
+        } else if (currentLeaderboardTab === 'ascuns') {
+            sortedList.sort((a, b) => b.ascunsWins - a.ascunsWins);
             sortedList.forEach((player, index) => {
-                htmlStr += `<div class="global-item"><span>#${index + 1} <strong>${player.name}</strong></span><span>Victime: <strong style="color:#e67e22">${player.shooterKills}</strong></span></div>`;
+                htmlStr += `<div class="global-item"><span>#${index + 1} <strong>${player.name}</strong></span><span>Victorii: <strong style="color:#2ecc71">${player.ascunsWins || 0}</strong> | Boss: <strong style="color:#ff00cc">${player.ascunsBossKills || 0}</strong></span></div>`;
+            });
+        } else if (currentLeaderboardTab === 'shooter') {
+            sortedList.sort((a, b) => (b.shooterSurvivalKills + b.shooterAllianceKills + b.shooterUnionKills + b.shooterAstroKills) - (a.shooterSurvivalKills + a.shooterAllianceKills + a.shooterUnionKills + a.shooterAstroKills));
+            sortedList.forEach((player, index) => {
+                htmlStr += `<div class="global-item" style="flex-direction:column;align-items:flex-start;font-size:10px;">
+                    <div style="width:100%;"><strong>#${index + 1} ${player.name}</strong></div>
+                    <div style="width:100%;color:#33ff33;">Survival: ${player.shooterSurvivalKills} kill / ${player.shooterSurvivalCompletions || 0} comp</div>
+                    <div style="width:100%;color:#3498db;">Alliance vs Skibidi: ${player.shooterAllianceKills} kill / ${player.shooterAllianceCompletions || 0} comp</div>
+                    <div style="width:100%;color:#e74c3c;">Union vs Astro: ${player.shooterUnionKills} kill / ${player.shooterUnionCompletions || 0} comp</div>
+                    <div style="width:100%;color:#00ffcc;">Astro Hetes: ${player.shooterAstroKills} kill (U:${player.shooterAstroEasy} M:${player.shooterAstroMedium} G:${player.shooterAstroHard} S:${player.shooterAstroSoviet})</div>
+                </div>`;
             });
         } else if (currentLeaderboardTab === 'gulag') {
             sortedList.sort((a, b) => b.gulagEscapes - a.gulagEscapes);
@@ -1135,7 +1065,7 @@
         if (currentMode === 'NONE' && sndMenu.paused && sndUssrWin.paused) {
             sndMenu.play().catch(e => {});
         }
-    }, { once: false });
+    });
 
     function playMenuMusic() {
         sndUssrWin.pause(); sndUssrWin.currentTime = 0;
@@ -1146,6 +1076,8 @@
         sndMenu.pause(); sndMenu.currentTime = 0; 
         if(window.sndStalingradBgm) { window.sndStalingradBgm.pause(); window.sndStalingradBgm.currentTime = 0; }
     }
+    window.playMenuMusic = playMenuMusic;
+    window.stopMenuMusic = stopMenuMusic;
 
     function play8BitPickupSound() {
         try {
@@ -1170,9 +1102,6 @@
     let keys = {};
     window.keys = keys;
 
-    // Muzica de meniu pornește imediat la intrare / refresh.
-    // Dacă browserul blochează redarea automată (nu a existat încă nicio interacțiune cu pagina),
-    // pornește la PRIMA interacțiune de orice fel (mouse, tastă, touch), nu doar la click.
     (function autoStartMenuMusic() {
         const tryPlay = () => {
             if (currentMode !== 'NONE' || !sndUssrWin.paused) return Promise.resolve(true);
@@ -1181,8 +1110,6 @@
         };
         tryPlay().then(ok => {
             if (ok) return;
-            // Browserul a blocat redarea automată -> afișăm un ecran de intrare.
-            // Primul click / tastă / touch pornește melodia instant și închide ecranul.
             const ov = document.createElement('div');
             ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.65);color:#fff;text-shadow:0 2px 12px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:sans-serif;text-align:center;user-select:none;';
             ov.innerHTML = '<div style="font-size:clamp(24px,5vw,48px);font-weight:bold;letter-spacing:2px;">APASĂ PENTRU A INTRA</div><div style="margin-top:14px;font-size:clamp(12px,2vw,16px);opacity:.6;">click, tastă sau touch</div>';
@@ -1221,12 +1148,6 @@
     canvas.addEventListener('mousedown', () => {
         if (currentMode === 'CLASSIC' && gameActive) triggerClassicJump();
     });
-    
-    canvas.addEventListener('touchstart', (e) => {
-        if (currentMode === 'CLASSIC' && gameActive) {
-            triggerClassicJump();
-        }
-    }, {passive: true});
 
     function openClassicMenu() {
         document.getElementById('main-menu').classList.add('hidden');
@@ -1234,16 +1155,11 @@
         document.getElementById('auth-panel').classList.add('hidden'); 
         playMenuMusic();
     }
+    window.openClassicMenu = openClassicMenu;
 
     function backToMain() {
         currentMode = 'NONE'; gameActive = false;
-        document.getElementById('classic-menu').classList.add('hidden');
-        document.getElementById('tetris-menu').classList.add('hidden');
-        document.getElementById('sh-arsenal').classList.add('hidden');
-        document.getElementById('sh-lose').classList.add('hidden');
-        document.getElementById('sh-win').classList.add('hidden');
-        document.getElementById('lose-screen').classList.add('hidden');
-        document.getElementById('win-screen').classList.add('hidden');
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById('main-menu').classList.remove('hidden');
         document.getElementById('auth-panel').classList.remove('hidden'); 
         
@@ -1260,13 +1176,7 @@
     window.backToMain = backToMain;
 
     function hideAllMenus() {
-        document.getElementById('main-menu').classList.add('hidden');
-        document.getElementById('classic-menu').classList.add('hidden');
-        document.getElementById('tetris-menu').classList.add('hidden');
-        document.getElementById('sh-arsenal').classList.add('hidden');
-        document.getElementById('lose-screen').classList.add('hidden');
-        document.getElementById('win-screen').classList.add('hidden');
-        document.getElementById('auth-panel').classList.add('hidden');
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
     }
 
     function showLoseScreen() {
@@ -1326,6 +1236,7 @@
         lastTime = performance.now();
         requestAnimationFrame(gameLoop);
     }
+    window.startClassicMode = startClassicMode;
 
     function triggerClassicJump() {
         if (player.isGrounded) {
@@ -1349,7 +1260,6 @@
             } else if (obs.type === 1) { 
                 if (checkCollision(player, { x: obs.x, y: 550 - 40, width: 40, height: 40 })) showLoseScreen();
             }
-
             if (!obs.passed && obs.x < player.x) { obs.passed = true; obstaclesPassed++; }
         });
 
@@ -1410,22 +1320,15 @@
         currentMode = 'AURA'; gameActive = true;
         auraTimer = 30; auraOrbsCollected = 0; fascistSpawnTimer = 0;
         auraOrbs = []; enemies = []; enemyBullets = []; boss = null; bossRockets = []; visualEffects = [];
-
         setupMobileUI('aura');
-
         player = { x: canvas.width / 2, y: canvas.height / 2, radius: 25, speed: 5, hp: 50, maxHp: 50 };
         for (let i = 0; i < 80; i++) spawnAuraOrb();
-        
         lastTime = performance.now(); requestAnimationFrame(gameLoop);
     }
     window.startAuraMode = startAuraMode;
 
     function spawnAuraOrb() {
-        auraOrbs.push({
-            x: Math.random() * (canvas.width - 60) + 30,
-            y: Math.random() * (canvas.height - 60) + 30,
-            radius: 12, pulse: Math.random() * 5
-        });
+        auraOrbs.push({ x: Math.random() * (canvas.width - 60) + 30, y: Math.random() * (canvas.height - 60) + 30, radius: 12, pulse: Math.random() * 5 });
     }
 
     function spawnFascistSoldier() {
@@ -1433,11 +1336,7 @@
         let x, y;
         if (Math.random() < 0.5) { x = Math.random() < 0.5 ? -30 : canvas.width + 30; y = Math.random() * canvas.height; } 
         else { x = Math.random() * canvas.width; y = Math.random() < 0.5 ? -30 : canvas.height + 30; }
-
-        enemies.push({
-            x: x, y: y, radius: 20, speed: 0.4 + Math.random() * 0.3,
-            shootCooldown: Math.random() * 50 + 45, weaponType: Math.random() < 0.4 ? 'mitraliera' : 'pistol'
-        });
+        enemies.push({ x, y, radius: 20, speed: 0.4 + Math.random() * 0.3, shootCooldown: Math.random() * 50 + 45, weaponType: Math.random() < 0.4 ? 'mitraliera' : 'pistol' });
     }
 
     function updateAura(dt) {
@@ -1447,66 +1346,42 @@
             if (auraOrbsCollected >= 50) showWinScreen(); else showLoseScreen();
             return;
         }
-
         let dx = 0, dy = 0;
         if (keys['w'] || keys['arrowup']) dy -= 1;
         if (keys['s'] || keys['arrowdown']) dy += 1;
         if (keys['a'] || keys['arrowleft']) dx -= 1;
         if (keys['d'] || keys['arrowright']) dx += 1;
-
         if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
         player.x += dx * player.speed; player.y += dy * player.speed;
-
         if (player.x < player.radius) player.x = player.radius;
         if (player.x > canvas.width - player.radius) player.x = canvas.width - player.radius;
         if (player.y < player.radius) player.y = player.radius;
         if (player.y > canvas.height - player.radius) player.y = canvas.height - player.radius;
-
-        if (player.hp < player.maxHp) {
-            player.hp += (0.005 + (auraOrbsCollected * 0.0015));
-            if (player.hp > player.maxHp) player.hp = player.maxHp;
-        }
-
+        if (player.hp < player.maxHp) { player.hp += (0.005 + (auraOrbsCollected * 0.0015)); if (player.hp > player.maxHp) player.hp = player.maxHp; }
         let steps = Math.floor(auraOrbsCollected / 25);
-        let magnetRadius = 0;
-        if (steps >= 1) {
-            magnetRadius = 45 + (steps * 10);
-        }
-
+        let magnetRadius = steps >= 1 ? 45 + (steps * 10) : 0;
         for (let i = auraOrbs.length - 1; i >= 0; i--) {
             let orb = auraOrbs[i];
             let dist = Math.hypot(player.x - orb.x, player.y - orb.y);
-            
             if (magnetRadius > 0 && dist < magnetRadius) {
                 let angle = Math.atan2(player.y - orb.y, player.x - orb.x);
-                orb.x += Math.cos(angle) * 5;
-                orb.y += Math.sin(angle) * 5;
+                orb.x += Math.cos(angle) * 5; orb.y += Math.sin(angle) * 5;
             }
-
             let collisionDist = Math.hypot(player.x - orb.x, player.y - orb.y);
-            if (collisionDist < player.radius + orb.radius) {
-                auraOrbs.splice(i, 1); auraOrbsCollected++;
-                play8BitPickupSound(); spawnAuraOrb();
-            }
+            if (collisionDist < player.radius + orb.radius) { auraOrbs.splice(i, 1); auraOrbsCollected++; play8BitPickupSound(); spawnAuraOrb(); }
         }
-
         fascistSpawnTimer += 1;
         if (fascistSpawnTimer % 80 === 0 && enemies.length < 5) spawnFascistSoldier();
-
         enemies.forEach(enemy => {
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             enemy.x += Math.cos(angle) * enemy.speed; enemy.y += Math.sin(angle) * enemy.speed;
             enemy.shootCooldown--;
             if (enemy.shootCooldown <= 0) {
                 enemyBullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 6, vy: Math.sin(angle) * 6, radius: 4 });
-                if (enemy.weaponType === 'mitraliera') {
-                    sndNaziRifle.currentTime = 0; sndNaziRifle.play().catch(e=>e); enemy.shootCooldown = 40; 
-                } else {
-                    sndGun.currentTime = 0; sndGun.play().catch(e=>e); enemy.shootCooldown = 85; 
-                }
+                if (enemy.weaponType === 'mitraliera') { sndNaziRifle.currentTime = 0; sndNaziRifle.play().catch(e=>e); enemy.shootCooldown = 40; } 
+                else { sndGun.currentTime = 0; sndGun.play().catch(e=>e); enemy.shootCooldown = 85; }
             }
         });
-
         for (let i = enemyBullets.length - 1; i >= 0; i--) {
             let b = enemyBullets[i]; b.x += b.vx; b.y += b.vy;
             if (Math.hypot(player.x - b.x, player.y - b.y) < player.radius + b.radius) {
@@ -1516,10 +1391,8 @@
             }
             if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) enemyBullets.splice(i, 1);
         }
-
         if (auraTimer <= 10) {
             if (!boss) boss = { x: canvas.width/2 - 50, y: -120, width: 130, height: 100, targetY: 150, speed: 2.5, direction: 'left', lastSlashTime: 0, lastRocketTime: 0 };
-            
             if (boss.y < boss.targetY && auraTimer > 9) { boss.y += 4; } 
             else {
                 let bX = boss.x + boss.width/2, bY = boss.y + boss.height/2;
@@ -1527,23 +1400,14 @@
                 let angle = Math.atan2(diffY, diffX);
                 boss.x += Math.cos(angle) * boss.speed; boss.y += Math.sin(angle) * boss.speed;
                 boss.direction = (diffX < 0) ? 'left' : 'right';
-
                 let dist = Math.hypot(diffX, diffY), now = performance.now();
                 if (dist < 95) {
-                    if (now - boss.lastSlashTime > 1200) { 
-                        player.hp -= 15; boss.lastSlashTime = now;
-                        visualEffects.push({ type: 'slash', x: player.x, y: player.y, duration: 15 });
-                        if (player.hp <= 0) { showLoseScreen(); return; }
-                    }
+                    if (now - boss.lastSlashTime > 1200) { player.hp -= 15; boss.lastSlashTime = now; visualEffects.push({ type: 'slash', x: player.x, y: player.y, duration: 15 }); if (player.hp <= 0) { showLoseScreen(); return; } }
                 } else {
-                    if (now - boss.lastRocketTime > 2000) { 
-                        boss.lastRocketTime = now;
-                        bossRockets.push({ x: bX, y: bY, vx: Math.cos(angle)*7.5, vy: Math.sin(angle)*7.5, width: 25, height: 12, angle: angle });
-                    }
+                    if (now - boss.lastRocketTime > 2000) { boss.lastRocketTime = now; bossRockets.push({ x: bX, y: bY, vx: Math.cos(angle)*7.5, vy: Math.sin(angle)*7.5, width: 25, height: 12, angle: angle }); }
                 }
             }
         }
-
         for (let i = bossRockets.length - 1; i >= 0; i--) {
             let r = bossRockets[i]; r.x += r.vx; r.y += r.vy;
             if (Math.hypot(player.x - r.x, player.y - r.y) < player.radius + 10) {
@@ -1555,11 +1419,7 @@
             }
             if (r.x < -50 || r.x > canvas.width+50 || r.y < -50 || r.y > canvas.height+50) bossRockets.splice(i, 1);
         }
-
-        for (let i = visualEffects.length - 1; i >= 0; i--) {
-            visualEffects[i].duration--;
-            if (visualEffects[i].duration <= 0) visualEffects.splice(i, 1);
-        }
+        for (let i = visualEffects.length - 1; i >= 0; i--) { visualEffects[i].duration--; if (visualEffects[i].duration <= 0) visualEffects.splice(i, 1); }
     }
 
     function drawAura() {
@@ -1567,79 +1427,58 @@
         ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1;
         for (let i = 0; i < canvas.width; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
         for (let j = 0; j < canvas.height; j += 40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke(); }
-
         auraOrbs.forEach(orb => {
             orb.pulse += 0.08; let gSize = orb.radius + Math.sin(orb.pulse)*3;
             ctx.save(); ctx.shadowBlur = 12; ctx.shadowColor = '#ffff00'; ctx.fillStyle = '#ffff33';
             ctx.beginPath(); ctx.arc(orb.x, orb.y, gSize, 0, Math.PI*2); ctx.fill(); ctx.restore();
         });
-
         ctx.save();
         let intensity = Math.min(auraOrbsCollected * 1.5, 50);
         if (intensity > 0) { ctx.shadowBlur = intensity; ctx.shadowColor = '#ffff00'; }
-
         ctx.fillStyle = '#2ecc71'; ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#ffff00'; ctx.lineWidth = Math.min(1 + (auraOrbsCollected / 12), 6); ctx.stroke();
         ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(player.x - 7, player.y - 5, 6, 0, Math.PI*2); ctx.arc(player.x + 7, player.y - 5, 6, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(player.x - 7, player.y - 5, 2.5, 0, Math.PI*2); ctx.arc(player.x + 7, player.y - 5, 2.5, 0, Math.PI*2); ctx.fill();
         ctx.restore();
-
         let steps = Math.floor(auraOrbsCollected / 25);
         if (steps >= 1) {
             let currentMagRadius = 45 + (steps * 10);
             ctx.strokeStyle = 'rgba(255, 255, 0, 0.15)'; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.arc(player.x, player.y, currentMagRadius, 0, Math.PI*2); ctx.stroke();
         }
-
         enemies.forEach(enemy => {
             ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#1e272e'; ctx.fillRect(enemy.x - 18, enemy.y - 22, 36, 10);
             ctx.fillStyle = '#7f8c8d';
             if (enemy.weaponType === 'mitraliera') ctx.fillRect(enemy.x, enemy.y, 24, 6); else ctx.fillRect(enemy.x, enemy.y, 14, 5);
         });
-
         ctx.fillStyle = '#ff3f34';
         enemyBullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill(); });
-
         if (boss) {
             let img = (boss.direction === 'left') ? bossLeftImg : bossRightImg;
             if (img.complete && img.naturalWidth !== 0) ctx.drawImage(img, boss.x, boss.y, boss.width, boss.height);
-            else {
-                ctx.fillStyle = '#27ae60'; ctx.beginPath(); ctx.arc(boss.x + boss.width/2, boss.y + boss.height/2, boss.width/2, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#000'; ctx.fillRect(boss.x, boss.y, boss.width, 22);
-            }
+            else { ctx.fillStyle = '#27ae60'; ctx.beginPath(); ctx.arc(boss.x + boss.width/2, boss.y + boss.height/2, boss.width/2, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#000'; ctx.fillRect(boss.x, boss.y, boss.width, 22); }
         }
-
         bossRockets.forEach(r => {
             ctx.save(); ctx.translate(r.x, r.y); ctx.rotate(r.angle);
             ctx.fillStyle = '#8395a7'; ctx.fillRect(-r.width/2, -r.height/2, r.width, r.height);
             ctx.fillStyle = '#26de81'; ctx.beginPath(); ctx.moveTo(r.width/2, -r.height/2); ctx.lineTo(r.width/2 + 10, 0); ctx.lineTo(r.width/2, r.height/2); ctx.closePath(); ctx.fill();
             ctx.restore();
         });
-
         visualEffects.forEach(fx => {
-            if (fx.type === 'slash') {
-                ctx.strokeStyle = 'rgba(255,0,0,0.85)'; ctx.lineWidth = 6;
-                ctx.beginPath(); ctx.arc(fx.x, fx.y, 45, 0.2, Math.PI - 0.2); ctx.stroke();
-            } else if (fx.type === 'explosion') {
-                ctx.fillStyle = `rgba(245, 80, 35, ${fx.duration / 20})`;
-                ctx.beginPath(); ctx.arc(fx.x, fx.y, 45, 0, Math.PI * 2); ctx.fill();
-            }
+            if (fx.type === 'slash') { ctx.strokeStyle = 'rgba(255,0,0,0.85)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(fx.x, fx.y, 45, 0.2, Math.PI - 0.2); ctx.stroke(); }
+            else if (fx.type === 'explosion') { ctx.fillStyle = `rgba(245, 80, 35, ${fx.duration / 20})`; ctx.beginPath(); ctx.arc(fx.x, fx.y, 45, 0, Math.PI * 2); ctx.fill(); }
         });
-
         ctx.fillStyle = '#333'; ctx.fillRect(30, 30, 250, 25);
         let hpW = (player.hp / player.maxHp) * 250; if (hpW < 0) hpW = 0;
         ctx.fillStyle = '#ff2a2a'; ctx.fillRect(30, 30, hpW, 25);
         ctx.strokeStyle = '#fff'; ctx.strokeRect(30, 30, 250, 25);
         ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.fillText(`HP: ${Math.ceil(player.hp)}/50`, 40, 48);
-
         ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(30, 65, 250, 35);
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Aura Orbs: ${auraOrbsCollected} / 50`, 45, 90);
-
         ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(canvas.width - 180, 30, 150, 50);
         ctx.fillStyle = (auraTimer <= 10) ? '#ff3333' : '#00ffcc'; ctx.font = 'bold 26px monospace';
         ctx.fillText(`${auraTimer.toFixed(1)}s`, canvas.width - 145, 65);
-
         if (auraTimer <= 10 && auraTimer > 7) {
             ctx.fillStyle = '#ff0000'; ctx.font = 'bold 32px sans-serif'; ctx.textAlign = 'center';
             ctx.fillText('A ATACAT BOSS-UL HETES!', canvas.width / 2, 280); ctx.textAlign = 'left'; 
@@ -1651,7 +1490,6 @@
         let dt = (timestamp - lastTime) / 1000;
         if (dt > 0.1) dt = 0.1; 
         lastTime = timestamp;
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (currentMode === 'CLASSIC') { updateClassic(dt); drawClassic(); } 
         else if (currentMode === 'AURA') { updateAura(dt); drawAura(); }
@@ -1662,19 +1500,16 @@
         return r1.x < r2.x + r2.width && r1.x + r1.width > r2.x && r1.y < r2.y + r2.height && r1.y + r1.height > r2.y;
     }
 
-    function isMobileDevice() {
-        return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    }
+    function isMobileDevice() { return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0); }
+    window.isMobileDevice = isMobileDevice;
 
     function setupMobileUI(mode) {
         if (!isMobileDevice()) return;
         const container = document.getElementById('mobile-controls');
         container.style.display = 'block';
-
         document.getElementById('mob-classic-controls').classList.add('hidden');
         document.getElementById('mob-aura-controls').classList.add('hidden');
         document.getElementById('mob-shooter-controls').classList.add('hidden');
-
         if (mode === 'classic') {
             document.getElementById('mob-classic-controls').classList.remove('hidden');
             bindTouchBtn('mob-classic-jump', 'w');
@@ -1685,19 +1520,16 @@
             bindTouchBtn('mob-aura-left', 'arrowleft');
             bindTouchBtn('mob-aura-right', 'arrowright');
         } else if (mode === 'shooter') {
-            document.getElementById('mob-shooter-controls').classList.remove('native' in window ? 'native' : 'hidden');
+            document.getElementById('mob-shooter-controls').classList.remove('hidden');
             bindTouchBtn('mob-sh-w', 'w');
             bindTouchBtn('mob-sh-s', 's');
             bindTouchBtn('mob-sh-a', 'a');
             bindTouchBtn('mob-sh-d', 'd');
-            
             const fireBtn = document.getElementById('mob-sh-fire');
             fireBtn.ontouchstart = (e) => { e.preventDefault(); window.mobileShooterFire = true; };
             fireBtn.ontouchend = (e) => { e.preventDefault(); window.mobileShooterFire = false; };
-
             const abBtn = document.getElementById('mob-sh-ability');
             abBtn.onclick = () => { if(window.triggerMobileAbility) window.triggerMobileAbility(); };
-
             const katBtn = document.getElementById('mob-sh-katyusha');
             if (window.shooterGameType === 'stalingrad') {
                 katBtn.style.display = 'flex';
@@ -1707,6 +1539,7 @@
             }
         }
     }
+    window.setupMobileUI = setupMobileUI;
 
     function bindTouchBtn(elementId, keyName) {
         const el = document.getElementById(elementId);
@@ -1716,6 +1549,11 @@
     }
 
     window.setupMobileShooterUI = () => setupMobileUI('shooter');
+    window.getCurrentMode = () => currentMode;
+    Object.defineProperty(window, 'currentMode', {
+        get() { return currentMode; },
+        set(v) { currentMode = v; }
+    });
 </script>
 
 </body>

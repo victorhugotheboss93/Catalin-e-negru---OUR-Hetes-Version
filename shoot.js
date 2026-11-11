@@ -70,7 +70,7 @@ const SKINS_DEF = {
     'soldat-sovietic': { name: 'Soldat Sovietic', front: 'soldat-sovietic-front', back: 'soldat-sovietic-back', desc: 'Până la 5 arme & grenade devastation', req: 'Câștigi 3 sovietic, 3 survival și 500 de victime', maxWeapons: 5, abilityKey: '[G]/[F]' },
     'cernobil-stalker': { name: 'Cernobîl Stalker', front: 'cernobil-stalker-front', back: 'cernobil-stalker-back', desc: 'Gloanțe toxice pasive 15m (daune x2), daune toxice de la grenade', req: 'Câștigi 3 sovietic, 5 survival și 1000 de victime', maxWeapons: 5, abilityKey: '[G]' },
     'soldat-rus-modern': { name: 'Soldat Rus Modern', front: 'soldat-rus-modern-front', back: 'soldat-rus-modern-back', desc: 'Viteză mărită permanent, 125 HP, 5 arme', req: 'Câștigi 5 sovietic, 10 survival și 1500 de victime', maxWeapons: 5, abilityKey: '[G]' },
-    'anti-furry-hetes': { name: 'Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Viteză mare permanent, Rage Mode 20s, Laser [L] (CD 3s în Rage)', req: 'Câștigi 5 sovietic, 15 survival și 2500 de victime', maxWeapons: '5' }
+    'anti-furry-hetes': { name: 'Real Man Anti-Furry Hetes', front: 'anti-furry-hetes-front', back: 'anti-furry-hetes-back', desc: 'Viteză mare permanent, Rage Mode 20s, Laser [L] (CD 3s în Rage)', req: 'Câștigi 5 sovietic, 15 survival și 2500 de victime', maxWeapons: '5' }
 };
 
 const MAP_GRID = [
@@ -484,6 +484,8 @@ function mpCredit() {
     const g = gs();
     g.kills = (g.kills || 0) + k;
     g.score = (g.score || 0) + gain;
+    g.survival = g.survival || { kills: 0, wins: 0, completions: 0 };
+    g.survival.kills = (g.survival.kills || 0) + k;
     MP.lastGain = gain;
     if (k > 0 || gain > 0) { if (typeof saveStats === 'function') saveStats(); }
 }
@@ -746,9 +748,25 @@ window.addEventListener('beforeunload', () => {
 
 const gs=()=>{
  window.gameStats = window.gameStats || {};
- return window.gameStats.shooter||(window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes'});
+ const s = window.gameStats.shooter || (window.gameStats.shooter={kills:0,wins:0,score:0,loadout:['mak','mos','ppsh'],skin:'hetes'});
+ s.survival = s.survival || { kills: s.kills || 0, wins: s.wins || 0, completions: 0 };
+ return s;
 };
-window.mergeShooterStats=s=>{const m=gs();['kills','wins','score'].forEach(k=>{if(s[k]>m[k])m[k]=s[k]});if(s.loadout&&!m.kills)m.loadout=s.loadout;if(s.skin)m.skin=s.skin};
+
+window.mergeShooterStats = s => {
+    const m = gs();
+    ['kills','wins','score'].forEach(k => { if (s[k] > m[k]) m[k] = s[k]; });
+    if (s.survival) {
+        m.survival = m.survival || { kills: 0, wins: 0, completions: 0 };
+        m.survival.kills = Math.max(m.survival.kills || 0, s.survival.kills || 0);
+        m.survival.wins = Math.max(m.survival.wins || 0, s.survival.wins || 0);
+        m.survival.completions = Math.max(m.survival.completions || 0, s.survival.completions || 0);
+    }
+    if (!s.survival && s.kills) m.survival.kills = Math.max(m.survival.kills, s.kills);
+    if (!s.survival && s.wins) m.survival.wins = Math.max(m.survival.wins, s.wins);
+    if (s.loadout && !m.kills) m.loadout = s.loadout;
+    if (s.skin) m.skin = s.skin;
+};
 
 function creditShooterKills() {
     const d = SG.kills - (SG.statKills || 0);
@@ -757,6 +775,8 @@ function creditShooterKills() {
     const g = gs();
     g.kills = (g.kills || 0) + d;
     g.score = (g.score || 0) + d * 50;
+    g.survival = g.survival || { kills: 0, wins: 0, completions: 0 };
+    g.survival.kills = (g.survival.kills || 0) + d;
     if (typeof saveStats === 'function') saveStats();
 }
 
@@ -841,12 +861,13 @@ function mpRenderPlayers() {
     });
 }
 
+// ✅ FIX: openShootMenu duce la meniul principal shooter (3 butoane)
 window.openShootMenu = function() {
     currentMode = 'SHOOTER';
     stopAllMusic();
     hideAllScreens();
-    $('sh-arsenal').classList.remove('hidden');
-    buildArsenalUI();
+    const mainMenu = $('sh-main-menu');
+    if (mainMenu) mainMenu.classList.remove('hidden');
 };
 window.shMenu = window.openShootMenu;
 
@@ -856,7 +877,7 @@ window.shArsenal = function(mode) {
 };
 
 function hideAllScreens() {
-    ['main-menu', 'classic-menu', 'tetris-menu', 'sh-arsenal', 'sh-lose', 'sh-win', 'auth-panel', 'mp-chat-container'].forEach(id => {
+    ['main-menu', 'classic-menu', 'tetris-menu', 'sh-main-menu', 'sh-soviet-menu', 'sh-survival-diff-menu', 'sh-skibidi-menu', 'sh-astro-menu', 'sh-arsenal', 'sh-lose', 'sh-win', 'auth-panel', 'mp-chat-container'].forEach(id => {
         const el = $(id);
         if (el) el.classList.add('hidden');
     });
@@ -885,8 +906,9 @@ function getMaxWeapons(skinKey) {
 function isSkinUnlocked(sKey) {
     let stats = window.gameStats || {};
     let sovietWins = (stats.classicCompletions && stats.classicCompletions.soviet) || 0;
-    let survivalWins = (stats.shooter && (stats.shooter.wins || stats.shooter.stalingradWins)) || 0;
-    let totalKills = (stats.shooter && stats.shooter.kills) || 0;
+    let sh = stats.shooter || {};
+    let survivalWins = (sh.survival && sh.survival.wins) || sh.wins || 0;
+    let totalKills = (sh.survival && sh.survival.kills) || sh.kills || 0;
     let auraWins = stats.auraCompletions || 0;
 
     if (sKey === 'hetes') return true;
@@ -904,7 +926,8 @@ function isSkinUnlocked(sKey) {
 
 function isWeaponUnlocked(wKey) {
     let stats = window.gameStats || {};
-    let totalKills = (stats.shooter && stats.shooter.kills) || 0;
+    let sh = stats.shooter || {};
+    let totalKills = (sh.survival && sh.survival.kills) || sh.kills || 0;
     let req = WEAPONS_DEF[wKey] ? WEAPONS_DEF[wKey].reqKills : 0;
     return totalKills >= req;
 }
@@ -974,6 +997,8 @@ function buildArsenalUI() {
         weaponCardsDiv.appendChild(card);
     });
 }
+
+window.buildArsenalUI = buildArsenalUI;
 
 window.startShooterSession = function(mode) {
     if (mode === 'multiplayer' && !mpOk()) {
@@ -1454,7 +1479,15 @@ function triggerStalingradLose() {
 
 function triggerStalingradWin() {
     creditShooterKills();
-    { const g = gs(); g.wins = (g.wins || 0) + 1; g.stalingradWins = (g.stalingradWins || 0) + 1; g.score = (g.score || 0) + 2000; if (typeof saveStats === 'function') saveStats(); }
+    { const g = gs(); 
+      g.wins = (g.wins || 0) + 1; 
+      g.stalingradWins = (g.stalingradWins || 0) + 1; 
+      g.survival = g.survival || { kills: 0, wins: 0, completions: 0 };
+      g.survival.wins = (g.survival.wins || 0) + 1;
+      g.survival.completions = (g.survival.completions || 0) + 1;
+      g.score = (g.score || 0) + 2000; 
+      if (typeof saveStats === 'function') saveStats(); 
+    }
     SG.on = false;
     stopAllMusic();
     sndWin.currentTime = 0; sndWin.play().catch(e => {});
@@ -1573,7 +1606,6 @@ function renderShooter() {
         currentTextY += 22;
     }
 
-    // Afișaj separat pe ecran pentru Anti-Furry Hetes: sus [L] lasere, sub el [G] rage mode
     if (SG.skin === 'anti-furry-hetes') {
         cx.fillStyle = SG.laserCd <= 0 ? '#00ffcc' : '#888';
         cx.fillText('L - Lasere: ' + (SG.laserCd <= 0 ? '[GATA]' : Math.ceil(SG.laserCd) + 's'), 20, currentTextY);
