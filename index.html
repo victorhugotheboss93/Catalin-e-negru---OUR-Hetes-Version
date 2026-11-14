@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="_ob0-oeemaraqDbeUweh1NQw1XIawSZ0dS44O__onn4" />
     <meta name="description" content="Catalin e negru - OUR HETES Version - joc indie cu moduri multiple: clasic, aura, tetris, shooter, gulag, hide and seek."/>
     <meta name="robots" content="index, follow"/>
-    <title>Catalin e negru - OUR HETES V5.3</title>
+    <title>Catalin e negru - OUR HETES V6</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #111; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; }
@@ -24,24 +24,36 @@
         .auth-status { text-align: center; color: #aaa; font-size: 11px; margin-bottom: 5px; word-break: break-all; }
         .name-section { border-top: 1px solid #555; padding-top: 10px; margin-top: 5px; }
         .locked-name { text-align: center; color: #2ecc71; font-weight: bold; font-size: 14px; margin-bottom: 10px; padding: 5px; background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; border-radius: 4px; }
-        .menu-header-container { display: flex; align-items: center; justify-content: center; gap: 30px; width: 95%; margin-top: 40px; margin-bottom: 25px; }
+        .menu-header-container { display: flex; align-items: center; justify-content: center; gap: 25px; width: 95%; margin-top: 20px; margin-bottom: 15px; }
         .title-area { text-align: center; min-width: 380px; }
-        h1.main-title { color: #ff0000; font-size: 64px; margin: 0; text-shadow: 3px 3px 0px #000; letter-spacing: 2px; }
+        h1.main-title { color: #ff0000; font-size: 56px; margin: 0; text-shadow: 3px 3px 0px #000; letter-spacing: 2px; }
         h2.subtitle { color: #ffff00; font-size: 28px; margin: 5px 0 0 0; text-shadow: 2px 2px 0px #000; }
-        .leaderboard-panel { width: 440px; height: 270px; background: rgba(0, 0, 0, 0.8); border: 2px solid #ffcc00; border-radius: 8px; padding: 10px; text-align: left; font-size: 12px; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
+        .leaderboard-panel { width: 440px; height: 240px; background: rgba(0, 0, 0, 0.8); border: 2px solid #ffcc00; border-radius: 8px; padding: 10px; text-align: left; font-size: 12px; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); }
         .leaderboard-panel h3 { margin: 0 0 6px 0; color: #ffcc00; border-bottom: 1px solid #444; padding-bottom: 4px; font-size: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         .leaderboard-tabs { display: flex; gap: 2px; margin-bottom: 6px; flex-wrap: wrap; }
         .tab-btn { flex: 1; min-width: 45px; padding: 4px 1px; font-size: 9px; font-weight: bold; background: #333; color: #ccc; border: 1px solid #555; cursor: pointer; border-radius: 4px; transition: all 0.2s; text-align: center; }
         .tab-btn.active { background: #ffcc00; color: #000; border-color: #ffcc00; }
         .tab-content { flex: 1; overflow-y: auto; line-height: 1.4; color: #eee; padding-right: 4px; }
-        .update-log { width: 340px; height: 270px; background: rgba(0, 0, 0, 0.75); border: 2px solid #555; border-radius: 8px; padding: 12px; overflow-y: auto; text-align: left; font-size: 13px; line-height: 1.5; }
+        .update-log { width: 340px; height: 240px; background: rgba(0, 0, 0, 0.75); border: 2px solid #555; border-radius: 8px; padding: 12px; overflow-y: auto; text-align: left; font-size: 13px; line-height: 1.5; }
         .update-log h3 { margin-top: 0; margin-bottom: 8px; color: #00ffcc; border-bottom: 1px solid #444; padding-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         .global-item { display: flex; justify-content: space-between; background: #222; margin-bottom: 4px; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #ffcc00; font-size: 11px; }
         .global-item:nth-child(1) { border-color: #ffd700; background: rgba(255, 215, 0, 0.2); font-weight: bold;}
         .global-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.2); }
         .global-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.2); }
-        .modes-list { display: flex; flex-direction: column; gap: 15px; align-items: center; }
-        .btn { padding: 12px 35px; font-size: 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; background: #333; color: white; transition: all 0.2s; min-width: 280px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+        .modes-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 55vh;
+            overflow-y: auto;
+            padding: 8px;
+            justify-items: center;
+        }
+
+        .btn { padding: 12px 20px; font-size: 17px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; background: #333; color: white; transition: all 0.2s; width: 100%; min-width: 0; max-width: 340px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .btn:hover { transform: scale(1.05); background: #444; }
         .btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .btn:disabled:hover { transform: none; background: #333; }
@@ -51,6 +63,8 @@
         .btn-ascuns { border-left: 8px solid #2ecc71; }
         .btn-shooter { border-left: 8px solid #e67e22; }
         .btn-soviet { background: #cc0000 !important; color: #ffff00 !important; border: 3px solid #ffff00; box-shadow: 0 0 15px #ffcc00; text-shadow: 1px 1px 0px #000; border-left: 8px solid #ffff00; }
+        .btn-spatial { background: linear-gradient(135deg, #1a1a2e, #16213e) !important; color: #ff6b6b !important; border: 2px solid #ff6b6b; border-left: 8px solid #ff6b6b; box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); }
+        .btn-spatial:hover { background: linear-gradient(135deg, #16213e, #1a1a2e) !important; box-shadow: 0 0 25px rgba(255, 107, 107, 0.6); }
         .btn-back { background: #555; margin-top: 10px; font-size: 18px; padding: 10px 20px; }
         .end-title { font-size: 50px; font-weight: bold; margin-bottom: 30px; text-align: center; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
         .lose-screen .end-title { color: #ff3333; }
@@ -59,7 +73,7 @@
         .btn-credits:hover { background: #ffcc00; color: #000; }
         .btn-achievements { position: absolute; bottom: 20px; right: 160px; padding: 8px 16px; font-size: 13px; font-weight: bold; background: #333; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 4px; cursor: pointer; z-index: 20; transition: all 0.2s; }
         .btn-achievements:hover { background: #00ffcc; color: #000; }
-        .credits-modal, .achievements-modal { position: absolute; bottom: 60px; right: 20px; width: 380px; max-height: 480px; background: rgba(0, 0, 0, 0.92); border: 2px solid #ffcc00; border-radius: 8px; padding: 15px; z-index: 30; font-size: 12px; line-height: 1.4; box-shadow: 0 0 15px rgba(0,0,0,0.8); overflow-y: auto; }
+        .credits-modal, .achievements-modal { position: absolute; bottom: 60px; right: 20px; width: 420px; max-height: 480px; background: rgba(0, 0, 0, 0.92); border: 2px solid #ffcc00; border-radius: 8px; padding: 15px; z-index: 30; font-size: 12px; line-height: 1.4; box-shadow: 0 0 15px rgba(0,0,0,0.8); overflow-y: auto; }
         .achievements-modal { border-color: #00ffcc; }
         .credits-header, .achievements-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; margin-bottom: 10px; }
         .achievements-header { border-bottom-color: #00ffcc; }
@@ -93,6 +107,17 @@
         .ach-popup-title { color: #00ffcc; font-weight: bold; font-size: 13px; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
         .ach-popup-name { color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 2px; }
         .ach-popup-sub { color: #ffcc00; font-size: 12px; font-style: italic; }
+
+        @media (max-width: 768px) {
+            .modes-list {
+                grid-template-columns: 1fr;
+                max-height: 50vh;
+            }
+            h1.main-title { font-size: 40px; }
+            h2.subtitle { font-size: 20px; }
+            .menu-header-container { flex-direction: column; gap: 15px; }
+            .leaderboard-panel, .update-log { width: 95%; height: 200px; }
+        }
     </style>
 </head>
 <body>
@@ -169,6 +194,7 @@
                     <button id="tab-tetris" class="tab-btn" onclick="window.switchLeaderboardTab('tetris')">Tetris</button>
                     <button id="tab-ascuns" class="tab-btn" onclick="window.switchLeaderboardTab('ascuns')">Hide & Seek</button>
                     <button id="tab-shooter" class="tab-btn" onclick="window.switchLeaderboardTab('shooter')">Shooter</button>
+                    <button id="tab-spatial" class="tab-btn" onclick="window.switchLeaderboardTab('spatial')">Spatial</button>
                     <button id="tab-gulag" class="tab-btn" onclick="window.switchLeaderboardTab('gulag')">Gulag</button>
                 </div>
                 <div id="leaderboard-content" class="tab-content"></div>
@@ -176,17 +202,28 @@
 
             <div class="title-area">
                 <h1 class="main-title">Catalin e negru</h1>
-                <h2 class="subtitle">OUR HETES VERSION V5.3</h2>
+                <h2 class="subtitle">OUR HETES VERSION V6</h2>
             </div>
             
             <div class="update-log">
                 <h3>Update Log</h3>
+                <strong>V6: Modul Hetes Anti-furry Spatial</strong><br>
+                <strong>Robert a avut ideea acestui mod si este preferatul lui T.G.</strong><br>
+                modul este inspirat dupa vechiul mod "Modul Skibidi Hetes" de pe jocul original<br>
+                ideea modului este si din ura lui Hetus fata de Boykisser<br>
+                esti Hetes Anti-furry Spatial si trebuie sa distrugi Boykisseri, navele lor si boss<br>
+                4 melodii pe baza valului actual >:3<br>
+                tipuri de inamici diferiti , ajungand pana la valul 35<br>
+                noi achievements<br>
+                cutscene,achievements si zona secreta la noul mod, care necesita un achievement :3<br>
+                <strong>cred ca Hetus si-ar dori sa cenzurez Boykisser, dar nici gand ca fac asta >:3</strong><br><br><br>
                 <strong>V5.3: Modul Astro Hetes</strong><br>
                 modul shooter este acum impartit pe mai multe categorii si meniuri<br>
                 te poti juca ca Astro Hetes unde trebuie sa te lupti cu inamicii<br>
                 acest mod va avea in curand mai multe lucruri<br>
                 urmeaza update-uri masive la modul Shooter, Gulag, Sandbox si noi moduri<br><br>
                 <strong>V5: Modul Hide And Seek</strong><br>
+                <strong>Robert a avut ideea de mod, iar Hetes Gydus de jumpscare</strong><br>
                 are 2 moduri: Singleplayer (cu NPC) si Multiplayer, unde ai sansa de a fi seeker<br>
                 sistem de achivements pentru a putea obtine unele lucruri<br>
                 mecanism de a completa un puzzle la generator pentru o viata in plus<br><br>
@@ -228,12 +265,13 @@
 
         <div class="modes-list">
             <button class="btn btn-classic" onclick="openClassicMenu()">Modul Clasic</button>
+            <button class="btn btn-ascuns" onclick="if(window.startHideAndSeekMode) window.startHideAndSeekMode(); else if(window.openAscunsMenu) window.openAscunsMenu();">Modul Hide And Seek</button>
             <button class="btn btn-aura" onclick="startAuraMode()">Modul Aura Hetes</button>
+            <button class="btn btn-shooter" onclick="if(window.openShootMenu) window.openShootMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
+            <button class="btn btn-spatial" onclick="window.openSpaceShooterMenu()">Modul Hetes Anti-furry Spatial</button>
+            <button id="btn-gulag-escape" class="btn btn-soviet" onclick="window.startGulagSession()">Modul Gulag Escape</button>
             <button class="btn btn-aura" style="border-left-color: #e17055;" onclick="window.startSandboxMode()">Modul Sandbox</button>
             <button class="btn btn-tetris" onclick="if(window.openTetrisMenu) window.openTetrisMenu(); else if(window.tetrisMenu) window.tetrisMenu();">Modul Tetris</button>
-            <button class="btn btn-ascuns" onclick="if(window.startHideAndSeekMode) window.startHideAndSeekMode(); else if(window.openAscunsMenu) window.openAscunsMenu();">Modul Hide And Seek</button>
-            <button class="btn btn-shooter" onclick="if(window.openShootMenu) window.openShootMenu(); else if(window.shMenu) window.shMenu();">Modul Shooter</button>
-            <button id="btn-gulag-escape" class="btn btn-soviet" onclick="window.startGulagSession()">Modul Gulag Escape</button>
         </div>
 
         <button class="btn-credits" onclick="toggleCredits()">Credite</button>
@@ -264,13 +302,20 @@
                 <div>День Победы Ayden George - remix (Meniu)</div>
                 <div>Священная война Sp00n.exe - 8 bit remix (Modul Shooter)</div>
                 <div>Тёмная ночь - The Sour Kraut - instrumental pian (Modul Shooter pierdut..)</div>
-                <div>Тёмная ночь - Ayden George - remix (reverb by T.G.) (Modul Gulag)</div>
+                <div>Тёмная ночь - Ayden George - remix(Modul Gulag)</div>
                 <div>Патриотическая песня - Forte Republic - Sovietwave Remix (Modul Gulag)</div>
                 <div>Game Boy Tetris Music A - 071047 (Modul Tetris Original)</div>
                 <div>Tetris Theme - Arsenhoz - Orchestral cover (Modul Tetris Zidul Berlinului)</div>
-                <div>Ультрамарин - Naukograd (reverb by T.G.) (Modul Sandbox)</div>
+                <div>Ультрамарин - Naukograd(Modul Sandbox)</div>
                 <div>Horizon - Paweł Błaszczak (Modul Hide And Seek , Modurile Skibidi)</div>
-
+                <div>И вновь продолжается бой - Kirill Schoppenboer - 8 Bit remix (Modul Hetes Anti-furry Spatial)</div>
+                <div>The Battle is Won - Ayden George (Lenin is Young Again Remix) (Modul Hetes Anti-furry Spatial)</div>
+                <div>The Battle Continues - И вновь продолжается бой - Tovarish Lew -  Rare Instrumental Version (Modul Hetes Anti-furry Spatial)</div>
+                <div>И вновь продолжается бой - A. Pakhmutova - Cantaret: L. Leshenko (1974) (Modul Hetes Anti-furry Spatial)</div>
+                <div>Burgundian Lullaby - Ayden George Remix (Modul Hetes Anti-furry Spatial - Victorie)</div>
+                <div>Anthem of the USSR – Sovietwave Version (Modul Hetes Anti-furry Spatial - Înfrângere)</div>
+                <br>
+                <div>Unele melodii sunt modificate(pitch,viteza sau reverb) de catre Tovarisch Gabi</div>
                 <br>
                 <div class="credits-section-title">Music player Gopnik Hardbass</div>
                 <div>Наш гимн - Hard Bass School</div>
@@ -289,7 +334,7 @@
         </div>
     </div>
 
-    <!-- ===================== MODUL SHOOTER: MENIU PRINCIPAL (3 BUTOANE) ===================== -->
+    <!-- SHOOTER MAIN MENU -->
     <div id="sh-main-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
         <div class="menu-header-container">
             <div class="title-area">
@@ -304,7 +349,6 @@
         </div>
     </div>
 
-    <!-- ===================== MODUL SHOOTER SOVIETIC (2 BUTOANE) ===================== -->
     <div id="sh-soviet-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
         <div class="menu-header-container">
             <div class="title-area">
@@ -319,7 +363,6 @@
         </div>
     </div>
 
-    <!-- ===================== SURVIVAL DIFICULTATE (4 BUTOANE) ===================== -->
     <div id="sh-survival-diff-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
         <div class="menu-header-container">
             <div class="title-area">
@@ -336,7 +379,6 @@
         </div>
     </div>
 
-    <!-- ===================== MODUL SHOOTER SKIBIDI (3 BUTOANE) ===================== -->
     <div id="sh-skibidi-menu" class="screen hidden" style="background: rgba(15, 15, 20, 0.97); z-index: 50;">
         <div class="menu-header-container">
             <div class="title-area">
@@ -352,7 +394,6 @@
         </div>
     </div>
 
-    <!-- ===================== MODUL ASTRO HETES (4 DIFICULTĂȚI) ===================== -->
     <div id="sh-astro-menu" class="screen hidden" style="background: rgba(10, 0, 20, 0.97); z-index: 50; flex-direction: column; padding: 20px;">
         <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
             <h1 style="color: #00ffcc; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ASTRO HETES</h1>
@@ -384,7 +425,6 @@
         </div>
     </div>
 
-    <!-- PANOU ARSENAL SOVIETIC -->
     <div id="sh-arsenal" class="screen hidden" style="background: rgba(15, 15, 20, 0.95); display: flex; flex-direction: column; padding: 20px; z-index: 50;">
         <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1200px; margin-bottom: 20px; align-items: center;">
             <h1 style="color: #e67e22; margin: 0; font-size: 36px; text-shadow: 2px 2px #000;">ARSENAL & SKINURI SHOOTER SOVIETIC</h1>
@@ -475,7 +515,7 @@
     </div>
 </div>
 
-<!-- Scripts (ordinea contează) -->
+<script src="boyspacer.js"></script>
 <script src="sandbox.js"></script>
 <script src="astro-hetes.js"></script>
 <script src="shoot.js"></script>
@@ -579,6 +619,40 @@
                         else window.gameStats.shooter = Object.assign(window.gameStats.shooter || {}, migrated);
                     }
                     if (data.stats.tetris && window.mergeTetrisStats) window.mergeTetrisStats(data.stats.tetris);
+                    
+                    // Space Shooter merge
+                    if (data.stats.spaceShooter) {
+                        window.gameStats.spaceShooter = Object.assign({ 
+                            maxScore: 0, 
+                            totalBoykissersDefeated: 0,
+                            achievements: {},
+                            bestRun: { score: 0, wave: 0, kills: 0, victory: false },
+                            victories: 0
+                        }, window.gameStats.spaceShooter || {});
+                        
+                        if (data.stats.spaceShooter.maxScore > (window.gameStats.spaceShooter.maxScore || 0)) {
+                            window.gameStats.spaceShooter.maxScore = data.stats.spaceShooter.maxScore;
+                        }
+                        if (data.stats.spaceShooter.totalBoykissersDefeated > (window.gameStats.spaceShooter.totalBoykissersDefeated || 0)) {
+                            window.gameStats.spaceShooter.totalBoykissersDefeated = data.stats.spaceShooter.totalBoykissersDefeated;
+                        }
+                        if (data.stats.spaceShooter.achievements) {
+                            window.gameStats.spaceShooter.achievements = Object.assign(
+                                window.gameStats.spaceShooter.achievements || {},
+                                data.stats.spaceShooter.achievements
+                            );
+                        }
+                        if (data.stats.spaceShooter.bestRun) {
+                            const cloudBest = data.stats.spaceShooter.bestRun;
+                            const localBest = window.gameStats.spaceShooter.bestRun || { score: 0 };
+                            if ((cloudBest.score || 0) > (localBest.score || 0)) {
+                                window.gameStats.spaceShooter.bestRun = cloudBest;
+                            }
+                        }
+                        if (data.stats.spaceShooter.victories > (window.gameStats.spaceShooter.victories || 0)) {
+                            window.gameStats.spaceShooter.victories = data.stats.spaceShooter.victories;
+                        }
+                    }
                     localStorage.setItem('catalin_game_stats', JSON.stringify(window.gameStats));
                 }
             } else {
@@ -598,6 +672,13 @@
             stats.shooter.survival = stats.shooter.survival || { kills: 0, wins: 0, completions: 0 };
             if ((stats.shooter.survival.kills || 0) > (stats.shooter.kills || 0)) stats.shooter.kills = stats.shooter.survival.kills;
             if ((stats.shooter.survival.wins || 0) > (stats.shooter.wins || 0)) stats.shooter.wins = stats.shooter.survival.wins;
+            stats.spaceShooter = stats.spaceShooter || { 
+                maxScore: 0, 
+                totalBoykissersDefeated: 0,
+                achievements: {},
+                bestRun: { score: 0, wave: 0, kills: 0, victory: false },
+                victories: 0
+            };
 
             let tOrig = stats.tetrisOriginalScore || 0;
             let tBerl = stats.tetrisBerlinScore || 0;
@@ -612,7 +693,8 @@
                                        (stats.gulagEscapes || 0) * 2000 +
                                        tetrisTotal +
                                        ((stats.hideAndSeek && stats.hideAndSeek.hiderWins) || 0) * 300 +
-                                       ((stats.shooter && stats.shooter.score) || 0);
+                                       ((stats.shooter && stats.shooter.score) || 0) +
+                                       ((stats.spaceShooter && stats.spaceShooter.maxScore) || 0);
 
             await setDoc(doc(db, "users", auth.currentUser.uid), {
                 email: auth.currentUser.email,
@@ -659,8 +741,11 @@
                     let shAlliance = sh.allianceSkibidi || { kills: 0, completions: 0 };
                     let shUnion = sh.unionAstro || { kills: 0, completions: 0 };
                     let shAstro = sh.astroHetes || { kills: 0, completions: { easy: 0, medium: 0, hard: 0, soviet: 0 } };
+                    
+                    let ssData = data.stats?.spaceShooter || { maxScore: 0, totalBoykissersDefeated: 0, victories: 0 };
+                    let ssBestRun = ssData.bestRun || { score: 0, wave: 0, victory: false };
 
-                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + tScore + (hsWins * 300) + (sh.score || 0);
+                    let calcTotal = (aRec * 10) + (eW * 50) + (mW * 150) + (hW * 350) + (sW * 1000) + (aComp * 500) + (gEsc * 2000) + tScore + (hsWins * 300) + (sh.score || 0) + (ssData.maxScore || 0);
 
                     window.globalUsersList.push({
                         name: data.displayName,
@@ -685,7 +770,12 @@
                         shooterAstroEasy: shAstro.completions?.easy || 0,
                         shooterAstroMedium: shAstro.completions?.medium || 0,
                         shooterAstroHard: shAstro.completions?.hard || 0,
-                        shooterAstroSoviet: shAstro.completions?.soviet || 0
+                        shooterAstroSoviet: shAstro.completions?.soviet || 0,
+                        spaceShooterScore: ssData.maxScore || 0,
+                        spaceShooterBoykissers: ssData.totalBoykissersDefeated || 0,
+                        spaceShooterVictories: ssData.victories || 0,
+                        spaceShooterBestWave: ssBestRun.wave || 0,
+                        spaceShooterBestVictory: ssBestRun.victory || false
                     });
                 }
             });
@@ -763,7 +853,6 @@
 
 <!-- Script principal joc -->
 <script>
-    // ✅ FIX: openShootMenu duce la meniul principal shooter (3 butoane)
     window.openShootMenu = function() {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         const mainMenu = document.getElementById('sh-main-menu');
@@ -800,6 +889,20 @@
         tetrisBerlinScore: 0,
         hideAndSeek: { hiderWins: 0, bossKills: 0, seekerVictims: 0 },
         achievements: { astroHetesUnlocked: false },
+        spaceShooter: { 
+            maxScore: 0, 
+            totalBoykissersDefeated: 0,
+            achievements: {
+                maiorDefeated: false,
+                maresalDefeated: false,
+                kills5000: false,
+                astroGeneralDefeated: false,
+                secretarGeneralDefeated: false,
+                totalVictory: false
+            },
+            bestRun: { score: 0, wave: 0, kills: 0, victory: false },
+            victories: 0
+        },
         shooter: {
             kills: 0, wins: 0, score: 0,
             survival: { kills: 0, wins: 0, completions: 0 },
@@ -815,6 +918,21 @@
             window.gameStats = Object.assign(window.gameStats, parsed);
             window.gameStats.hideAndSeek = Object.assign({ hiderWins:0, bossKills:0, seekerVictims:0 }, window.gameStats.hideAndSeek || {});
             window.gameStats.achievements = Object.assign({ astroHetesUnlocked:false }, window.gameStats.achievements || {});
+            window.gameStats.spaceShooter = Object.assign({ 
+                maxScore: 0, 
+                totalBoykissersDefeated: 0,
+                achievements: { maiorDefeated: false, maresalDefeated: false, kills5000: false, astroGeneralDefeated: false, secretarGeneralDefeated: false, totalVictory: false },
+                bestRun: { score: 0, wave: 0, kills: 0, victory: false },
+                victories: 0
+            }, window.gameStats.spaceShooter || {});
+            window.gameStats.spaceShooter.achievements = Object.assign(
+                { maiorDefeated: false, maresalDefeated: false, kills5000: false, astroGeneralDefeated: false, secretarGeneralDefeated: false, totalVictory: false },
+                window.gameStats.spaceShooter.achievements || {}
+            );
+            window.gameStats.spaceShooter.bestRun = Object.assign(
+                { score: 0, wave: 0, kills: 0, victory: false },
+                window.gameStats.spaceShooter.bestRun || {}
+            );
             window.gameStats.shooter = Object.assign({
                 kills:0, wins:0, score:0,
                 survival:{kills:0,wins:0,completions:0},
@@ -845,7 +963,6 @@
     }
     window.saveStats = saveStats;
 
-    // ============ SHOOTER MENUS ============
     window.openSovietShooterMenu = function() {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById('sh-soviet-menu').classList.remove('hidden');
@@ -900,9 +1017,13 @@
     window.updateAchievementsUI = function() {
         const list = document.getElementById('achievements-list');
         if (!list) return;
-        const unlocked = window.gameStats.achievements?.astroHetesUnlocked;
-        if (unlocked) {
-            list.innerHTML = `
+        
+        let html = '';
+        
+        // Astro Hetes Achievement
+        const astroUnlocked = window.gameStats.achievements?.astroHetesUnlocked;
+        if (astroUnlocked) {
+            html += `
                 <div class="achievement-card">
                     <img src="hetes astro-jumpscare.jpg" alt="">
                     <div class="achievement-info">
@@ -914,7 +1035,7 @@
                 </div>
             `;
         } else {
-            list.innerHTML = `
+            html += `
                 <div class="achievement-card locked">
                     <div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🔒</div>
                     <div class="achievement-info">
@@ -925,14 +1046,148 @@
                 </div>
             `;
         }
+        
+        // Space Shooter - Maior Achievement (fost Comandant)
+        const ss = window.gameStats.spaceShooter || {};
+        const ssAch = ss.achievements || {};
+        
+        if (ssAch.maiorDefeated) {
+            html += `
+                <div class="achievement-card">
+                    <img src="boykisser-commander-achiv.png" alt="">
+                    <div class="achievement-info">
+                        <div class="achievement-name">Maiorul Boykisser se intoarce :3</div>
+                        <div class="achievement-desc">Invinge-l pe Maiorul Boykisser la Hetes Anti-furry</div>
+                        <div class="achievement-desc">Good boy dyadya :3</div>
+                        <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="achievement-card locked">
+                    <div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Maiorul Boykisser se intoarce :3</div>
+                        <div class="achievement-desc">Învinge-l pe Maiorul Boykisser la Hetes Anti-furry</div>
+                        <div class="achievement-lock">Blocat</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Space Shooter - Mareșal Achievement (fost Lider)
+        if (ssAch.maresalDefeated) {
+            html += `
+                <div class="achievement-card">
+                    <img src="Triumf cosmic peste ruinele spațiale.png" alt="">
+                    <div class="achievement-info">
+                        <div class="achievement-name">Distrugerea Boykisser - lovitura de stat din URSS</div>
+                        <div class="achievement-desc">Invinge Mareșalul Boykisser la Hetes Anti-furry</div>
+                        <div class="achievement-desc">Good boy dyadya :3</div>
+                        <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="achievement-card locked">
+                    <div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Distrugerea Boykisser - lovitura de stat din URSS</div>
+                        <div class="achievement-desc">Învinge Mareșalul Boykisser la Hetes Anti-furry</div>
+                        <div class="achievement-lock">Blocat</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Space Shooter - 5000 kills Achievement
+        if (ssAch.kills5000) {
+            html += `
+                <div class="achievement-card">
+                    <img src="Comandantul Conquistei Galactice.png" alt="">
+                    <div class="achievement-info">
+                        <div class="achievement-name">Ura Heteseasca Sumprema</div>
+                        <div class="achievement-desc">Invinge 5000 Boykisseri</div>
+                        <div class="achievement-desc">Dmitri Iazov este traumatizat de tine, Hetes...</div>
+                        <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="achievement-card locked">
+                    <div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🔒</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">Ura Heteseasca Sumprema</div>
+                        <div class="achievement-desc">Învinge 5000 Boykisseri</div>
+                        <div class="achievement-lock">Blocat</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 🎯 SECRET achievements - apar DOAR dacă kills5000 e deblocat
+        if (ssAch.kills5000) {
+            // Astro General Boykisser (secret)
+            if (ssAch.astroGeneralDefeated) {
+                html += `
+                    <div class="achievement-card">
+                        <img src="hetus-vs-astro.jpeg" alt="">
+                        <div class="achievement-info">
+                            <div class="achievement-name">Astro Generalul Boykisser nu se va intoarce...</div>
+                            <div class="achievement-desc">Învinge-l pe Astro General Boykisser</div>
+                            <div class="achievement-desc">Good boy dyadya :3</div>
+                            <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                        </div>
+                    </div>
+                `;
+            }
+            // Tovarășul Secretar General Boykisser (secret)
+            if (ssAch.secretarGeneralDefeated) {
+                html += `
+                    <div class="achievement-card">
+                        <img src="sad-boykissers3;.jpeg" alt="">
+                        <div class="achievement-info">
+                            <div class="achievement-name">Distrugerea Tovarasiei Boykisser 3:</div>
+                            <div class="achievement-desc">Învinge-l pe Tovarasul Secretar General Boykisser...</div>
+                            <div class="achievement-desc">Good boy dyadya :3</div>
+                            <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                        </div>
+                    </div>
+                `;
+            }
+            // Anihilarea Boykisser - Victoria Supremă (secret)
+            if (ssAch.totalVictory) {
+                html += `
+                    <div class="achievement-card">
+                        <img src="hetus-total-victory.png" alt="">
+                        <div class="achievement-info">
+                            <div class="achievement-name">Anihilarea Boykisser - destramarea planetara</div>
+                            <div class="achievement-desc">Ai invins pe toti Boykisseri la Hetes Anti-Furry, partea secreta</div>
+                            <div class="achievement-desc">Acestea toate Hetes?! Pentru ce?... Iazov nu te va lasa sa scapi...</div>
+                            <div class="achievement-lock" style="color:#2ecc71;">✅ Deblocat</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        list.innerHTML = html;
     };
     window.updateAchievementsUI();
 
-    window.showAchievementPopup = function(name, sub) {
+    // 🎯 FIX: showAchievementPopup acceptă acum și imaginea
+    window.showAchievementPopup = function(name, sub, imgSrc) {
         const popup = document.getElementById('achievement-popup');
         if (!popup) return;
         document.querySelector('.ach-popup-name').textContent = name || 'Hetes nu este asa OP..';
         document.querySelector('.ach-popup-sub').textContent = sub || 'Good boy dyadya :3';
+        const imgEl = document.getElementById('ach-popup-img');
+        if (imgEl && imgSrc) {
+            imgEl.src = imgSrc;
+        }
         popup.classList.add('show');
         setTimeout(() => popup.classList.remove('show'), 6000);
     };
@@ -948,15 +1203,16 @@
         window.gameStats.achievements.astroHetesUnlocked = true;
         if (typeof saveStats === 'function') saveStats();
         if (typeof window.showAchievementPopup === 'function') {
-            window.showAchievementPopup('Hetes nu este asa OP..','Good boy dyadya :3');
+            window.showAchievementPopup('Hetes nu este asa OP..','Good boy dyadya :3','hetes astro-jumpscare.jpg');
        }
         if (typeof window.updateAchievementsUI === 'function') window.updateAchievementsUI();
     };
 
     window.switchLeaderboardTab = function(tab) {
         currentLeaderboardTab = tab;
-        ['general','clasic','aura','tetris','ascuns','shooter','gulag','personal'].forEach(t => {
-            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        ['general','clasic','aura','tetris','ascuns','shooter','spatial','gulag','personal'].forEach(t => {
+            const el = document.getElementById('tab-' + t);
+            if (el) el.classList.toggle('active', t === tab);
         });
         window.updateLeaderboardUI();
     }
@@ -975,6 +1231,8 @@
             let shAll = sh.allianceSkibidi || { kills:0, completions:0 };
             let shUni = sh.unionAstro || { kills:0, completions:0 };
             let shAst = sh.astroHetes || { kills:0, completions:{easy:0,medium:0,hard:0,soviet:0} };
+            let ss = window.gameStats.spaceShooter || { maxScore: 0, totalBoykissersDefeated: 0, victories: 0, bestRun: {} };
+            let ssBest = ss.bestRun || { score: 0, wave: 0, victory: false };
 
             content.innerHTML = `
                 <strong style="color:#00ffcc">Numele tău: ${window.currentUserDisplayName || "Neresetat"}</strong><hr style="border:0; border-top:1px solid #444; margin:5px 0;">
@@ -1002,6 +1260,25 @@
                         • <span style="color:#e74c3c">Union Astro: ${shUni.kills || 0} kill / ${shUni.completions || 0} comp</span><br>
                         • <span style="color:#00ffcc">Astro Hetes: ${shAst.kills || 0} kill / Ușor: ${shAst.completions?.easy || 0}</span>
                     </div>
+                </div>
+                <div style="margin-top: 8px; border-top: 1px solid #444; padding-top: 6px;">
+                    <strong style="color:#ff6b6b;">🛸 Hetes Anti-furry Spatial:</strong><br>
+                    • <span style="color:#ffcc00">Scor Maxim: ${ss.maxScore || 0}</span><br>
+                    • <span style="color:#ff6b6b">Boykisseri învinși (total): ${ss.totalBoykissersDefeated || 0}</span><br>
+                    • <span style="color:#ffd700">Victorii totale: ${ss.victories || 0}</span><br>
+                    • <span style="color:#00ffff">Locotenenti învinși: ${ss.totalLocotenentiDefeated || 0}</span><br>
+                    • <span style="color:#e74c3c">Maiori învinși: ${ss.totalMaioriDefeated || 0}</span><br>
+                    • <span style="color:#ff8800">Coloneli învinși: ${ss.totalColoneliInvinsi || 0}</span><br>
+                    • <span style="color:#ff00cc">Mareșali învinși: ${ss.totalMaresaliDefeated || 0}</span><br>
+                    ${ss.achievements?.kills5000 ? `
+                    • <span style="color:#00ffff">🚢 Mareată Navă învinsă: ${ss.totalMareataNavaDefeated || 0}</span><br>
+                    • <span style="color:#ff00aa">👽 Astro General învins: ${ss.totalAstroGeneralDefeated || 0}</span><br>
+                    • <span style="color:#ff0000">☭ Secretar General învins: ${ss.totalSecretarGeneralDefeated || 0}</span><br>
+                    • <span style="color:#ffd700">👑 Victorii Supreme: ${ss.totalSupremeVictories || 0}</span><br>
+                    ` : ''}
+                    <strong style="color:#00ffcc;">🏆 Best Run:</strong><br>
+                    • Scor: ${ssBest.score || 0}<br>
+                    • Val: ${ssBest.wave || 0}${ssBest.victory ? ' <span style="color:#ffd700">👑 VICTORIE</span>' : ''}<br>
                 </div>
             `;
             return;
@@ -1048,6 +1325,16 @@
                     <div style="width:100%;color:#3498db;">Alliance vs Skibidi: ${player.shooterAllianceKills} kill / ${player.shooterAllianceCompletions || 0} comp</div>
                     <div style="width:100%;color:#e74c3c;">Union vs Astro: ${player.shooterUnionKills} kill / ${player.shooterUnionCompletions || 0} comp</div>
                     <div style="width:100%;color:#00ffcc;">Astro Hetes: ${player.shooterAstroKills} kill (U:${player.shooterAstroEasy} M:${player.shooterAstroMedium} G:${player.shooterAstroHard} S:${player.shooterAstroSoviet})</div>
+                </div>`;
+            });
+        } else if (currentLeaderboardTab === 'spatial') {
+            sortedList.sort((a, b) => (b.spaceShooterScore || 0) - (a.spaceShooterScore || 0));
+            sortedList.forEach((player, index) => {
+                const victoryBadge = player.spaceShooterBestVictory ? ' 👑' : '';
+                htmlStr += `<div class="global-item" style="flex-direction:column;align-items:flex-start;font-size:10px;">
+                    <div style="width:100%;"><strong>#${index + 1} ${player.name}${victoryBadge}</strong></div>
+                    <div style="width:100%;color:#ff6b6b;">Scor Maxim: <strong>${player.spaceShooterScore || 0}</strong> | Boykisseri învinși: <strong>${player.spaceShooterBoykissers || 0}</strong></div>
+                    <div style="width:100%;color:#ffd700;">Val Maxim: ${player.spaceShooterBestWave || 0} | Victorii: ${player.spaceShooterVictories || 0}</div>
                 </div>`;
             });
         } else if (currentLeaderboardTab === 'gulag') {
